@@ -9,15 +9,16 @@ public class AIS {
     private ArrayList<Antigen> antigens;
     private Antibody[] antibodies;
     private HashMap<String,ArrayList<Antigen>> antigenMap;
-    HashMap<String,double[][]> featureMap;
-    Random random;
+    private HashMap<String,double[][]> featureMap;
+    private HashMap<String, ArrayList<Antibody>> antibodyMap;
+    private Random random = new Random();
 
-    public AIS(ArrayList<Antigen> antigens, HashMap<String,ArrayList<Antigen>> antigenMap){
+    public AIS(ArrayList<Antigen> antigens, HashMap<String,ArrayList<Antigen>> antigenMap, HashMap<String, ArrayList<Antibody>> antibodyMap){
         //this.antibodies = antibodies;
         this.antigens = antigens;
         this.antigenMap = antigenMap;
         this.featureMap = new HashMap<>();
-        this.random = new Random();
+        this.antibodyMap = antibodyMap;
         initialisePopulation(100,antigens);
     }
 
@@ -28,10 +29,12 @@ public class AIS {
         for(String label:antigenMap.keySet()){
             createFeatureMap(antigenMap.get(label));
         }
+
         for(int i=0; i<populationSize;i++){
 
-            //Antibody antibody = new Antibody();
+
         }
+
         createAntibody(antigens.get(0).getLabel());
         this.antibodies = antibodies;
     }
@@ -65,21 +68,41 @@ public class AIS {
             featureMap.put(antigens.get(0).getLabel(),features);
         }*/
     }
+
+
     public Antibody createAntibody(String label){
         double[][] featureList = featureMap.get(label);
         double[] attributes = new double[featureList.length];
+
+        double maxAverage = 0;
+        double minAverage = 0;
 
         for(int i=0; i<featureMap.get(label).length;i++){
             double[] featureBounds = featureMap.get(label)[i];
             double maxValue = featureBounds[1]*1.1;
             double minValue = featureBounds[0]*0.9;
+
+            maxAverage += maxValue;
+            minAverage += minValue;
+
             attributes[i] = minValue + (maxValue - minValue)*random.nextDouble();
-            
             //System.out.println("maxvalue "+ maxValue+" "+"minvalue "+minValue+"random in range "+attributes[i]);
         }
 
-        //Antibody antibody = new Antibody(attributes,);
+        minAverage = minAverage/featureMap.get(label).length;
+        maxAverage = maxAverage/featureMap.get(label).length;
+        double radius = minAverage + (maxAverage - minAverage) * random.nextDouble();
+        Antibody antibody = new Antibody(attributes, radius, label);
+
+        if(this.antibodyMap.containsKey(label)){
+            this.antibodyMap.get(label).add(antibody);
+
+        }else{
+            this.antibodyMap.put(label, new ArrayList<Antibody>(){ { add(antibody); } } );
+        }
+
         return null;
+
     }
     public ArrayList<Antigen> getAntigens() {
         return antigens;
