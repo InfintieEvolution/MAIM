@@ -12,31 +12,53 @@ public class AIS {
     private HashMap<String,double[][]> featureMap;
     private HashMap<String, ArrayList<Antibody>> antibodyMap;
     private Random random = new Random();
+    private int populationSize;
 
-    public AIS(ArrayList<Antigen> antigens, HashMap<String,ArrayList<Antigen>> antigenMap, HashMap<String, ArrayList<Antibody>> antibodyMap){
+    public AIS(ArrayList<Antigen> antigens, HashMap<String,ArrayList<Antigen>> antigenMap,int populationSize){
         //this.antibodies = antibodies;
         this.antigens = antigens;
         this.antigenMap = antigenMap;
         this.featureMap = new HashMap<>();
-        this.antibodyMap = antibodyMap;
-        initialisePopulation(100,antigens);
+        this.antibodyMap = new HashMap<>();
+        this.populationSize = populationSize;
+        initialisePopulation(this.populationSize);
     }
 
-    public void initialisePopulation(int populationSize, ArrayList<Antigen> antigens){
-        Antibody[] antibodies = new Antibody[populationSize];
+    public void initialisePopulation(int populationSize){
+        //Antibody[] antibodies = new Antibody[populationSize];
 
         //createAntibody(antigenMap.get())
+
+        int antibodyCount = 0;
         for(String label:antigenMap.keySet()){
+            if(antibodyCount >= populationSize){
+                break;
+            }
             createFeatureMap(antigenMap.get(label));
+
+            int labelCount = (int)(((double)this.antigenMap.get(label).size()/antigens.size())*populationSize);
+
+            for (int i=0;i<labelCount;i++){
+                if(this.antibodyMap.containsKey(label)){
+                    this.antibodyMap.get(label).add(createAntibody(label));
+
+                }else{
+                    this.antibodyMap.put(label, new ArrayList<>(){ { add(createAntibody(label));}});
+                }
+                antibodyCount++;
+            }
         }
 
-        for(int i=0; i<populationSize;i++){
+        if(antibodyCount < populationSize){
+            Antigen radnomAntigen = antigens.get(random.nextInt(antigens.size()));
+            String label = radnomAntigen.getLabel();
 
+            antibodyMap.get(label).add(createAntibody(label));
 
         }
-
-        createAntibody(antigens.get(0).getLabel());
-        this.antibodies = antibodies;
+        for(String label:antibodyMap.keySet()){
+            System.out.println(antibodyMap.get(label).size());
+        }
     }
 
     public void createFeatureMap(ArrayList<Antigen> antigens){
@@ -92,16 +114,8 @@ public class AIS {
         minAverage = minAverage/featureMap.get(label).length;
         maxAverage = maxAverage/featureMap.get(label).length;
         double radius = minAverage + (maxAverage - minAverage) * random.nextDouble();
-        Antibody antibody = new Antibody(attributes, radius, label);
 
-        if(this.antibodyMap.containsKey(label)){
-            this.antibodyMap.get(label).add(antibody);
-
-        }else{
-            this.antibodyMap.put(label, new ArrayList<Antibody>(){ { add(antibody); } } );
-        }
-
-        return null;
+        return new Antibody(attributes, radius, label);
 
     }
     public ArrayList<Antigen> getAntigens() {

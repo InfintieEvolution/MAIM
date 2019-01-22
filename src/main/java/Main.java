@@ -20,7 +20,7 @@ public class Main extends Application {
 
         DataSet dataSet = new DataSet("./DataSets/iris.data");
 
-        AIS ais = new AIS(dataSet.antigens,dataSet.antigenMap);
+        AIS ais = new AIS(dataSet.antigens,dataSet.antigenMap,100);
         /*for(Antigen antigen:dataSet.antigens){
             System.out.println(antigen);
         }*/
