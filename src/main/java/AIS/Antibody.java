@@ -17,21 +17,35 @@ public class Antibody {
     }
 
     public void calculateFitness(Antigen[] antigens){
-        double fitness = 0.0;
-
-        int i=0;
+        int wrongClassificationCount = 0;
+        int correctClassificationCount = 0;
+        double totalWeight = 0.0;
+        int boundAntigensCount =0;
         for (Antigen antigen:antigens){
           double distance = eucledeanDistance(this.features,antigen.getAttributes());
 
-          if (distance > this.radius){
-              //return;
-          }else{
-              System.out.println(distance);
-              i++;
+          if (distance <= this.radius){
+              boundAntigensCount +=1;
+              //Antibodies here is within the recognition zone
+
+              totalWeight += distance;
+              if(antigen.getLabel().equals(this.label)){
+                  correctClassificationCount +=1;
+              }else{
+                  wrongClassificationCount +=1;
+              }
           }
         }
-        System.out.println(i);
-        this.fitness = fitness;
+
+        if(boundAntigensCount == 0){
+            this.fitness = 0.0;
+        }else{
+            double accuracy = (double) correctClassificationCount/(correctClassificationCount+wrongClassificationCount);
+            this.fitness = accuracy * (boundAntigensCount/totalWeight);
+            /*System.out.println("accuracy "+accuracy);
+            System.out.println("fitness "+this.fitness);
+            System.out.println("-------------------------");*/
+        }
     }
 
     public double eucledeanDistance(double[] featureSet1, double[] featureSet2){
@@ -67,6 +81,14 @@ public class Antibody {
 
     public void setRadius(double radius) {
         this.radius = radius;
+    }
+
+    public double getFitness() {
+        return fitness;
+    }
+
+    public void setFitness(double fitness) {
+        this.fitness = fitness;
     }
 
     @Override
