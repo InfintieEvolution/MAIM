@@ -8,15 +8,18 @@ public class Antibody {
     private double radius;
     private String label;
     private double fitness;
+    private Antigen[] antigens;
 
-    public Antibody(double[] features, double radius, String label){
+    public Antibody(double[] features, double radius, String label, Antigen[] antigens){
         this.features = features;
         this.radius = radius;
         this.label = label;
         this.fitness = 0.0;
+        this.antigens = antigens;
+        this.calculateFitness();
     }
 
-    public void calculateFitness(Antigen[] antigens){
+    public void calculateFitness(){
         int wrongClassificationCount = 0;
         int correctClassificationCount = 0;
         double totalWeight = 0.0;
