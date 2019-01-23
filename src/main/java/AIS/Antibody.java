@@ -1,5 +1,6 @@
 package AIS;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Antibody {
@@ -9,6 +10,7 @@ public class Antibody {
     private String label;
     private double fitness;
     private Antigen[] antigens;
+    private ArrayList<Antigen> connectedAntigen;
 
     public Antibody(double[] features, double radius, String label, Antigen[] antigens){
         this.features = features;
@@ -16,7 +18,7 @@ public class Antibody {
         this.label = label;
         this.fitness = 0.0;
         this.antigens = antigens;
-        this.calculateFitness();
+        this.connectedAntigen = new ArrayList<>();
     }
 
     public void calculateFitness(){
@@ -28,6 +30,8 @@ public class Antibody {
           double distance = eucledeanDistance(this.features,antigen.getAttributes());
 
           if (distance <= this.radius){
+              antigen.getConnectedAntibodies().add(this);
+              connectedAntigen.add(antigen);
               boundAntigensCount +=1;
               //Antibodies here is within the recognition zone
 

@@ -68,7 +68,16 @@ public class AIS {
             }
         }
 
+        for (Antibody antibody:children){
+            antibody.calculateFitness();
+        }
+
         this.select(this.antibodies,children);
+
+        //clear the connected antibodies list for the next iteration
+        for(Antigen antigen:antigens){
+            antigen.setConnectedAntibodies(new ArrayList<>());
+        }
 
         String s = "";
         for (String label:antibodyMap.keySet()){
@@ -231,7 +240,10 @@ public class AIS {
             Antibody antibody = createAntibody(label);
             antibodyMap.get(label).add(antibody);
             antibodies[populationSize-1] = antibody;
+        }
 
+        for (Antibody antibody: antibodies){
+            antibody.calculateFitness();
         }
     }
 
