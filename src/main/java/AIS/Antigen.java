@@ -1,6 +1,7 @@
 package AIS;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Antigen {
 
@@ -27,6 +28,13 @@ public class Antigen {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    @Override
+    public String toString() {
+        return
+                "attributes=" + Arrays.toString(attributes) +
+                ", label='" + label + '\'';
     }
 }
 
