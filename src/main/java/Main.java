@@ -25,12 +25,13 @@ public class Main extends Application {
         primaryStage.setTitle("legendary-octo-sniffle");
 
 
-        DataSet dataSet = new DataSet("./DataSets/iris.data");
+        DataSet dataSet = new DataSet("./DataSets/iris.data",0.1);
 
-        AIS ais = new AIS(dataSet.antigens,dataSet.antigenMap,100, 0.1, 5);
+        AIS ais = new AIS(dataSet.trainingSet,dataSet.antigenMap,100, 0.1, 5);
         for(int i=0;i<100;i++){
             ais.iterate();
         }
+        ais.vote(dataSet.testSet);
         /*for(Antigen antigen:dataSet.antigens){
             System.out.println(antigen);
         }*/
