@@ -4,27 +4,30 @@ import AIS.Antibody;
 import AIS.Antigen;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 public class Graph extends Pane {
 
     private final Pane depotPane, customerPane, routePane;
-    private final int minX, minY;
+    private int minX, minY, maxX, maxY;
     private final double height, factorX, factorY;
 
     private final Color[] colors = {Color.GREEN, Color.RED, Color.ORANGE, Color.BLUE, Color.PURPLE, Color.PINK, Color.AQUA, Color.GOLDENROD, Color.LIME, Color.DARKRED, Color.DARKBLUE, Color.DARKOLIVEGREEN};
 
-    private Antigen[] antigens;
-    private Antibody[] antibodies;
-    private final HashMap<Antibody, Circle> antibodyCircleHashMap;
+    private HashMap<String, ArrayList<Antigen>> antigenMap;
+    private HashMap<String, ArrayList<Antibody>> antibodyMap;
+//    private final HashMap<Antibody, Circle> antibodyCircleHashMap;
+    private HashMap<String, double[][]> featureMap;
+    private String[] randomColors;
 
-
-    public Graph(double width, double height, int minX, int minY, int maxX, int maxY) {
+    public Graph(double width, double height, HashMap<String, double[][]> featureMap, HashMap<String, ArrayList<Antibody>> antibodyMap) {
         super();
         depotPane = new Pane();
         customerPane = new Pane();
@@ -32,45 +35,125 @@ public class Graph extends Pane {
         super.setMinSize(width, height);
         super.setMaxSize(width, height);
         super.getChildren().addAll(routePane, depotPane, customerPane);
+        this.featureMap = featureMap;
+        this.antibodyMap = antibodyMap;
 
-        this.minX = minX;
-        this.minY = minY;
+        setRandomColors(this.featureMap);
+        setBounds(featureMap);
+
         this.height = height;
-        this.factorX = width / Math.abs(maxX - minX);
-        this.factorY = height / Math.abs(maxY - minY);
+        this.factorX = width / Math.abs(this.maxX - this.minX);
+        this.factorY = height / Math.abs(this.maxY - this.minY);
 
-        antibodyCircleHashMap = new HashMap<>();
+//        antibodyCircleHashMap = new HashMap<>();
     }
 
-    public void setAntigens(Antigen[] antigens) {
-        this.antigens = antigens;
+    public void setAntigens(HashMap<String, ArrayList<Antigen>> antigenMap) {
+        this.antigenMap = antigenMap;
         depotPane.getChildren().clear();
-
-        for (Antigen antigen: antigens) {
-            Rectangle depotRectangle = new Rectangle(10,10);
-            depotRectangle.setLayoutX(-5);
-            depotRectangle.setLayoutY(-5);
-            depotRectangle.setTranslateX(mapXToGraph(antigen.getAttributes()[0]));
-            depotRectangle.setTranslateY(mapYToGraph(antigen.getAttributes()[1]));
-            depotRectangle.setStyle("-fx-fill: #0ac5d4");
-            depotPane.getChildren().add(depotRectangle);
+        int iteration = 0;
+        for (String label : antigenMap.keySet()) {
+            String color = this.randomColors[iteration];
+            for (Antigen antigen : antigenMap.get(label)) {
+                Rectangle antigenRectangle = new Rectangle(10, 10);
+                antigenRectangle.setLayoutX(-5);
+                antigenRectangle.setLayoutY(-5);
+                antigenRectangle.setTranslateX(mapXToGraph(antigen.getAttributes()[0]));
+                antigenRectangle.setTranslateY(mapYToGraph(antigen.getAttributes()[1]));
+                antigenRectangle.setStyle("-fx-fill: " + color);
+                depotPane.getChildren().add(antigenRectangle);
+            }
+            iteration++;
         }
     }
 
-    public void setAntibodies(Antibody[] antibodies) {
-        this.antibodies = antibodies;
+    public void setAntibodies(HashMap<String, ArrayList<Antibody>> antibodyMap) {
+        this.antibodyMap = antibodyMap;
         customerPane.getChildren().clear();
-
-        for (Antibody antibody : antibodies) {
-            Circle customerCircle = new Circle(5);
-            customerCircle.setTranslateX(mapXToGraph(antibody.getFeatures()[0]));
-            customerCircle.setTranslateY(mapYToGraph(antibody.getFeatures()[1]));
-            antibodyCircleHashMap.put(antibody, customerCircle);
-            customerPane.getChildren().add(customerCircle);
+        int iteration = 0;
+        for (String label : antibodyMap.keySet()) {
+            String color = randomColors[iteration];
+            var al = antibodyMap.get(label);
+            for (Antibody antibody : al){
+                Circle antibodyCircle = new Circle(antibody.getRadius() * 20);
+                antibodyCircle.setTranslateX(mapXToGraph(antibody.getFeatures()[0]));
+                antibodyCircle.setTranslateY(mapYToGraph(antibody.getFeatures()[1]));
+//                antibodyCircleHashMap.put(antibody, antibodyCircle);
+                antibodyCircle.setFill(Paint.valueOf("transparent"));
+                antibodyCircle.setStroke(Paint.valueOf(color));
+                customerPane.getChildren().add(antibodyCircle);
+            }
+            iteration++;
 
         }
     }
 
+    private void setRandomColors(HashMap<String, double[][]> featureMap) {
+        // create random object - reuse this as often as possible
+        Random random = new Random();
+        String[] newColors = new String[featureMap.keySet().size()];
+        for (int i = 0; i < featureMap.keySet().size(); i++){
+            // create a big random number - maximum is ffffff (hex) = 16777215 (dez)
+            int nextInt = random.nextInt(0xffffff + 1);
+            // format it as hexadecimal string (with hashtag and leading zeros)
+            newColors[i] = String.format("#%06x", nextInt);
+        }
+        this.randomColors = newColors;
+    }
+
+    private void setBounds(HashMap<String, double[][]> featureMap) {
+        double lowestValuedFeatureX = Double.MAX_VALUE;
+        double highestValuedFeatureX = Double.MIN_VALUE;
+
+        double lowestValuedFeatureY = Double.MAX_VALUE;
+        double highestValuedFeatureY = Double.MIN_VALUE;
+
+        for (String label : featureMap.keySet()) {
+            for (int i = 0; i < featureMap.get(label).length; i++) {
+                double[][] f = featureMap.get(label);
+                var xFeatLow = f[0][0];
+                var xFeatHigh = f[0][1];
+                var yFeatLow = f[1][0];
+                var yFeatHigh = f[1][1];
+
+                if (xFeatLow < lowestValuedFeatureX) {
+                    lowestValuedFeatureX = xFeatLow;
+                }
+                if (xFeatHigh > highestValuedFeatureX) {
+                    highestValuedFeatureX = xFeatHigh;
+                }
+
+                if (yFeatLow < lowestValuedFeatureY) {
+                    lowestValuedFeatureY = yFeatLow;
+                }
+                if (yFeatHigh > highestValuedFeatureY) {
+                    highestValuedFeatureY = yFeatHigh;
+                }
+
+            }
+        }
+        this.minX = (int)lowestValuedFeatureX;
+        this.minY = (int)lowestValuedFeatureY;
+        this.maxX = (int)highestValuedFeatureX;
+        this.maxY = (int)highestValuedFeatureY;
+
+    }
+
+//    private void setLowerBound(HashMap<String, double[][]> featureMap){
+//        double lowestValuedFeature = Double.MAX_VALUE;
+//        double highestValuedFeature = Double.MIN_VALUE;
+//
+//        for(String label : featureMap.keySet()){
+//            for (double[] feature : featureMap.get(label) ) {
+//                if(feature[0] < lowestValuedFeature){
+//                    lowestValuedFeature = feature[0];
+//                }
+//                if(feature[1] > highestValuedFeature){
+//                    highestValuedFeature = feature[1];
+//                }
+//            }
+//        }
+//    }
 //    void setRoutes(Antibody antibody) {
 //        routePane.getChildren().clear();
 //

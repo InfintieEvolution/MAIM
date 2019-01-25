@@ -7,12 +7,16 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
+import java.nio.DoubleBuffer;
+import java.util.HashMap;
+
 public class Main extends Application {
 
 
     public static void main(String[] args) {
         launch(args);
     }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         BorderPane borderPane = new BorderPane();
@@ -31,12 +35,14 @@ public class Main extends Application {
             System.out.println(antigen);
         }*/
 
-        Graph graph = new Graph(800, 500, 0, 0, 7, 7);
+        Graph graph = new Graph(400, 500, ais.getFeatureMap(), ais.getAntibodyMap());
         BorderPane.setAlignment(graph, Pos.CENTER);
-        graph.setAntigens(dataSet.antigens);
+        graph.setAntigens(ais.getAntigenMap());
+        graph.setAntibodies(ais.getAntibodyMap());
 //        graph.setAntibodies(ais.getAntibodies());
         borderPane.setCenter(graph);
 
         primaryStage.show();
     }
+
 }

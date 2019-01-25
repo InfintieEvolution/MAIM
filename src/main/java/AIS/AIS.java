@@ -84,10 +84,10 @@ public class AIS {
             s += "{Label: "+label+", Count: "+antibodyMap.get(label).size()+"}";
         }
 
-        System.out.println("iteration: "+iteration);
-        System.out.println(s);
-        System.out.println("Average fitness: "+averageFitness);
-        System.out.println("----------------------");
+//        System.out.println("iteration: "+iteration);
+//        System.out.println(s);
+//        System.out.println("Average fitness: "+averageFitness);
+//        System.out.println("----------------------");
     }
 
     private void mutate(Antibody antibody){
@@ -340,6 +340,17 @@ public class AIS {
     }
 
 
+    public HashMap<String, ArrayList<Antigen>> getAntigenMap() {
+        return antigenMap;
+    }
+
+    public HashMap<String, double[][]> getFeatureMap() {
+        return featureMap;
+    }
+
+    public HashMap<String, ArrayList<Antibody>> getAntibodyMap() {
+        return this.antibodyMap;
+    }
 }
 
 
