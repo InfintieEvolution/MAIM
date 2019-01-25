@@ -55,7 +55,7 @@ public class Graph extends Pane {
         for (String label : antigenMap.keySet()) {
             String color = this.randomColors[iteration];
             for (Antigen antigen : antigenMap.get(label)) {
-                Rectangle antigenRectangle = new Rectangle(10, 10);
+                Rectangle antigenRectangle = new Rectangle(5, 5);
                 antigenRectangle.setLayoutX(-5);
                 antigenRectangle.setLayoutY(-5);
                 antigenRectangle.setTranslateX(mapXToGraph(antigen.getAttributes()[0]));
@@ -75,7 +75,7 @@ public class Graph extends Pane {
             String color = randomColors[iteration];
             var al = antibodyMap.get(label);
             for (Antibody antibody : al){
-                Circle antibodyCircle = new Circle(antibody.getRadius() * 20);
+                Circle antibodyCircle = new Circle(antibody.getRadius());
                 antibodyCircle.setTranslateX(mapXToGraph(antibody.getFeatures()[0]));
                 antibodyCircle.setTranslateY(mapYToGraph(antibody.getFeatures()[1]));
 //                antibodyCircleHashMap.put(antibody, antibodyCircle);

@@ -317,10 +317,9 @@ public class AIS {
         maxAverage = maxAverage/featureMap.get(label).length;
 
         //TODO: Make initial radius better
-        double radius = (minAverage + (maxAverage - minAverage) * random.nextDouble())*0.4;
+        double radius = (minAverage + (maxAverage - minAverage) * random.nextDouble());
 
         return new Antibody(attributes, radius, label, this.antigens);
-
     }
 
     public void vote(Antigen[] antigens){
