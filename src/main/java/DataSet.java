@@ -5,18 +5,21 @@ import java.io.*;
 import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class DataSet {
 
     ArrayList<Antigen> antigenList;
-    public Antigen[] antigens;
+    //public Antigen[] antigens;
+    public Antigen[] testSet;
+    public Antigen[] trainingSet;
+    public double trainingTestSplit;
+    private Random random;
     public HashMap<String, ArrayList<Antigen>> antigenMap;
-    public DataSet(String path){
+    public DataSet(String path, double trainingTestSplit){
+        this.trainingTestSplit = trainingTestSplit;
+        this.random = new Random();
         readFile(path);
     }
 
@@ -33,8 +36,26 @@ public class DataSet {
             e.printStackTrace();
         }
 
-        antigens = new Antigen[antigenList.size()];
-        antigens = antigenList.toArray(antigens);
+        this.testSet = new Antigen[(int)(antigenList.size()*0.1)];
+        this.trainingSet = new Antigen[antigenList.size() - testSet.length];
+
+        for(int i=0; i< trainingSet.length;i++){
+            trainingSet[i] = antigenList.remove(random.nextInt(antigenList.size()));
+        }
+        this.testSet = antigenList.toArray(testSet);
+
+        for(Antigen antigen: this.trainingSet){
+            if(!antigenMap.containsKey(antigen.getLabel())){
+                antigenMap.put(antigen.getLabel(),new ArrayList<>(){{add(antigen);}});
+            }else{
+                antigenMap.get(antigen.getLabel()).add(antigen);
+            }
+        }
+        //System.out.println(testSet.length);
+        //System.out.println(trainingSet.length);
+
+        //antigens = new Antigen[antigenList.size()];
+        //antigens = antigenList.toArray(antigens);
     }
 
     private void processLine(String line){
@@ -55,13 +76,7 @@ public class DataSet {
                 attributes[i] = Double.parseDouble(list.get(i));
             }
         }
-
         Antigen antigen = new Antigen(attributes,label);
-        if(!antigenMap.containsKey(label)){
-            antigenMap.put(label,new ArrayList<>(){{add(antigen);}});
-        }else{
-            antigenMap.get(label).add(antigen);
-        }
 
         antigenList.add(antigen);
     }

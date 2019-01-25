@@ -53,6 +53,7 @@ public class AIS {
                 final Antibody parent2 = tournamentSelection(antibodyMap.get(label), numberOfTournaments);
 
                 Antibody child = crossover(parent1,parent2);
+                child.setConnectedAntigens();
                 double p = Math.random();
                 if(p <= this.mutationRate){
                     this.mutate(child);
@@ -65,12 +66,17 @@ public class AIS {
             }
         }
 
-        for (Antibody antibody:children){
+        /*for (Antibody antibody:children){
             antibody.setConnectedAntigens();
+        }*/
+        for(String label: antibodyMap.keySet()){
+            for(Antibody antibody:antibodyMap.get(label)){
+                antibody.calculateFitness();
+            }
         }
-        for (Antibody antibody:children){
+        /*for (Antibody antibody:children){
             antibody.calculateFitness();
-        }
+        }*/
 
         this.select();
 
@@ -79,7 +85,7 @@ public class AIS {
             antigen.setConnectedAntibodies(new ArrayList<>());
         }
 
-        String s = "";
+        /*String s = "";
         for (String label:antibodyMap.keySet()){
             s += "{Label: "+label+", Count: "+antibodyMap.get(label).size()+"}";
         }
@@ -87,7 +93,7 @@ public class AIS {
         System.out.println("iteration: "+iteration);
         System.out.println(s);
         System.out.println("Average fitness: "+averageFitness);
-        System.out.println("----------------------");
+        System.out.println("----------------------");*/
     }
 
     private void mutate(Antibody antibody){
@@ -255,18 +261,21 @@ public class AIS {
             }
         }
 
-        if(antibodyCount < populationSize){
+        while (antibodyCount < populationSize){
             Antigen radnomAntigen = antigens[random.nextInt(antigens.length)];
             String label = radnomAntigen.getLabel();
 
             Antibody antibody = createAntibody(label);
             antibodyMap.get(label).add(antibody);
-            antibodies[populationSize-1] = antibody;
+            antibodies[antibodyCount] = antibody;
+            antibodyCount++;
         }
 
         for(Antibody antibody: antibodies){
             antibody.setConnectedAntigens();
         }
+
+
         for (Antibody antibody: antibodies){
             antibody.calculateFitness();
         }
@@ -323,6 +332,48 @@ public class AIS {
         return new Antibody(attributes, radius, label, this.antigens);
 
     }
+
+    public void vote(Antigen[] antigens){
+        HashMap<Antigen,String> antigenClassification = new HashMap<>();
+        for(Antigen antigen: antigens){
+            HashMap<String,Double> votingMap = new HashMap<>();
+            for(Antibody antibody: antibodies){
+                double distance = antibody.eucledeanDistance(antibody.getFeatures(),antigen.getAttributes());
+
+                if(distance <= antibody.getRadius()){
+                    //antibody is inside recognition radius
+                    if(!votingMap.containsKey(antibody.getLabel())){
+                        votingMap.put(antibody.getLabel(),distance);
+                    }else{
+                        double k = votingMap.get(antibody.getLabel());
+                        votingMap.put(antibody.getLabel(),k + distance);
+                    }
+                }
+            }
+
+            double highestVoteNumber = 0.0;
+            String highestVoteLabel = "";
+
+            for(String label: votingMap.keySet()){
+                if(votingMap.get(label) > highestVoteNumber){
+                    highestVoteNumber = votingMap.get(label);
+                    highestVoteLabel = label;
+                }
+            }
+            antigenClassification.put(antigen,highestVoteLabel);
+        }
+
+        int correctClassification = 0;
+        for(Antigen antigen: antigens){
+            if(antigen.getLabel().equals(antigenClassification.get(antigen))){
+                correctClassification++;
+            }
+        }
+        double accuracy = (double)correctClassification/antigens.length;
+
+        System.out.println("Accuracy: " +accuracy);
+    }
+
     public Antigen[] getAntigens() {
         return antigens;
     }
