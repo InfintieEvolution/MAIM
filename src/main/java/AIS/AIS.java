@@ -2,8 +2,6 @@ package AIS;
 
 import java.util.*;
 
-import static java.lang.Float.NaN;
-
 public class AIS {
 
     private Antigen[] antigens;
@@ -20,7 +18,6 @@ public class AIS {
     private double averageFitness;
 
     public AIS(Antigen[] antigens, HashMap<String,ArrayList<Antigen>> antigenMap,int populationSize, double mutationRate, int numberOfTorunaments){
-        //this.antibodies = antibodies;
         this.antigens = antigens;
         this.antigenMap = antigenMap;
         this.featureMap = new HashMap<>();
@@ -47,28 +44,40 @@ public class AIS {
 
     public void iterate(){
         this.iteration++;
-        /*for (Antibody antibody:antibodies) {
-            antibody.calculateFitness(antigens);
-        }*/
+        Antibody[] children = new Antibody[populationSize*antibodyMap.keySet().size()];
+            int childrenCount = 0;
+            for(String label:antibodyMap.keySet()){
+                ArrayList<Antibody> newAntibodiesOfLabel = new ArrayList<>();
+            for(int i=0;i<populationSize;i++){
+                final Antibody parent1 = tournamentSelection(antibodyMap.get(label), numberOfTournaments);
+                final Antibody parent2 = tournamentSelection(antibodyMap.get(label), numberOfTournaments);
 
-        Antibody[] children = new Antibody[populationSize];
-        int childrenCount = 0;
-        for(String label:antibodyMap.keySet()){
-            for(Antibody antibody: antibodyMap.get(label)){
-            final Antibody parent1 = tournamentSelection(antibodyMap.get(label), numberOfTournaments);
-            final Antibody parent2 = tournamentSelection(antibodyMap.get(label), numberOfTournaments);
-
-            Antibody child = crossover(parent1,parent2);
-            double p = Math.random();
-            if(p <= this.mutationRate){
-                this.mutate(child);
-            }
-            children[childrenCount] = child;
-            childrenCount ++;
+                Antibody child = crossover(parent1,parent2);
+                double p = Math.random();
+                if(p <= this.mutationRate){
+                    this.mutate(child);
+                }
+                children[childrenCount ++] = child;
+                newAntibodiesOfLabel.add(child);
+                }
+            for(Antibody antibody:newAntibodiesOfLabel){
+                antibodyMap.get(label).add(antibody);
             }
         }
 
-        this.select(this.antibodies,children);
+        for (Antibody antibody:children){
+            antibody.setConnectedAntigens();
+        }
+        for (Antibody antibody:children){
+            antibody.calculateFitness();
+        }
+
+        this.select();
+
+        //clear the connected antibodies list for the next iteration
+        for(Antigen antigen:antigens){
+            antigen.setConnectedAntibodies(new ArrayList<>());
+        }
 
         String s = "";
         for (String label:antibodyMap.keySet()){
@@ -146,42 +155,65 @@ public class AIS {
         return winner;
     }
 
-    private void select(Antibody[] parents, Antibody[] children){
-        final ArrayList<Antibody> priorityQueue = new ArrayList<>();
+    private void select(){
 
-        priorityQueue.addAll(Arrays.asList(parents));
-        priorityQueue.addAll(Arrays.asList(children));
-
-        priorityQueue.sort(selectionComparator);
+        HashMap<String,Double> classDistributionMap = new HashMap<>();
+        double totalWeightSum = 0.0;
+        for(String label:antigenMap.keySet()){
+            double labelWeightSum = 1.0;
+            for(Antigen antigen:antigenMap.get(label)){
+                for(Antibody antibody:antigen.getConnectedAntibodies()){
+                    labelWeightSum += antibody.getConnectedAntigen().get(antigen);
+                }
+            }
+            totalWeightSum += labelWeightSum;
+           classDistributionMap.put(label,labelWeightSum);
+        }
+        for(String label:classDistributionMap.keySet()){
+            double numberOfIndividuals = (classDistributionMap.get(label)/totalWeightSum)*populationSize;
+            classDistributionMap.put(label,numberOfIndividuals);
+        }
 
         HashMap<String,ArrayList<Antibody>> newAntibodyMap = new HashMap<>();
-        //final Antibody[] survivors = new Antibody[populationSize];
-
         double totalFitness = 0.0;
         int index = 0;
-        while (index < populationSize) {
+        int totalSelectedIndividuals = 0;
+        int labelIndex = 0;
+        for (String label: antigenMap.keySet()){
+            labelIndex++;
+            int numberOfIndividuals = (int)(double)(classDistributionMap.get(label));
 
-            double p = Math.random();
-
-            int rank = priorityQueue.size();
-            int rankSum = 0;
-            for(int i=priorityQueue.size();i>0;i--){
-                rankSum += i;
+            totalSelectedIndividuals += numberOfIndividuals;
+            if(labelIndex == antibodyMap.keySet().size() && totalSelectedIndividuals < populationSize){
+                numberOfIndividuals++;
             }
-            double cumulativeProbability = 0.0;
-            int listIndex = 0;
+            int selectedIndividualsOfLabel = 0;
 
-            while (!priorityQueue.isEmpty()){
-                cumulativeProbability += (double) rank/rankSum;
+            if(antibodyMap.get(label) == null){
+                continue;
+            }
+            antibodyMap.get(label).sort(selectionComparator);
+            ArrayList<Antibody> priorityQueue = antibodyMap.get(label);
 
-                //double rand = Math.random();
-                //Antibody survivor1 = priorityQueue.get(listIndex);
-                //double populationPrecentage = (double) antibodyMap.get(survivor1.getLabel()).size()/populationSize;
+            while (index < populationSize && selectedIndividualsOfLabel <= numberOfIndividuals){
+                double p = Math.random();
 
-                if(p <= cumulativeProbability){
+                int rank = priorityQueue.size();
+                int rankSum = 0;
+                for(int i=priorityQueue.size();i>0;i--){
+                    rankSum += i;
+                }
+                double cumulativeProbability = 0.0;
+                int listIndex = 0;
+
+                while (!priorityQueue.isEmpty()){
+                    cumulativeProbability += (double) rank/rankSum;
+
+                    if(p <= cumulativeProbability){
                         Antibody survivor = priorityQueue.remove(listIndex);
 
                         this.antibodies[index ++] = survivor;
+                        selectedIndividualsOfLabel++;
                         totalFitness += survivor.getFitness();
                         if(!newAntibodyMap.containsKey(survivor.getLabel())){
                             newAntibodyMap.put(survivor.getLabel(),new ArrayList<>(){{add(survivor);}});
@@ -189,16 +221,16 @@ public class AIS {
                             newAntibodyMap.get(survivor.getLabel()).add(survivor);
                         }
                         break;
-
+                    }
+                    listIndex++;
+                    rank--;
                 }
-                listIndex++;
-                rank--;
             }
+            totalSelectedIndividuals += selectedIndividualsOfLabel;
         }
+
         this.averageFitness = totalFitness / populationSize;
         this.antibodyMap = newAntibodyMap;
-        //Make best solution first in the list
-        //this.antibodies = survivors;
     }
 
     public void initialisePopulation(int populationSize){
@@ -219,8 +251,7 @@ public class AIS {
                 }else{
                     this.antibodyMap.put(label, new ArrayList<>(){ { add(antibody);}});
                 }
-                antibodies[antibodyCount] = antibody;
-                antibodyCount++;
+                antibodies[antibodyCount ++] = antibody;
             }
         }
 
@@ -231,7 +262,13 @@ public class AIS {
             Antibody antibody = createAntibody(label);
             antibodyMap.get(label).add(antibody);
             antibodies[populationSize-1] = antibody;
+        }
 
+        for(Antibody antibody: antibodies){
+            antibody.setConnectedAntigens();
+        }
+        for (Antibody antibody: antibodies){
+            antibody.calculateFitness();
         }
     }
 
@@ -275,7 +312,6 @@ public class AIS {
             minAverage += minValue;
 
             attributes[i] = minValue + (maxValue - minValue)*random.nextDouble();
-            //System.out.println("maxvalue "+ maxValue+" "+"minvalue "+minValue+"random in range "+attributes[i]);
         }
 
         minAverage = minAverage/featureMap.get(label).length;

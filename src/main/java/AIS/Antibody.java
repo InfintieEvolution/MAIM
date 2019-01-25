@@ -1,6 +1,8 @@
 package AIS;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class Antibody {
 
@@ -9,45 +11,50 @@ public class Antibody {
     private String label;
     private double fitness;
     private Antigen[] antigens;
-
+    private HashMap<Antigen,Double> connectedAntigen;
+    private double boundAntigensCount;
+    private double totalWeight;
+    private int correctClassificationCount;
     public Antibody(double[] features, double radius, String label, Antigen[] antigens){
         this.features = features;
         this.radius = radius;
         this.label = label;
         this.fitness = 0.0;
         this.antigens = antigens;
-        this.calculateFitness();
+        this.connectedAntigen = new HashMap<>();
+        this.boundAntigensCount = 0;
+        this.totalWeight = 0.0;
+        this.correctClassificationCount = 0;
+    }
+
+    public void setConnectedAntigens(){
+        for (Antigen antigen:antigens){
+            double distance = eucledeanDistance(this.features,antigen.getAttributes());
+            if (distance <= this.radius) {
+                antigen.getConnectedAntibodies().add(this);
+                totalWeight += distance;
+                if(this.fitness == 0.0){
+                    connectedAntigen.put(antigen,distance);
+                }
+                this.boundAntigensCount++;
+                if(antigen.getLabel().equals(this.label)){
+                    correctClassificationCount +=1;
+                }
+            }
+        }
     }
 
     public void calculateFitness(){
-        int wrongClassificationCount = 0;
-        int correctClassificationCount = 0;
-        double totalWeight = 0.0;
-        int boundAntigensCount =0;
-        for (Antigen antigen:antigens){
-          double distance = eucledeanDistance(this.features,antigen.getAttributes());
-
-          if (distance <= this.radius){
-              boundAntigensCount +=1;
-              //Antibodies here is within the recognition zone
-
-              totalWeight += distance;
-              if(antigen.getLabel().equals(this.label)){
-                  correctClassificationCount +=1;
-              }else{
-                  wrongClassificationCount +=1;
-              }
-          }
-        }
-
-        if(boundAntigensCount == 0){
+        if(this.boundAntigensCount == 0){
             this.fitness = 0.0;
         }else{
-            double accuracy = (double) correctClassificationCount/(correctClassificationCount+wrongClassificationCount);
-            this.fitness = accuracy * (boundAntigensCount/totalWeight);
-            /*System.out.println("accuracy "+accuracy);
-            System.out.println("fitness "+this.fitness);
-            System.out.println("-------------------------");*/
+            double accuracy = (double) correctClassificationCount/(boundAntigensCount);
+            double sharingFactor = 0.0;
+            for(Antigen antigen: connectedAntigen.keySet()){
+                sharingFactor += antigen.getConnectedAntibodies().size();
+            }
+            //System.out.println(sharingFactor);
+            this.fitness = (accuracy * (boundAntigensCount/totalWeight));
         }
     }
 
@@ -92,6 +99,14 @@ public class Antibody {
 
     public void setFitness(double fitness) {
         this.fitness = fitness;
+    }
+
+    public HashMap<Antigen, Double> getConnectedAntigen() {
+        return connectedAntigen;
+    }
+
+    public void setConnectedAntigen(HashMap<Antigen, Double> connectedAntigen) {
+        this.connectedAntigen = connectedAntigen;
     }
 
     @Override
