@@ -52,6 +52,7 @@ public class Main extends Application {
         BorderPane.setAlignment(graph, Pos.CENTER);
         graph.setAntigens(testSetMap);
         graph.setAntibodies(ais.getAntibodyMap());
+        graph.setConnections();
 //        graph.setAntibodies(ais.getAntibodies());
         borderPane.setCenter(graph);
 

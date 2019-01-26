@@ -15,6 +15,7 @@ public class Antibody {
     private double boundAntigensCount;
     private double totalWeight;
     private int correctClassificationCount;
+    private boolean connectedAntigensSet;
     public Antibody(double[] features, double radius, String label, Antigen[] antigens){
         this.features = features;
         this.radius = radius;
@@ -25,20 +26,29 @@ public class Antibody {
         this.boundAntigensCount = 0;
         this.totalWeight = 0.0;
         this.correctClassificationCount = 0;
+        this.connectedAntigensSet = false;
     }
 
     public void setConnectedAntigens(){
-        for (Antigen antigen:antigens){
-            double distance = eucledeanDistance(this.features,antigen.getAttributes());
-            if (distance <= this.radius) {
-                antigen.getConnectedAntibodies().add(this);
-                totalWeight += distance;
-                if(this.fitness == 0.0){
-                    connectedAntigen.put(antigen,distance);
+        //Connected antigens has been calculated before, we only need to re-add the connected antigen
+        if(this.connectedAntigensSet){
+            for (Antigen antigen:antigens){
+                if(connectedAntigen.containsKey(antigen)){
+                    antigen.getConnectedAntibodies().add(this);
                 }
-                this.boundAntigensCount++;
-                if(antigen.getLabel().equals(this.label)){
-                    correctClassificationCount +=1;
+            }
+        }else{  //first time calculating fitness
+            for (Antigen antigen:antigens){
+                double distance = eucledeanDistance(this.features,antigen.getAttributes());
+                if (distance <= this.radius) {
+                    antigen.getConnectedAntibodies().add(this);
+                    totalWeight += distance;
+                    connectedAntigen.put(antigen,distance);
+                    this.connectedAntigensSet = true;
+                    this.boundAntigensCount++;
+                    if(antigen.getLabel().equals(this.label)){
+                        correctClassificationCount +=1;
+                    }
                 }
             }
         }

@@ -328,14 +328,14 @@ public class AIS {
             HashMap<String,Double> votingMap = new HashMap<>();
             for(Antibody antibody: antibodies){
                 double distance = antibody.eucledeanDistance(antibody.getFeatures(),antigen.getAttributes());
-
                 if(distance <= antibody.getRadius()){
                     //antibody is inside recognition radius
+                    double voteWeight = 1/(1+distance)*antibody.getFitness();
                     if(!votingMap.containsKey(antibody.getLabel())){
-                        votingMap.put(antibody.getLabel(),distance);
+                        votingMap.put(antibody.getLabel(),voteWeight);
                     }else{
                         double k = votingMap.get(antibody.getLabel());
-                        votingMap.put(antibody.getLabel(),k + distance);
+                        votingMap.put(antibody.getLabel(),k + voteWeight);
                     }
                 }
             }

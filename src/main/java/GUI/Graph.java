@@ -6,6 +6,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
 
@@ -15,7 +16,7 @@ import java.util.Random;
 
 public class Graph extends Pane {
 
-    private final Pane depotPane, customerPane, routePane;
+    private final Pane antigenPane, antibodyPane, routePane;
     private int minX, minY, maxX, maxY;
     private final double height, factorX, factorY;
 
@@ -25,18 +26,19 @@ public class Graph extends Pane {
     private HashMap<String, ArrayList<Antibody>> antibodyMap;
 //    private final HashMap<Antibody, Circle> antibodyCircleHashMap;
     private HashMap<String, double[][]> featureMap;
-    private String[] randomColors;
+    private HashMap<String,String> colorMap;
 
     public Graph(double width, double height, HashMap<String, double[][]> featureMap, HashMap<String, ArrayList<Antibody>> antibodyMap) {
         super();
-        depotPane = new Pane();
-        customerPane = new Pane();
+        antigenPane = new Pane();
+        antibodyPane = new Pane();
         routePane = new Pane();
         super.setMinSize(width, height);
         super.setMaxSize(width, height);
-        super.getChildren().addAll(routePane, depotPane, customerPane);
+        super.getChildren().addAll(routePane, antigenPane, antibodyPane);
         this.featureMap = featureMap;
         this.antibodyMap = antibodyMap;
+        this.colorMap = new HashMap<>();
 
         setRandomColors(this.featureMap);
         setBounds(featureMap);
@@ -50,10 +52,9 @@ public class Graph extends Pane {
 
     public void setAntigens(HashMap<String, ArrayList<Antigen>> antigenMap) {
         this.antigenMap = antigenMap;
-        depotPane.getChildren().clear();
-        int iteration = 0;
+        antigenPane.getChildren().clear();
         for (String label : antigenMap.keySet()) {
-            String color = this.randomColors[iteration];
+            String color = this.colorMap.get(label);
             for (Antigen antigen : antigenMap.get(label)) {
                 Rectangle antigenRectangle = new Rectangle(5, 5);
                 antigenRectangle.setLayoutX(-5);
@@ -61,18 +62,16 @@ public class Graph extends Pane {
                 antigenRectangle.setTranslateX(mapXToGraph(antigen.getAttributes()[0]));
                 antigenRectangle.setTranslateY(mapYToGraph(antigen.getAttributes()[1]));
                 antigenRectangle.setStyle("-fx-fill: " + color);
-                depotPane.getChildren().add(antigenRectangle);
+                antigenPane.getChildren().add(antigenRectangle);
             }
-            iteration++;
         }
     }
 
     public void setAntibodies(HashMap<String, ArrayList<Antibody>> antibodyMap) {
         this.antibodyMap = antibodyMap;
-        customerPane.getChildren().clear();
-        int iteration = 0;
+        antibodyPane.getChildren().clear();
         for (String label : antibodyMap.keySet()) {
-            String color = randomColors[iteration];
+            String color = this.colorMap.get(label);
             var al = antibodyMap.get(label);
             for (Antibody antibody : al){
                 Circle antibodyCircle = new Circle(antibody.getRadius());
@@ -81,24 +80,38 @@ public class Graph extends Pane {
 //                antibodyCircleHashMap.put(antibody, antibodyCircle);
                 antibodyCircle.setFill(Paint.valueOf("transparent"));
                 antibodyCircle.setStroke(Paint.valueOf(color));
-                customerPane.getChildren().add(antibodyCircle);
+                antibodyPane.getChildren().add(antibodyCircle);
             }
-            iteration++;
-
         }
     }
+
+    public void setConnections(){
+        routePane.getChildren().clear();
+        for (String label : antibodyMap.keySet()) {
+            String color = this.colorMap.get(label);
+                for(Antibody antibody: antibodyMap.get(label)){
+                    for(Antigen antigen: antibody.getConnectedAntigen().keySet()){
+                        Line connection = new Line();
+                        connection.setStroke(Paint.valueOf(color));
+                        connection.setStartX(mapXToGraph(antibody.getFeatures()[0]));
+                        connection.setStartY(mapYToGraph(antibody.getFeatures()[1]));
+                        connection.setEndX(mapXToGraph(antigen.getAttributes()[0]));
+                        connection.setEndY(mapYToGraph(antigen.getAttributes()[1]));
+                        routePane.getChildren().add(connection);
+                    }
+                }
+            }
+        }
 
     private void setRandomColors(HashMap<String, double[][]> featureMap) {
         // create random object - reuse this as often as possible
         Random random = new Random();
-        String[] newColors = new String[featureMap.keySet().size()];
-        for (int i = 0; i < featureMap.keySet().size(); i++){
+        for(String label: featureMap.keySet()){
             // create a big random number - maximum is ffffff (hex) = 16777215 (dez)
             int nextInt = random.nextInt(0xffffff + 1);
             // format it as hexadecimal string (with hashtag and leading zeros)
-            newColors[i] = String.format("#%06x", nextInt);
+            this.colorMap.put(label,String.format("#%06x", nextInt));
         }
-        this.randomColors = newColors;
     }
 
     private void setBounds(HashMap<String, double[][]> featureMap) {
