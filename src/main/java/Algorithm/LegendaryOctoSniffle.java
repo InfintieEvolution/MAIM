@@ -1,6 +1,7 @@
 import AIS.AIS;
 import AIS.Antigen;
 import AIS.Antibody;
+import GUI.GUI;
 import GUI.Graph;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -26,29 +27,27 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class Main extends Application {
-
+public class LegendaryOctoSniffle extends Application{
 
     //private TextField populationSizeInput = new TextField();
     private static int POPULATION_SIZE = 1000;
-    //TextField populationSizeInput = new TextField();
+    private boolean running = false;
+    private GUI gui;
 
-    public static void main(String[] args) {
-        launch(args);
-    }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        BorderPane borderPane = new BorderPane();
+        gui = new GUI(primaryStage,this);
+        /*BorderPane borderPane = new BorderPane();
         Scene scene = new Scene(borderPane, 1200, 800);
         primaryStage.setScene(scene);
         primaryStage.setTitle("legendary-octo-sniffle");
         VBox optionMenu = new VBox(5);
         optionMenu.setTranslateX(5);
         optionMenu.setAlignment(Pos.CENTER);
-        //TextField populationSizeInput = new TextField();
-        //populationSizeInput.setText(String.valueOf(POPULATION_SIZE));
-        //optionMenu.getChildren().addAll(new Text("Initial Population Size"), populationSizeInput);
+        TextField populationSizeInput = new TextField();
+        populationSizeInput.setText(String.valueOf(POPULATION_SIZE));
+        optionMenu.getChildren().addAll(new Text("Initial Population Size"), populationSizeInput);
         borderPane.setLeft(optionMenu);
 
         DataSet dataSet = new DataSet("./DataSets/iris.data",0.1);
@@ -88,12 +87,24 @@ public class Main extends Application {
             graph.setAntibodies(antibodyGenerations.get(0));
             graph.setConnections();
         }*/
-        graph.setAntibodies(antibodyGenerations.get(9));
-        graph.setConnections();
+        /*graph.setAntibodies(antibodyGenerations.get(9));
+        graph.setConnections();*/
 
     }
 
     /*private int getPopulationSize() {
         return Integer.valueOf(populationSizeInput.getText());
     }*/
+
+    void run(int iterations, int populationSize, double mutationRate, double numberOfTournaments){
+        this.running = true;
+
+    }
+
+
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
 }
