@@ -341,7 +341,7 @@ public class AIS {
             }
 
             double highestVoteNumber = 0.0;
-            String highestVoteLabel = "";
+            String highestVoteLabel = null;
 
             for(String label: votingMap.keySet()){
                 if(votingMap.get(label) > highestVoteNumber){
@@ -390,6 +390,16 @@ public class AIS {
 
     public HashMap<String, ArrayList<Antibody>> getAntibodyMap() {
         return this.antibodyMap;
+    }
+
+    public static HashMap<String, ArrayList<Antibody>> copy(HashMap<String, ArrayList<Antibody>> original)
+    {
+        HashMap<String, ArrayList<Antibody>> copy = new HashMap<>();
+        for (Map.Entry<String, ArrayList<Antibody>> entry : original.entrySet())
+        {
+            copy.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+        }
+        return copy;
     }
 }
 
