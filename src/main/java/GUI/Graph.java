@@ -2,17 +2,23 @@ package GUI;
 
 import AIS.Antibody;
 import AIS.Antigen;
+import AIS.AIS;
+import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Random;
 
 public class Graph extends Pane {
@@ -25,9 +31,9 @@ public class Graph extends Pane {
 
     private HashMap<String, ArrayList<Antigen>> antigenMap;
     private HashMap<String, ArrayList<Antibody>> antibodyMap;
-//    private final HashMap<Antibody, Circle> antibodyCircleHashMap;
     private HashMap<String, double[][]> featureMap;
     private HashMap<String,String> colorMap;
+    private Text accuracyText = new Text();
 
     public Graph(double width, double height, HashMap<String, double[][]> featureMap) {
         super();
@@ -47,7 +53,10 @@ public class Graph extends Pane {
         this.factorX = width / Math.abs(this.maxX - this.minX);
         this.factorY = height / Math.abs(this.maxY - this.minY);
 
-//        antibodyCircleHashMap = new HashMap<>();
+        accuracyText.setY(height+100);
+        accuracyText.setX(width/2);
+
+        super.getChildren().addAll(accuracyText);
     }
 
     public void setAntigens(HashMap<String, ArrayList<Antigen>> antigenMap) {
@@ -107,7 +116,9 @@ public class Graph extends Pane {
                     }
                 }
             }
+        setAccuracy(AIS.vote(this.antigenMap,this.antibodyMap));
         }
+
     private void setRandomColors(HashMap<String, double[][]> featureMap) {
         // create random object - reuse this as often as possible
         Random random = new Random();
@@ -155,59 +166,9 @@ public class Graph extends Pane {
 
     }
 
-//    private void setLowerBound(HashMap<String, double[][]> featureMap){
-//        double lowestValuedFeature = Double.MAX_VALUE;
-//        double highestValuedFeature = Double.MIN_VALUE;
-//
-//        for(String label : featureMap.keySet()){
-//            for (double[] feature : featureMap.get(label) ) {
-//                if(feature[0] < lowestValuedFeature){
-//                    lowestValuedFeature = feature[0];
-//                }
-//                if(feature[1] > highestValuedFeature){
-//                    highestValuedFeature = feature[1];
-//                }
-//            }
-//        }
-//    }
-//    void setRoutes(Antibody antibody) {
-//        routePane.getChildren().clear();
-//
-//        for (Antibody antb: antibodies) {
-//            int counter = 0;
-//            for (Car car : depot.getCars()) {
-//                Color color = colors[counter % colors.length];
-//                counter ++;
-//
-//                int currentX = depot.getX();
-//                int currentY = depot.getY();
-//
-//                ArrayList<Customer> customers = car.getCustomerSequence();
-//                for (Customer customer : customers) {
-//                    Circle customerCircle = antibodyCircleHashMap.get(customer);
-//                    customerCircle.setFill(color);
-//
-//                    Line lineRoute = new Line();
-//                    lineRoute.setStroke(color);
-//                    lineRoute.setStartX(mapXToGraph(currentX));
-//                    lineRoute.setStartY(mapYToGraph(currentY));
-//                    lineRoute.setEndX(mapXToGraph(customer.getX()));
-//                    lineRoute.setEndY(mapYToGraph(customer.getY()));
-//                    currentX = customer.getX();
-//                    currentY = customer.getY();
-//                    routePane.getChildren().add(lineRoute);
-//                }
-//
-//                Line lineRoute = new Line();
-//                lineRoute.setStroke(color);
-//                lineRoute.setStartX(mapXToGraph(currentX));
-//                lineRoute.setStartY(mapYToGraph(currentY));
-//                lineRoute.setEndX(mapXToGraph(depot.getX()));
-//                lineRoute.setEndY(mapYToGraph(depot.getY()));
-//                routePane.getChildren().add(lineRoute);
-//            }
-//        }
-//    }
+    void setAccuracy(double accuracy) {
+        Platform.runLater(() ->accuracyText.setText(String.format(Locale.US, "Accuracy: %.2f", accuracy)));
+    }
 
     private double mapXToGraph(double x) {
         return (x - minX) * factorX;

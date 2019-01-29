@@ -2,6 +2,7 @@ package AIS;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class Antigen {
@@ -39,6 +40,19 @@ public class Antigen {
 
     public void setConnectedAntibodies(ArrayList<Antibody> connectedAntibodies) {
         this.connectedAntibodies = connectedAntibodies;
+    }
+
+    public static HashMap<String,ArrayList<Antigen>> createAntigenMap(Antigen[] antigens){
+        HashMap<String,ArrayList<Antigen>> antigenMap = new HashMap<>();
+
+        for(Antigen antigen: antigens){
+            if(!antigenMap.containsKey(antigen.getLabel())){
+                antigenMap.put(antigen.getLabel(),new ArrayList<>(){{add(antigen);}});
+            }else{
+                antigenMap.get(antigen.getLabel()).add(antigen);
+            }
+        }
+        return antigenMap;
     }
 
     @Override

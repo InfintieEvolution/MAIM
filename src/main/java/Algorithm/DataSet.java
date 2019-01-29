@@ -1,3 +1,5 @@
+package Algorithm;
+
 import AIS.Antibody;
 import AIS.Antigen;
 
@@ -11,7 +13,6 @@ import java.util.stream.Stream;
 public class DataSet {
 
     ArrayList<Antigen> antigenList;
-    //public Antigen[] antigens;
     public Antigen[] testSet;
     public Antigen[] trainingSet;
     public double trainingTestSplit;
@@ -24,7 +25,6 @@ public class DataSet {
     }
 
     private void readFile(String path) {
-        antigenMap = new HashMap<>();
         antigenList = new ArrayList<>();
 
         try (
@@ -36,7 +36,7 @@ public class DataSet {
             e.printStackTrace();
         }
 
-        this.testSet = new Antigen[(int)(antigenList.size()*0.1)];
+        this.testSet = new Antigen[(int)(antigenList.size()*trainingTestSplit)];
         this.trainingSet = new Antigen[antigenList.size() - testSet.length];
 
         for(int i=0; i< trainingSet.length;i++){
@@ -44,18 +44,7 @@ public class DataSet {
         }
         this.testSet = antigenList.toArray(testSet);
 
-        for(Antigen antigen: this.trainingSet){
-            if(!antigenMap.containsKey(antigen.getLabel())){
-                antigenMap.put(antigen.getLabel(),new ArrayList<>(){{add(antigen);}});
-            }else{
-                antigenMap.get(antigen.getLabel()).add(antigen);
-            }
-        }
-        //System.out.println(testSet.length);
-        //System.out.println(trainingSet.length);
-
-        //antigens = new Antigen[antigenList.size()];
-        //antigens = antigenList.toArray(antigens);
+        this.antigenMap = Antigen.createAntigenMap(trainingSet);
     }
 
     private void processLine(String line){

@@ -321,8 +321,8 @@ public class AIS {
 
         return new Antibody(attributes, radius, label, this.antigens);
     }
-
-    public void vote(Antigen[] antigens){
+/*
+    public static double vote(Antigen[] antigens, Antibody[] antibodies){
         HashMap<Antigen,String> antigenClassification = new HashMap<>();
         for(Antigen antigen: antigens){
             HashMap<String,Double> votingMap = new HashMap<>();
@@ -360,7 +360,54 @@ public class AIS {
         }
         double accuracy = (double)correctClassification/antigens.length;
 
-        System.out.println("Accuracy: " +accuracy);
+        return accuracy;
+    }
+*/
+    public static double vote(HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antibody>> antibodyMap) {
+        HashMap<Antigen, String> antigenClassification = new HashMap<>();
+        for(String antigenLabel: antigenMap.keySet()){
+        for (Antigen antigen : antigenMap.get(antigenLabel)) {
+            HashMap<String, Double> votingMap = new HashMap<>();
+            for(String antibodyLabel: antibodyMap.keySet()){
+            for (Antibody antibody : antibodyMap.get(antibodyLabel)) {
+                double distance = antibody.eucledeanDistance(antibody.getFeatures(), antigen.getAttributes());
+                if (distance <= antibody.getRadius()) {
+                    //antibody is inside recognition radius
+                    double voteWeight = 1 / (1 + distance) * antibody.getFitness();
+                    if (!votingMap.containsKey(antibody.getLabel())) {
+                        votingMap.put(antibody.getLabel(), voteWeight);
+                    } else {
+                        double k = votingMap.get(antibody.getLabel());
+                        votingMap.put(antibody.getLabel(), k + voteWeight);
+                    }
+                }
+            }
+        }
+            double highestVoteNumber = 0.0;
+            String highestVoteLabel = null;
+
+            for (String label : votingMap.keySet()) {
+                if (votingMap.get(label) > highestVoteNumber) {
+                    highestVoteNumber = votingMap.get(label);
+                    highestVoteLabel = label;
+                }
+            }
+            antigenClassification.put(antigen, highestVoteLabel);
+        }
+    }
+        int correctClassification = 0;
+        int antigenCount = 0;
+        for(String antigenLabel: antigenMap.keySet()){
+            for (Antigen antigen : antigenMap.get(antigenLabel)) {
+                    if (antigen.getLabel().equals(antigenClassification.get(antigen))) {
+                        correctClassification++;
+                    }
+                    antigenCount++;
+                }
+            }
+        double accuracy = (double)correctClassification/antigenCount;
+
+        return accuracy;
     }
 
     public Antigen[] getAntigens() {

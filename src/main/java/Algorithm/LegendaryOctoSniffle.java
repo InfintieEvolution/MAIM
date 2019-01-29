@@ -1,107 +1,72 @@
+package Algorithm;
 import AIS.AIS;
 import AIS.Antigen;
 import AIS.Antibody;
 import GUI.GUI;
-import GUI.Graph;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
-import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+
 
 public class LegendaryOctoSniffle extends Application{
 
     //private TextField populationSizeInput = new TextField();
-    private static int POPULATION_SIZE = 1000;
     private boolean running = false;
     private GUI gui;
-
+    private AIS ais;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         gui = new GUI(primaryStage,this);
-        /*BorderPane borderPane = new BorderPane();
-        Scene scene = new Scene(borderPane, 1200, 800);
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("legendary-octo-sniffle");
-        VBox optionMenu = new VBox(5);
-        optionMenu.setTranslateX(5);
-        optionMenu.setAlignment(Pos.CENTER);
-        TextField populationSizeInput = new TextField();
-        populationSizeInput.setText(String.valueOf(POPULATION_SIZE));
-        optionMenu.getChildren().addAll(new Text("Initial Population Size"), populationSizeInput);
-        borderPane.setLeft(optionMenu);
+    }
 
-        DataSet dataSet = new DataSet("./DataSets/iris.data",0.1);
+    public void run(int iterations, int populationSize, double mutationRate, int numberOfTournaments, String dataSetName, double trainingTestSplit){
+        this.running = true;
+        gui.startButton.setDisable(true);
+        gui.stopButton.setDisable(false);
 
-        AIS ais = new AIS(dataSet.trainingSet,dataSet.antigenMap,100, 0.8, 5);
+        DataSet dataSet = new DataSet("./DataSets/"+dataSetName,trainingTestSplit);
+        this.ais = new AIS(dataSet.trainingSet,dataSet.antigenMap,populationSize, mutationRate,numberOfTournaments);
 
-        Graph graph = new Graph(400, 400, ais.getFeatureMap());
-        BorderPane.setAlignment(graph, Pos.CENTER);
-        //graph.setAntigens(ais.getAntigenMap());
-        graph.setAntigens(ais.getAntigenMap());
-        //graph.setAntibodies(ais.getAntibodyMap());
-        //graph.setConnections();
-        borderPane.setCenter(graph);
-        primaryStage.show();
         ArrayList<HashMap<String,ArrayList<Antibody>>> antibodyGenerations = new ArrayList<>();
 
-        for(int i=0;i<10;i++){
+        for(int i=0;i<iterations;i++){
             antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
             ais.iterate();
         }
 
-        ais.vote(dataSet.testSet);
-
         //creating hashmap for testset
-        HashMap<String,ArrayList<Antigen>> testSetMap = new HashMap<>();
-        for(Antigen antigen: dataSet.testSet){
-            if(!testSetMap.containsKey(antigen.getLabel())){
-                testSetMap.put(antigen.getLabel(),new ArrayList<>(){{add(antigen);}});
-            }else{
-                testSetMap.get(antigen.getLabel()).add(antigen);
-            }
-        }
+        HashMap<String,ArrayList<Antigen>> testSetMap = Antigen.createAntigenMap(dataSet.testSet);
 
-        //graph.setAntigens(testSetMap);
-        graph.setAntigens(ais.getAntigenMap());
-        /*for (HashMap<String,ArrayList<Antibody>> map: antibodyGenerations){
-            graph.setAntibodies(antibodyGenerations.get(0));
-            graph.setConnections();
-        }*/
-        /*graph.setAntibodies(antibodyGenerations.get(9));
-        graph.setConnections();*/
+        double accuracy = AIS.vote(testSetMap,ais.getAntibodyMap());
 
+        Platform.runLater(() -> {
+            gui.startButton.setDisable(false);
+            gui.stopButton.setDisable(true);
+            this.gui.setAntibodyGenerations(antibodyGenerations,ais.getAntigenMap(),testSetMap,ais.getAntibodyMap());
+            this.gui.createSolutionGraph(ais.getFeatureMap());
+            gui.drawSolution(testSetMap,ais.getAntibodyMap());
+        });
+
+        gui.startButton.setDisable(false);
     }
 
-    /*private int getPopulationSize() {
-        return Integer.valueOf(populationSizeInput.getText());
-    }*/
-
-    void run(int iterations, int populationSize, double mutationRate, double numberOfTournaments){
-        this.running = true;
-
+    public synchronized boolean getRunning() {
+        return running;
     }
 
+    public void stopRunning() {
+        running = false;
+        gui.startButton.setDisable(false);
+        gui.stopButton.setDisable(true);
+    }
 
+    @Override
+    public void stop(){
+        System.exit(0);
+    }
 
     public static void main(String[] args) {
         launch(args);
