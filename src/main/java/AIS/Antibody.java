@@ -55,16 +55,12 @@ public class Antibody {
     }
     public double calcualteWeight(Antigen antigen){
         double distance = this.getConnectedAntigen().get(antigen);
-        double weight = distance/this.radius;
-        if(weight <= 1){
-            weight = 1;
-        }else{
-            weight = 0;
-        }
+        double weight = distance;
+
         return weight;
     }
 
-    public void calculateFitness(){
+    /*public void calculateFitness(){
         if(this.boundAntigensCount == 0){
             this.fitness = 0.0;
         }else{
@@ -82,6 +78,22 @@ public class Antibody {
             }
             //System.out.println(sharingFactor);
             this.fitness = ((accuracy *sharingFactor)/(totalWeight));
+        }
+    }*/
+    public void calculateFitness(){
+        if(this.boundAntigensCount == 0){
+            this.fitness = 0.0;
+        }else{
+            double accuracy = (double) correctClassificationCount/(boundAntigensCount);
+            double sharingFactor = 0.0;
+            double totalWeight = 0.0;
+            for(Antigen antigen: connectedAntigen.keySet()){
+                double weight = calcualteWeight(antigen);
+                totalWeight+=weight;
+                sharingFactor += antigen.getConnectedAntibodies().size();
+            }
+            //System.out.println(sharingFactor);
+            this.fitness = (accuracy * (boundAntigensCount/totalWeight));
         }
     }
 /*

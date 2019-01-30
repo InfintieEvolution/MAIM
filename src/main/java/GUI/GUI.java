@@ -72,6 +72,7 @@ public class GUI extends BorderPane {
         stopButton.setOnAction(event -> LOS.stopRunning());
 
         stopButton.setDisable(true);
+        primaryStage.show();
     }
 
     public void setAntibodyGenerations(ArrayList<HashMap<String,ArrayList<Antibody>>> antibodyGenerations, HashMap<String,ArrayList<Antigen>> antigenMap, HashMap<String,ArrayList<Antigen>> antigenTestMap, HashMap<String,ArrayList<Antibody>> antibodyTestMap){
