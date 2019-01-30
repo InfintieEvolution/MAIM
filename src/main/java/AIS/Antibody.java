@@ -17,6 +17,7 @@ public class Antibody {
     private int correctClassificationCount;
     private boolean connectedAntigensSet;
     private AIS ais;
+
     public Antibody(double[] features, double radius, String label, Antigen[] antigens, AIS ais){
         this.features = features;
         this.radius = radius;

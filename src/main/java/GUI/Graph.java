@@ -35,7 +35,7 @@ public class Graph extends Pane {
     private HashMap<String,String> colorMap;
     private Text accuracyText = new Text();
 
-    public Graph(double width, double height, HashMap<String, double[][]> featureMap) {
+    public Graph(double width, double height, HashMap<String, double[][]> featureMap, HashMap<String, ArrayList<Antibody>> antibodyMap) {
         super();
         antigenPane = new Pane();
         antibodyPane = new Pane();
@@ -45,9 +45,9 @@ public class Graph extends Pane {
         super.getChildren().addAll(routePane, antigenPane, antibodyPane);
         this.featureMap = featureMap;
         this.colorMap = new HashMap<>();
-
+        this.antibodyMap = antibodyMap;
         setRandomColors(this.featureMap);
-        setBounds(featureMap);
+        setBounds(featureMap, antibodyMap);
 
         this.height = height;
         this.factorX = width / Math.abs(this.maxX - this.minX);
@@ -130,7 +130,7 @@ public class Graph extends Pane {
         }
     }
 
-    private void setBounds(HashMap<String, double[][]> featureMap) {
+    private void setBounds(HashMap<String, double[][]> featureMap, HashMap<String, ArrayList<Antibody>> antibodyMap) {
         double lowestValuedFeatureX = Double.MAX_VALUE;
         double highestValuedFeatureX = Double.MIN_VALUE;
 
@@ -158,6 +158,26 @@ public class Graph extends Pane {
                     highestValuedFeatureY = yFeatHigh;
                 }
             }
+
+        for (String antibodyLabel : antibodyMap.keySet()){
+            for(Antibody antibody : antibodyMap.get(antibodyLabel)){
+                var features = antibody.getFeatures();
+
+                if (features[0] < lowestValuedFeatureX) {
+                    lowestValuedFeatureX = features[0];
+                }
+                if (features[0] > highestValuedFeatureX) {
+                    highestValuedFeatureX = features[0];
+                }
+
+                if (features[1]< lowestValuedFeatureY) {
+                    lowestValuedFeatureY = features[1];
+                }
+                if (features[1]> highestValuedFeatureY) {
+                    highestValuedFeatureY = features[1];
+                }
+            }
+        }
 
         this.minX = (int)lowestValuedFeatureX;
         this.minY = (int)lowestValuedFeatureY;

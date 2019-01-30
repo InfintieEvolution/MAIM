@@ -17,6 +17,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import javax.lang.model.type.ArrayType;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -104,8 +105,8 @@ public class GUI extends BorderPane {
         iterationsArray[iterations] = "Test";
         return iterationsArray;
     }
-     public void createSolutionGraph(HashMap<String, double[][]> featureMap) {
-        this.graph = new Graph(400, 400, featureMap);
+     public void createSolutionGraph(HashMap<String, double[][]> featureMap, HashMap<String, ArrayList<Antibody>> antibodyMap, Graph graph) {
+        this.graph = graph; //new Graph(400, 400, featureMap, antibodyMap);
         setCenter(graph);
         BorderPane.setAlignment(graph, Pos.CENTER);
      }

@@ -3,6 +3,7 @@ import AIS.AIS;
 import AIS.Antigen;
 import AIS.Antibody;
 import GUI.GUI;
+import GUI.Graph;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -45,7 +46,7 @@ public class LegendaryOctoSniffle extends Application{
                 gui.startButton.setDisable(false);
                 gui.stopButton.setDisable(true);
                 this.gui.setAntibodyGenerations(antibodyGenerations, ais.getAntigenMap(), testSetMap, ais.getAntibodyMap());
-                this.gui.createSolutionGraph(ais.getFeatureMap());
+                this.gui.createSolutionGraph(ais.getFeatureMap(), ais.getAntibodyMap(), new Graph(400, 400, ais.getFeatureMap(), ais.getAntibodyMap()));
                 gui.drawSolution(testSetMap, ais.getAntibodyMap());
             });
         });
