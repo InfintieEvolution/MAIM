@@ -45,8 +45,8 @@ public class LegendaryOctoSniffle extends Application{
             Platform.runLater(() -> {
                 gui.startButton.setDisable(false);
                 gui.stopButton.setDisable(true);
+                this.gui.createSolutionGraph(new Graph(400, 400, ais.getFeatureMap(), ais.getAntibodyMap()));
                 this.gui.setAntibodyGenerations(antibodyGenerations, ais.getAntigenMap(), testSetMap, ais.getAntibodyMap());
-                this.gui.createSolutionGraph(ais.getFeatureMap(), ais.getAntibodyMap(), new Graph(400, 400, ais.getFeatureMap(), ais.getAntibodyMap()));
                 gui.drawSolution(testSetMap, ais.getAntibodyMap());
             });
         });
@@ -78,4 +78,27 @@ public class LegendaryOctoSniffle extends Application{
         launch(args);
     }
 
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
+
+    public GUI getGui() {
+        return gui;
+    }
+
+    public void setGui(GUI gui) {
+        this.gui = gui;
+    }
+
+    public AIS getAis() {
+        return ais;
+    }
+
+    public void setAis(AIS ais) {
+        this.ais = ais;
+    }
 }
