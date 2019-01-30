@@ -1,6 +1,5 @@
 package AIS;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -13,7 +12,7 @@ public class Antibody {
     private Antigen[] antigens;
     private HashMap<Antigen,Double> connectedAntigen;
     private double boundAntigensCount;
-    //private double totalWeight;
+    private double totalInteraction;
     private int correctClassificationCount;
     private boolean connectedAntigensSet;
     private AIS ais;
@@ -25,7 +24,7 @@ public class Antibody {
         this.antigens = antigens;
         this.connectedAntigen = new HashMap<>();
         this.boundAntigensCount = 0;
-        //this.totalWeight = 0.0;
+        //this.totalInteraction = 0.0;
         this.correctClassificationCount = 0;
         this.connectedAntigensSet = false;
         this.ais = ais;
@@ -36,14 +35,17 @@ public class Antibody {
         if(this.connectedAntigensSet){
             for (Antigen antigen:connectedAntigen.keySet()){
                 antigen.getConnectedAntibodies().add(this);
+                antigen.setTotalInteraction(antigen.getTotalInteraction() + this.getConnectedAntigen().get(antigen));
             }
         }else{  //first time calculating fitness
             for (Antigen antigen:antigens){
                 double distance = eucledeanDistance(this.features,antigen.getAttributes());
                 if (distance <= this.radius) {
                     antigen.getConnectedAntibodies().add(this);
-                    //totalWeight += distance;
-                    connectedAntigen.put(antigen,distance);
+                    double weight = calcualteWeight(antigen,distance);
+                    totalInteraction += weight;
+                    connectedAntigen.put(antigen,weight);
+                    antigen.setTotalInteraction(antigen.getTotalInteraction() + weight);
                     this.connectedAntigensSet = true;
                     this.boundAntigensCount++;
                     if(antigen.getLabel().equals(this.label)){
@@ -53,8 +55,8 @@ public class Antibody {
             }
         }
     }
-    public double calcualteWeight(Antigen antigen){
-        double distance = this.getConnectedAntigen().get(antigen);
+    public double calcualteWeight(Antigen antigen,double distance){
+        //double distance = this.getConnectedAntigen().get(antigen);
         double weight = 1/distance;
 
         return weight;
@@ -66,10 +68,10 @@ public class Antibody {
         }else{
             double accuracy = (double) correctClassificationCount/(boundAntigensCount);
             double sharingFactor = 0.0;
-            double totalWeight = 0.0;
+            double totalInteraction = 0.0;
             for(Antigen antigen: connectedAntigen.keySet()){
                 double weight = calcualteWeight(antigen);
-                totalWeight+=weight;
+                totalInteraction+=weight;
                 double totalAntibodyWeight = 0.0;
                 for(Antibody antibody:antigen.getConnectedAntibodies()){
                     totalAntibodyWeight += antibody.calcualteWeight(antigen);
@@ -77,7 +79,7 @@ public class Antibody {
                 sharingFactor += Math.pow(weight,2)/totalAntibodyWeight;
             }
             //System.out.println(sharingFactor);
-            this.fitness = ((accuracy *sharingFactor)/(totalWeight));
+            this.fitness = ((accuracy *sharingFactor)/(totalInteraction));
         }
     }*/
     public void calculateFitness(){
@@ -86,22 +88,16 @@ public class Antibody {
         }else{
             double accuracy = (double) correctClassificationCount/(boundAntigensCount);
             double sharingFactor = 0.0;
-            double totalWeight = 0.0;
             for(Antigen antigen: connectedAntigen.keySet()){
-                double weight = calcualteWeight(antigen);
-                totalWeight+=weight;
-                double totalAntibodyWeight = 0.0;
+                double weight = connectedAntigen.get(antigen);
+                //double totalInteractionAntigen = antigen.getTotalInteraction();
+                //double totalAntibodyWeight = 0.0;
 
-                //sharing factor
-                /*for(Antibody antibody:antigen.getConnectedAntibodies()){
-                    totalAntibodyWeight += antibody.calcualteWeight(antigen);
-                }*/
-                sharingFactor += Math.pow(weight,2)/totalAntibodyWeight;
+                sharingFactor += Math.pow(weight,2)/antigen.getTotalInteraction();
             }
-            //System.out.println(sharingFactor);
 
-            //this.fitness = (sharingFactor*accuracy)/totalWeight;
-            this.fitness = (accuracy * (totalWeight/boundAntigensCount));
+            //this.fitness = (sharingFactor*accuracy)/ totalInteraction;
+            this.fitness = (accuracy * (totalInteraction/boundAntigensCount));
         }
     }
 /*
@@ -120,7 +116,7 @@ public class Antibody {
                 sharingFactor += weight/totalAntibodyWeight;
             }
             //System.out.println(sharingFactor);
-            this.fitness = (sharingFactor*Math.pow(accuracy,2))/totalWeight;
+            this.fitness = (sharingFactor*Math.pow(accuracy,2))/totalInteraction;
         }
     }
 */
