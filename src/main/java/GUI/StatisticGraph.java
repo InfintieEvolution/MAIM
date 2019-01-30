@@ -32,54 +32,54 @@ class StatisticGraph extends Pane {
         this.height = height;
         this.iterations = iterations;
 
-        final Line zeroLine = new Line();
-        zeroLine.setStroke(Color.RED);
-        zeroLine.setStartX(0);
-        zeroLine.setStartY(0);
-        zeroLine.setEndX(width);
-        zeroLine.setEndY(0);
+        final Line line1 = new Line();
+        line1.setStroke(Color.RED);
+        line1.setStartX(0);
+        line1.setStartY(0);
+        line1.setEndX(width);
+        line1.setEndY(0);
 
-        final Line halfLine = new Line();
-        halfLine.setStroke(Color.GRAY);
-        halfLine.setStartX(0);
-        halfLine.setStartY(height * 0.5);
-        halfLine.setEndX(width);
-        halfLine.setEndY(height * 0.5);
+        final Line line2 = new Line();
+        line2.setStroke(Color.GRAY);
+        line2.setStartX(0);
+        line2.setStartY(height * 0.5);
+        line2.setEndX(width);
+        line2.setEndY(height * 0.5);
 
-        final Line approvedLine = new Line();
-        approvedLine.setStroke(Color.YELLOW);
-        approvedLine.setStartX(0);
-        approvedLine.setStartY(height * 0.90);
-        approvedLine.setEndX(width);
-        approvedLine.setEndY(height * 0.90);
+        final Line line3 = new Line();
+        line3.setStroke(Color.YELLOW);
+        line3.setStartX(0);
+        line3.setStartY(height * 0.90);
+        line3.setEndX(width);
+        line3.setEndY(height * 0.90);
 
-        final Line optimalLine = new Line();
-        optimalLine.setStroke(Color.GREEN);
-        optimalLine.setStartX(0);
-        optimalLine.setStartY(height);
-        optimalLine.setEndX(width);
-        optimalLine.setEndY(height);
+        final Line line4 = new Line();
+        line4.setStroke(Color.GREEN);
+        line4.setStartX(0);
+        line4.setStartY(height);
+        line4.setEndX(width);
+        line4.setEndY(height);
 
-        Text zeroText = new Text("0%");
-        zeroText.setY(zeroLine.getEndY());
-        zeroText.setX(-20);
+        Text line1Text = new Text("0%");
+        line1Text.setY(line1.getEndY());
+        line1Text.setX(-20);
 
-        Text halfText = new Text("50%");
-        halfText.setY(halfLine.getEndY());
-        halfText.setX(-25);
+        Text line2Text = new Text("50%");
+        line2Text.setY(line2.getEndY());
+        line2Text.setX(-25);
 
-        Text approvedText = new Text("90%");
-        approvedText.setY(approvedLine.getEndY());
-        approvedText.setX(-25);
+        Text line3Text = new Text("90%");
+        line3Text.setY(line3.getEndY());
+        line3Text.setX(-25);
 
-        Text optimalText = new Text("100%");
-        optimalText.setY(optimalLine.getEndY());
-        optimalText.setX(-32);
+        Text line4Text = new Text("100%");
+        line4Text.setY(line4.getEndY());
+        line4Text.setX(-32);
 
         bestAccuracyText.setY(height+50);
         bestAccuracyText.setX((width/2)*0.7);
         BorderPane.setAlignment(bestAccuracyText, Pos.CENTER);
-        super.getChildren().addAll(zeroLine, halfLine, approvedLine, optimalLine, zeroText, halfText, approvedText, optimalText, bestAccuracyText);
+        super.getChildren().addAll(line1, line2, line3, line4, line1Text, line2Text, line3Text, line4Text, bestAccuracyText);
     }
 
     void addIteration(double fitness) {
@@ -103,6 +103,6 @@ class StatisticGraph extends Pane {
     }
 
     void setBestAccuracy(double accuracy) {
-        Platform.runLater(() -> bestAccuracyText.setText(String.format(Locale.US, "Highest achieved accuracy: %.2f%%", accuracy*100)));
+        Platform.runLater(() -> bestAccuracyText.setText(String.format(Locale.US, "Highest achieved accuracy: %.2f", accuracy)));
     }
 }
