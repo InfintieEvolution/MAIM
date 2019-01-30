@@ -41,7 +41,7 @@ public class LegendaryOctoSniffle extends Application{
         HashMap<String,ArrayList<Antigen>> testSetMap = Antigen.createAntigenMap(dataSet.testSet);
 
         double accuracy = AIS.vote(testSetMap,ais.getAntibodyMap());
-
+        System.out.println(accuracy);
         Platform.runLater(() -> {
             gui.startButton.setDisable(false);
             gui.stopButton.setDisable(true);

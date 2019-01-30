@@ -13,7 +13,7 @@ public class Antibody {
     private Antigen[] antigens;
     private HashMap<Antigen,Double> connectedAntigen;
     private double boundAntigensCount;
-    private double totalWeight;
+    //private double totalWeight;
     private int correctClassificationCount;
     private boolean connectedAntigensSet;
     public Antibody(double[] features, double radius, String label, Antigen[] antigens){
@@ -24,7 +24,7 @@ public class Antibody {
         this.antigens = antigens;
         this.connectedAntigen = new HashMap<>();
         this.boundAntigensCount = 0;
-        this.totalWeight = 0.0;
+        //this.totalWeight = 0.0;
         this.correctClassificationCount = 0;
         this.connectedAntigensSet = false;
     }
@@ -42,7 +42,7 @@ public class Antibody {
                 double distance = eucledeanDistance(this.features,antigen.getAttributes());
                 if (distance <= this.radius) {
                     antigen.getConnectedAntibodies().add(this);
-                    totalWeight += distance;
+                    //totalWeight += distance;
                     connectedAntigen.put(antigen,distance);
                     this.connectedAntigensSet = true;
                     this.boundAntigensCount++;
@@ -53,6 +53,16 @@ public class Antibody {
             }
         }
     }
+    public double calcualteWeight(Antigen antigen){
+        double distance = this.getConnectedAntigen().get(antigen);
+        double weight = distance/this.radius;
+        if(weight <= 1){
+            weight = 1;
+        }else{
+            weight = 0;
+        }
+        return weight;
+    }
 
     public void calculateFitness(){
         if(this.boundAntigensCount == 0){
@@ -60,14 +70,40 @@ public class Antibody {
         }else{
             double accuracy = (double) correctClassificationCount/(boundAntigensCount);
             double sharingFactor = 0.0;
+            double totalWeight = 0.0;
             for(Antigen antigen: connectedAntigen.keySet()){
-                sharingFactor += antigen.getConnectedAntibodies().size();
+                double weight = calcualteWeight(antigen);
+                totalWeight+=weight;
+                double totalAntibodyWeight = 0.0;
+                for(Antibody antibody:antigen.getConnectedAntibodies()){
+                    totalAntibodyWeight += antibody.calcualteWeight(antigen);
+                }
+                sharingFactor += Math.pow(weight,2)/totalAntibodyWeight;
             }
             //System.out.println(sharingFactor);
-            this.fitness = (accuracy * (boundAntigensCount/totalWeight));
+            this.fitness = ((accuracy *sharingFactor)/(totalWeight));
         }
     }
-
+/*
+    public void calculateFitness(){
+        if(this.boundAntigensCount == 0){
+            this.fitness = 0.0;
+        }else{
+            double accuracy = (double) correctClassificationCount/(boundAntigensCount);
+            double sharingFactor = 0.0;
+            for(Antigen antigen: connectedAntigen.keySet()){
+                double weight = this.connectedAntigen.get(antigen);
+                double totalAntibodyWeight = 0.0;
+                for(Antibody antibody:antigen.getConnectedAntibodies()){
+                    totalAntibodyWeight += antibody.connectedAntigen.get(antigen);
+                }
+                sharingFactor += weight/totalAntibodyWeight;
+            }
+            //System.out.println(sharingFactor);
+            this.fitness = (sharingFactor*Math.pow(accuracy,2))/totalWeight;
+        }
+    }
+*/
     public double eucledeanDistance(double[] featureSet1, double[] featureSet2){
 
         double eucledeanDistance = 0.0;
