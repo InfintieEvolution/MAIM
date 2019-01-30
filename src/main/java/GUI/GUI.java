@@ -3,8 +3,6 @@ package GUI;
 import AIS.Antigen;
 import AIS.Antibody;
 import Algorithm.LegendaryOctoSniffle;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -17,14 +15,15 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import javax.lang.model.type.ArrayType;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class GUI extends BorderPane {
     private final Stage primaryStage;
     private final LegendaryOctoSniffle LOS;
-    private Graph graph;
+    private StatisticGraph statisticGraph;
+
+    private SolutionGraph solutionGraph;
     public final Button startButton = new Button("Start");
     public final Button stopButton = new Button("Stop");
 
@@ -34,6 +33,14 @@ public class GUI extends BorderPane {
     private final TextField inputNumberOfTournaments = new TextField("5");
     private final TextField inputDataSetName = new TextField("iris.data");
     private final TextField inputDataSetSplit = new TextField("0.1");
+
+    private final int sceneWidth = 1200;
+    private final int sceneHeight = 800;
+    private final int solutionGraphWidth = 400;
+    private final int solutionGraphHeight = 400;
+    private final int statisticGraphWidth = 800;
+    private final int statisticGraphHeight = 500;
+
     private HBox menu;
     private ArrayList<HashMap<String,ArrayList<Antibody>>> antibodyGenerations;
 
@@ -44,7 +51,7 @@ public class GUI extends BorderPane {
         this.antibodyGenerations = null;
         this.primaryStage = primaryStage;
         this.LOS = LOS;
-        final Scene scene = new Scene(this, 1200, 800);
+        final Scene scene = new Scene(this, sceneWidth, sceneHeight);
         primaryStage.setScene(scene);
         primaryStage.setTitle("legendary-octo-sniffle");
 
@@ -100,17 +107,34 @@ public class GUI extends BorderPane {
         iterationsArray[iterations] = "Test";
         return iterationsArray;
     }
-    public void createSolutionGraph(Graph graph) {
-        this.graph = graph;
-        setCenter(graph);
-        BorderPane.setAlignment(graph, Pos.CENTER);
+    public void createSolutionGraph(HashMap<String, double[][]> featureMap, HashMap<String,ArrayList<Antibody>> antibodyMap) {
+        this.solutionGraph = new SolutionGraph(solutionGraphWidth, solutionGraphHeight, featureMap,antibodyMap);
+        setCenter(solutionGraph);
     }
 
     public void drawSolution(HashMap<String, ArrayList<Antigen>> antigenMap, HashMap<String, ArrayList<Antibody>> antibodyMap){
-        graph.drawSolutionGraph(antigenMap,antibodyMap);
+        solutionGraph.drawSolutionGraph(antigenMap,antibodyMap);
     }
 
     public void setAccuracy(double accuracy) {
-        graph.setAccuracy(accuracy);
+        solutionGraph.setAccuracy(accuracy);
+    }
+
+    public void createStatisticGraph(int iterations) {
+        statisticGraph = new StatisticGraph(statisticGraphWidth, statisticGraphHeight, iterations);
+        //primaryStage.setHeight(700);
+        setCenter(statisticGraph);
+    }
+
+    public void addIteration(double fitness) {
+        statisticGraph.addIteration(fitness);
+    }
+
+    public void setBestAccuracy(double accuracy) {
+        statisticGraph.setBestAccuracy(accuracy);
+    }
+
+    public void setBestAccuracyIteration(double accuracy, int iteration) {
+        solutionGraph.setBestAccuracyIteration(accuracy, iteration);
     }
 }

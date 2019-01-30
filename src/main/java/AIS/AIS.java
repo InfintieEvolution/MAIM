@@ -14,6 +14,8 @@ public class AIS {
     private int numberOfTournaments;
     private double mutationRate;
     private final Comparator<Antibody> selectionComparator;
+    private double bestAccuracy;
+    private int bestItreation;
     private int iteration;
     private double averageFitness;
 
@@ -28,6 +30,8 @@ public class AIS {
         this.mutationRate = mutationRate;
         this.iteration = 0;
         this.averageFitness = 0;
+        this.bestAccuracy = 0.0;
+        this.bestItreation = 0;
 
         selectionComparator = (o1, o2) -> {
             if (o1.getFitness() > o2.getFitness()) {
@@ -371,7 +375,7 @@ public class AIS {
                         double distance = antibody.eucledeanDistance(antibody.getFeatures(), antigen.getAttributes());
                         if (distance <= antibody.getRadius()) {
                             //antibody is inside recognition radius
-                            double voteWeight = 1 / (1 + distance) * antibody.getFitness();
+                            double voteWeight = 1 / (distance) * antibody.getFitness();
                             if (!votingMap.containsKey(antibody.getLabel())) {
                                 votingMap.put(antibody.getLabel(), voteWeight);
                             } else {
@@ -435,6 +439,22 @@ public class AIS {
 
     public HashMap<String, ArrayList<Antibody>> getAntibodyMap() {
         return this.antibodyMap;
+    }
+
+    public double getBestAccuracy() {
+        return bestAccuracy;
+    }
+
+    public void setBestAccuracy(double bestAccuracy) {
+        this.bestAccuracy = bestAccuracy;
+    }
+
+    public int getBestItreation() {
+        return bestItreation;
+    }
+
+    public void setBestItreation(int bestItreation) {
+        this.bestItreation = bestItreation;
     }
 
     public static HashMap<String, ArrayList<Antibody>> copy(HashMap<String, ArrayList<Antibody>> original)

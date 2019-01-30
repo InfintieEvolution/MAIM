@@ -15,6 +15,7 @@ public class Antibody {
     private double totalInteraction;
     private int correctClassificationCount;
     private boolean connectedAntigensSet;
+    private double accuracy;
     private AIS ais;
 
     public Antibody(double[] features, double radius, String label, Antigen[] antigens, AIS ais){
@@ -29,6 +30,7 @@ public class Antibody {
         this.correctClassificationCount = 0;
         this.connectedAntigensSet = false;
         this.ais = ais;
+        this.accuracy = 0.0;
     }
 
     public void setConnectedAntigens(){
@@ -87,7 +89,7 @@ public class Antibody {
         if(this.boundAntigensCount == 0){
             this.fitness = 0.0;
         }else{
-            double accuracy = (double) correctClassificationCount/(boundAntigensCount);
+            this.accuracy = (double) correctClassificationCount/(boundAntigensCount);
             double sharingFactor = 0.0;
             for(Antigen antigen: connectedAntigen.keySet()){
                 double weight = connectedAntigen.get(antigen);

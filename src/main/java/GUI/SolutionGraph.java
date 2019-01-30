@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
 
-public class Graph extends Pane {
+public class SolutionGraph extends Pane {
 
     private final Pane antigenPane, antibodyPane, routePane;
     private int minX, minY, maxX, maxY;
@@ -34,8 +34,10 @@ public class Graph extends Pane {
     private HashMap<String, double[][]> featureMap;
     private HashMap<String,String> colorMap;
     private Text accuracyText = new Text();
+    private Text bestAccuracyText = new Text();
+
     private double width;
-    public Graph(double width, double height, HashMap<String, double[][]> featureMap, HashMap<String, ArrayList<Antibody>> antibodyMap) {
+    public SolutionGraph(double width, double height, HashMap<String, double[][]> featureMap, HashMap<String, ArrayList<Antibody>> antibodyMap) {
         super();
         antigenPane = new Pane();
         antibodyPane = new Pane();
@@ -54,10 +56,13 @@ public class Graph extends Pane {
         this.factorX = width / Math.abs(this.maxX - this.minX);
         this.factorY = height / Math.abs(this.maxY - this.minY);
 
-        accuracyText.setY(height+100);
-        accuracyText.setX(width/2);
+        accuracyText.setY(height+50);
+        //accuracyText.setX((width/2)*0.5);
 
-        super.getChildren().addAll(accuracyText);
+        bestAccuracyText.setY(height+70);
+        //bestAccuracyText.setX((width/2)*0.5);
+
+        super.getChildren().addAll(accuracyText, bestAccuracyText);
     }
 
     public void drawSolutionGraph(HashMap<String, ArrayList<Antigen>> antigenMap,HashMap<String, ArrayList<Antibody>> antibodyMap){
@@ -219,7 +224,10 @@ public class Graph extends Pane {
     }
 
     void setAccuracy(double accuracy) {
-        Platform.runLater(() ->accuracyText.setText(String.format(Locale.US, "Accuracy: %.2f", accuracy)));
+        Platform.runLater(() ->accuracyText.setText(String.format(Locale.US, "Accuracy of set shown: %.2f%%", accuracy*100)));
+    }
+    void setBestAccuracyIteration(double accuracy, int iteration){
+        Platform.runLater(() ->bestAccuracyText.setText(String.format(Locale.US, "Highest accuracy achieved over training set: %.2f%%, at iteration %d", accuracy*100, iteration)));
     }
 
     private double mapXToGraph(double x) {
