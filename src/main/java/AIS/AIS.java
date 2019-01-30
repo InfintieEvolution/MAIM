@@ -117,7 +117,7 @@ public class AIS {
             }
         }
 
-        return new Antibody(features,this.calculateNewRadius(parent1,parent2),parent1.getLabel(),this.antigens);
+        return new Antibody(features,this.calculateNewRadius(parent1,parent2),parent1.getLabel(),this.antigens,this);
     }
 
     private double calculateNewRadius(Antibody parent1, Antibody parent2){
@@ -319,7 +319,7 @@ public class AIS {
         //TODO: Make initial radius better
         double radius = (minAverage + (maxAverage - minAverage) * random.nextDouble());
 
-        return new Antibody(attributes, radius, label, this.antigens);
+        return new Antibody(attributes, radius, label, this.antigens,this);
     }
 /*
     public static double vote(Antigen[] antigens, Antibody[] antibodies){

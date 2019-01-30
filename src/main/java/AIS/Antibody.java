@@ -16,7 +16,8 @@ public class Antibody {
     //private double totalWeight;
     private int correctClassificationCount;
     private boolean connectedAntigensSet;
-    public Antibody(double[] features, double radius, String label, Antigen[] antigens){
+    private AIS ais;
+    public Antibody(double[] features, double radius, String label, Antigen[] antigens, AIS ais){
         this.features = features;
         this.radius = radius;
         this.label = label;
@@ -27,15 +28,14 @@ public class Antibody {
         //this.totalWeight = 0.0;
         this.correctClassificationCount = 0;
         this.connectedAntigensSet = false;
+        this.ais = ais;
     }
 
     public void setConnectedAntigens(){
         //Connected antigens has been calculated before, we only need to re-add the connected antigen
         if(this.connectedAntigensSet){
-            for (Antigen antigen:antigens){
-                if(connectedAntigen.containsKey(antigen)){
-                    antigen.getConnectedAntibodies().add(this);
-                }
+            for (Antigen antigen:connectedAntigen.keySet()){
+                antigen.getConnectedAntibodies().add(this);
             }
         }else{  //first time calculating fitness
             for (Antigen antigen:antigens){
@@ -55,7 +55,7 @@ public class Antibody {
     }
     public double calcualteWeight(Antigen antigen){
         double distance = this.getConnectedAntigen().get(antigen);
-        double weight = distance;
+        double weight = 1/distance;
 
         return weight;
     }
@@ -90,10 +90,18 @@ public class Antibody {
             for(Antigen antigen: connectedAntigen.keySet()){
                 double weight = calcualteWeight(antigen);
                 totalWeight+=weight;
-                sharingFactor += antigen.getConnectedAntibodies().size();
+                double totalAntibodyWeight = 0.0;
+
+                //sharing factor
+                /*for(Antibody antibody:antigen.getConnectedAntibodies()){
+                    totalAntibodyWeight += antibody.calcualteWeight(antigen);
+                }*/
+                sharingFactor += Math.pow(weight,2)/totalAntibodyWeight;
             }
             //System.out.println(sharingFactor);
-            this.fitness = (accuracy * (boundAntigensCount/totalWeight));
+
+            //this.fitness = (sharingFactor*accuracy)/totalWeight;
+            this.fitness = (accuracy * (totalWeight/boundAntigensCount));
         }
     }
 /*

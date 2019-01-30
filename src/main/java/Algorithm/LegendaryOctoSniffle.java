@@ -40,8 +40,7 @@ public class LegendaryOctoSniffle extends Application{
                 ais.iterate();
             }
 
-            double accuracy = AIS.vote(testSetMap, ais.getAntibodyMap());
-            System.out.println(accuracy);
+            //double accuracy = AIS.vote(testSetMap, ais.getAntibodyMap());
             Platform.runLater(() -> {
                 gui.startButton.setDisable(false);
                 gui.stopButton.setDisable(true);
