@@ -84,16 +84,11 @@ public class GUI extends BorderPane {
 
         taskBox.setOnAction((e) -> {
             if(taskBox.getValue().equals("Test")){
-                //HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations.get(antibodyGenerations.size()-1);
-                graph.setAntigens(antigenTestMap);
-                graph.setAntibodies(antibodyTestMap);
-                graph.setConnections();
+                this.drawSolution(antigenTestMap,antibodyTestMap);
             }else{
-            HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations.get(Integer.valueOf(taskBox.getValue())-1);
-            graph.setAntigens(antigenMap);
-            graph.setAntibodies(antibodyMap);
-            graph.setConnections();
-        }
+                HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations.get(Integer.valueOf(taskBox.getValue())-1);
+                this.drawSolution(antigenMap,antibodyMap);
+            }
         });
     }
 
@@ -105,16 +100,14 @@ public class GUI extends BorderPane {
         iterationsArray[iterations] = "Test";
         return iterationsArray;
     }
-     public void createSolutionGraph(HashMap<String, double[][]> featureMap, HashMap<String, ArrayList<Antibody>> antibodyMap, Graph graph) {
-        this.graph = graph; //new Graph(400, 400, featureMap, antibodyMap);
+    public void createSolutionGraph(Graph graph) {
+        this.graph = graph;
         setCenter(graph);
         BorderPane.setAlignment(graph, Pos.CENTER);
-     }
+    }
 
     public void drawSolution(HashMap<String, ArrayList<Antigen>> antigenMap, HashMap<String, ArrayList<Antibody>> antibodyMap){
-        graph.setAntigens(antigenMap);
-        graph.setAntibodies(antibodyMap);
-        graph.setConnections();
+        graph.drawSolutionGraph(antigenMap,antibodyMap);
     }
 
     public void setAccuracy(double accuracy) {
