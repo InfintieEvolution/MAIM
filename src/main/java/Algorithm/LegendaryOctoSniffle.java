@@ -30,27 +30,31 @@ public class LegendaryOctoSniffle extends Application{
         DataSet dataSet = new DataSet("./DataSets/"+dataSetName,trainingTestSplit);
         this.ais = new AIS(dataSet.trainingSet,dataSet.antigenMap,populationSize, mutationRate,numberOfTournaments);
 
-        ArrayList<HashMap<String,ArrayList<Antibody>>> antibodyGenerations = new ArrayList<>();
-
-        for(int i=0;i<iterations;i++){
-            antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
-            ais.iterate();
-        }
-
-        //creating hashmap for testset
         HashMap<String,ArrayList<Antigen>> testSetMap = Antigen.createAntigenMap(dataSet.testSet);
 
-        double accuracy = AIS.vote(testSetMap,ais.getAntibodyMap());
+        ArrayList<HashMap<String,ArrayList<Antibody>>> antibodyGenerations = new ArrayList<>();
 
-        Platform.runLater(() -> {
-            gui.startButton.setDisable(false);
-            gui.stopButton.setDisable(true);
-            this.gui.setAntibodyGenerations(antibodyGenerations,ais.getAntigenMap(),testSetMap,ais.getAntibodyMap());
-            this.gui.createSolutionGraph(ais.getFeatureMap());
-            gui.drawSolution(testSetMap,ais.getAntibodyMap());
+        Thread aisThread = new Thread(() -> {
+            for(int i=0;i<iterations;i++){
+                antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
+                ais.iterate();
+            }
+
+            Platform.runLater(() -> {
+                gui.startButton.setDisable(false);
+                gui.stopButton.setDisable(true);
+                this.gui.setAntibodyGenerations(antibodyGenerations,ais.getAntigenMap(),testSetMap,ais.getAntibodyMap());
+                this.gui.createSolutionGraph(ais.getFeatureMap());
+                gui.drawSolution(testSetMap,ais.getAntibodyMap());
+            });
+
         });
+        aisThread.start();
 
-        gui.startButton.setDisable(false);
+        //creating hashmap for testset
+        //double accuracy = AIS.vote(testSetMap,ais.getAntibodyMap());
+
+        //gui.startButton.setDisable(false);
     }
 
     public synchronized boolean getRunning() {
@@ -61,6 +65,7 @@ public class LegendaryOctoSniffle extends Application{
         running = false;
         gui.startButton.setDisable(false);
         gui.stopButton.setDisable(true);
+        stop();
     }
 
     @Override
