@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class LegendaryOctoSniffle extends Application{
+public class LegendaryOctoSniffle extends Application {
 
     //private TextField populationSizeInput = new TextField();
     private boolean running = false;
@@ -38,23 +38,27 @@ public class LegendaryOctoSniffle extends Application{
         Thread aisThread = new Thread(() -> {
             for (int i = 0; i < iterations; i++) {
                 antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
-                ais.iterate();
+                this.ais.iterate();
             }
+            this.gui.createStatGraph(this.gui.iterationList(iterations), antibodyGenerations);
+
+            this.gui.getStatGraph().addIteration(AIS.vote(this.ais.getAntigenMap(), this.ais.getAntibodyMap()));
 
             //double accuracy = AIS.vote(testSetMap, ais.getAntibodyMap());
             Platform.runLater(() -> {
-                gui.startButton.setDisable(false);
-                gui.stopButton.setDisable(true);
+                this.gui.startButton.setDisable(false);
+                this.gui.stopButton.setDisable(true);
+
+
                 this.gui.setAntibodyGenerations(antibodyGenerations, ais.getAntigenMap(), testSetMap, ais.getAntibodyMap());
                 this.gui.createSolutionGraph(ais.getFeatureMap(), ais.getAntibodyMap(), new Graph(400, 400, ais.getFeatureMap(), ais.getAntibodyMap()));
-                gui.drawSolution(testSetMap, ais.getAntibodyMap());
+                this.gui.drawSolution(testSetMap, ais.getAntibodyMap());
             });
         });
         aisThread.start();
 
         //creating hashmap for testset
         //double accuracy = AIS.vote(testSetMap,ais.getAntibodyMap());
-
         //gui.startButton.setDisable(false);
     }
 

@@ -3,8 +3,7 @@ package GUI;
 import AIS.Antigen;
 import AIS.Antibody;
 import Algorithm.LegendaryOctoSniffle;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -17,7 +16,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import javax.lang.model.type.ArrayType;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -25,6 +23,7 @@ public class GUI extends BorderPane {
     private final Stage primaryStage;
     private final LegendaryOctoSniffle LOS;
     private Graph graph;
+    private StatGraph statGraph;
     public final Button startButton = new Button("Start");
     public final Button stopButton = new Button("Stop");
 
@@ -47,8 +46,6 @@ public class GUI extends BorderPane {
         final Scene scene = new Scene(this, 1200, 800);
         primaryStage.setScene(scene);
         primaryStage.setTitle("legendary-octo-sniffle");
-
-        primaryStage.show();
 
         menu = new HBox(5);
         menu.setPadding(new Insets(5,0,0,0));
@@ -73,6 +70,7 @@ public class GUI extends BorderPane {
         stopButton.setOnAction(event -> LOS.stopRunning());
 
         stopButton.setDisable(true);
+
         primaryStage.show();
     }
 
@@ -105,8 +103,13 @@ public class GUI extends BorderPane {
         iterationsArray[iterations] = "Test";
         return iterationsArray;
     }
-     public void createSolutionGraph(HashMap<String, double[][]> featureMap, HashMap<String, ArrayList<Antibody>> antibodyMap, Graph graph) {
-        this.graph = graph; //new Graph(400, 400, featureMap, antibodyMap);
+
+    public StatGraph getStatGraph() {
+        return statGraph;
+    }
+
+    public void createSolutionGraph(HashMap<String, double[][]> featureMap, HashMap<String, ArrayList<Antibody>> antibodyMap, Graph graph) {
+        this.graph = graph;
         setCenter(graph);
         BorderPane.setAlignment(graph, Pos.CENTER);
      }
@@ -115,6 +118,14 @@ public class GUI extends BorderPane {
         graph.setAntigens(antigenMap);
         graph.setAntibodies(antibodyMap);
         graph.setConnections();
+    }
+
+    public void createStatGraph(String[] iterationsArray, ArrayList<HashMap<String, ArrayList<Antibody>>> antibodyGenerations){
+        this.statGraph = new StatGraph(400, 400, iterationsArray, antibodyGenerations);
+        BorderPane.setAlignment(statGraph, Pos.CENTER);
+        Platform.runLater(() -> {
+            super.setCenter(statGraph);
+        });
     }
 
     public void setAccuracy(double accuracy) {
