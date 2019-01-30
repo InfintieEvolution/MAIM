@@ -10,14 +10,23 @@ public class Antigen {
     private double[] attributes;
     private String label;
     private ArrayList<Antibody> connectedAntibodies;
+    private double totalInteraction;
 
     public Antigen(double[] attributes, String label){
 
         this.attributes = attributes;
         this.label = label;
         this.connectedAntibodies = new ArrayList<>();
+        this.totalInteraction = 0.0;
     }
 
+    public double getTotalInteraction() {
+        return totalInteraction;
+    }
+
+    public void setTotalInteraction(double totalInteraction) {
+        this.totalInteraction = totalInteraction;
+    }
     public double[] getAttributes() {
         return attributes;
     }

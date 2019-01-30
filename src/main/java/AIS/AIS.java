@@ -53,7 +53,7 @@ public class AIS {
                 final Antibody parent2 = tournamentSelection(antibodyMap.get(label), numberOfTournaments);
 
                 Antibody child = crossover(parent1,parent2);
-                child.setConnectedAntigens();
+                //child.setConnectedAntigens();
                 double p = Math.random();
                 if(p <= this.mutationRate){
                     this.mutate(child);
@@ -66,23 +66,19 @@ public class AIS {
             }
         }
 
-        /*for (Antibody antibody:children){
-            antibody.setConnectedAntigens();
-        }*/
         for(String label: antibodyMap.keySet()){
             for(Antibody antibody:antibodyMap.get(label)){
+                antibody.setConnectedAntigens();
                 antibody.calculateFitness();
             }
         }
-        /*for (Antibody antibody:children){
-            antibody.calculateFitness();
-        }*/
 
         this.select();
 
         //clear the connected antibodies list for the next iteration
         for(Antigen antigen:antigens){
             antigen.setConnectedAntibodies(new ArrayList<>());
+            antigen.setTotalInteraction(0.0);
         }
     }
 
@@ -156,17 +152,19 @@ public class AIS {
         HashMap<String,Double> classDistributionMap = new HashMap<>();
         double totalWeightSum = 0.0;
         for(String label:antigenMap.keySet()){
-            double labelWeightSum = 1.0;
+            double labelWeightSum = 0.0;
             for(Antigen antigen:antigenMap.get(label)){
-                for(Antibody antibody:antigen.getConnectedAntibodies()){
+                labelWeightSum += antigen.getTotalInteraction();
+               /*for(Antibody antibody:antigen.getConnectedAntibodies()){
                     labelWeightSum += antibody.getConnectedAntigen().get(antigen);
-                }
+                }*/
             }
             totalWeightSum += labelWeightSum;
             classDistributionMap.put(label,labelWeightSum);
         }
         for(String label:classDistributionMap.keySet()){
             double numberOfIndividuals = (classDistributionMap.get(label)/totalWeightSum)*populationSize;
+            //System.out.println(numberOfIndividuals);
             classDistributionMap.put(label,numberOfIndividuals);
         }
 
