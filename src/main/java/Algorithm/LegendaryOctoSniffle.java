@@ -28,39 +28,48 @@ public class LegendaryOctoSniffle extends Application{
         gui.startButton.setDisable(true);
         gui.stopButton.setDisable(false);
 
-        DataSet dataSet = new DataSet("./DataSets/"+dataSetName,trainingTestSplit);
-        this.ais = new AIS(dataSet.trainingSet,dataSet.antigenMap,populationSize, mutationRate,numberOfTournaments);
+        int labelColumn = 0;
+        if(dataSetName.equals("iris.data")){
+            labelColumn = 4;
+        }
+        //System.out.println(labelColumn);
+        DataSet dataSet = new DataSet("./DataSets/"+dataSetName,trainingTestSplit,labelColumn);
+        this.ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,populationSize, mutationRate,numberOfTournaments);
 
         gui.createStatisticGraph(iterations);
 
         HashMap<String,ArrayList<Antigen>> testSetMap = Antigen.createAntigenMap(dataSet.testSet);
         ArrayList<HashMap<String,ArrayList<Antibody>>> antibodyGenerations = new ArrayList<>();
         Thread aisThread = new Thread(() -> {
-            //double bestAccuracy = 0.0;
             for (int i = 0; i < iterations; i++) {
                 if(!this.getRunning()){
                     break;
                 }
                 antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
                 double accuracy = AIS.vote(ais.getAntigenMap(), ais.getAntibodyMap());
+                double accuracyTestSet = AIS.vote(testSetMap,ais.getAntibodyMap());
                 gui.addIteration(accuracy);
 
                 if(accuracy > ais.getBestAccuracy()){
                     gui.setBestAccuracy(accuracy);
-                    //bestAccuracy = accuracy;
                     ais.setBestAccuracy(accuracy);
-                    ais.setBestItreation(i+1);
+                    ais.setBestItreation(i);
+                }
+                if(accuracyTestSet > ais.getBestAccuracyTestSet()){
+                    ais.setBestAccuracyTestSet(accuracyTestSet);
+                    ais.setBestIterationTestSet(i);
                 }
                 ais.iterate();
             }
+            antibodyGenerations.add(ais.getAntibodyMap());
 
             //double accuracy = AIS.vote(testSetMap, ais.getAntibodyMap());
             Platform.runLater(() -> {
                 gui.startButton.setDisable(false);
                 gui.stopButton.setDisable(true);
                 this.gui.createSolutionGraph(ais.getFeatureMap(), ais.getAntibodyMap());
-                this.gui.setAntibodyGenerations(antibodyGenerations, ais.getAntigenMap(), testSetMap, ais.getAntibodyMap());
-                gui.drawSolution(testSetMap, ais.getAntibodyMap());
+                this.gui.setAntibodyGenerations(antibodyGenerations, ais.getAntigenMap(), testSetMap, antibodyGenerations.get(ais.getBestItreation()));
+                gui.drawSolution(testSetMap, antibodyGenerations.get(ais.getBestItreation()));
                 gui.setBestAccuracyIteration(ais.getBestAccuracy(),ais.getBestItreation());
             });
         });

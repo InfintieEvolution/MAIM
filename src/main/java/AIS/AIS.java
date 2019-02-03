@@ -16,10 +16,13 @@ public class AIS {
     private final Comparator<Antibody> selectionComparator;
     private double bestAccuracy;
     private int bestItreation;
+    private double bestAccuracyTestSet;
+    private int bestIterationTestSet;
+    private ArrayList<String> labels;
     private int iteration;
     private double averageFitness;
 
-    public AIS(Antigen[] antigens, HashMap<String,ArrayList<Antigen>> antigenMap,int populationSize, double mutationRate, int numberOfTorunaments){
+    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,int populationSize, double mutationRate, int numberOfTorunaments){
         this.antigens = antigens;
         this.antigenMap = antigenMap;
         this.featureMap = new HashMap<>();
@@ -32,6 +35,10 @@ public class AIS {
         this.averageFitness = 0;
         this.bestAccuracy = 0.0;
         this.bestItreation = 0;
+        this.bestAccuracyTestSet = 0.0;
+        this.bestIterationTestSet = 0;
+        this.featureMap = featureMap;
+        this.labels = labels;
 
         selectionComparator = (o1, o2) -> {
             if (o1.getFitness() > o2.getFitness()) {
@@ -48,13 +55,14 @@ public class AIS {
 
     public void iterate(){
         this.iteration++;
-        Antibody[] children = new Antibody[populationSize*antibodyMap.keySet().size()];
-        int childrenCount = 0;
-        for(String label:antibodyMap.keySet()){
+        //Antibody[] children = new Antibody[populationSize];
+        //int childrenCount = 0;
+        //for(String label:antibodyMap.keySet()){
             ArrayList<Antibody> newAntibodiesOfLabel = new ArrayList<>();
             for(int i=0;i<populationSize;i++){
-                final Antibody parent1 = tournamentSelection(antibodyMap.get(label), numberOfTournaments);
-                final Antibody parent2 = tournamentSelection(antibodyMap.get(label), numberOfTournaments);
+                String randomLabel = this.labels.get(random.nextInt(labels.size()));
+                final Antibody parent1 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
+                final Antibody parent2 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
 
                 Antibody child = crossover(parent1,parent2);
                 //child.setConnectedAntigens();
@@ -62,13 +70,13 @@ public class AIS {
                 if(p <= this.mutationRate){
                     this.mutate(child);
                 }
-                children[childrenCount ++] = child;
+                //children[childrenCount ++] = child;
                 newAntibodiesOfLabel.add(child);
             }
             for(Antibody antibody:newAntibodiesOfLabel){
-                antibodyMap.get(label).add(antibody);
+                antibodyMap.get(antibody.getLabel()).add(antibody);
             }
-        }
+        //}
 
         for(String label: antibodyMap.keySet()){
             for(Antibody antibody:antibodyMap.get(label)){
@@ -156,12 +164,13 @@ public class AIS {
         HashMap<String,Double> classDistributionMap = new HashMap<>();
         double totalWeightSum = 0.0;
         for(String label:antigenMap.keySet()){
-            double labelWeightSum = 0.0;
+            double labelWeightSum = 1.0;
             for(Antigen antigen:antigenMap.get(label)){
-                labelWeightSum += antigen.getTotalInteraction();
+                labelWeightSum += 1/antigen.getTotalInteraction();
                /*for(Antibody antibody:antigen.getConnectedAntibodies()){
-                    labelWeightSum += antibody.getConnectedAntigen().get(antigen);
+                    labelWeightSum += (antibody.getConnectedAntigen().get(antigen)*antibody.getAccuracy());
                 }*/
+                //labelWeightSum += 1/antigen.getTotalInteraction();
             }
             totalWeightSum += labelWeightSum;
             classDistributionMap.put(label,labelWeightSum);
@@ -180,6 +189,7 @@ public class AIS {
         for (String label: antigenMap.keySet()){
             labelIndex++;
             int numberOfIndividuals = (int)(double)(classDistributionMap.get(label));
+            //int numberOfIndividuals = (int)(double)this.populationSize/this.labels.size();
 
             totalSelectedIndividuals += numberOfIndividuals;
             if(labelIndex == antibodyMap.keySet().size() && totalSelectedIndividuals < populationSize){
@@ -237,7 +247,6 @@ public class AIS {
             if(antibodyCount >= populationSize){
                 break;
             }
-            createFeatureMap(antigenMap.get(label));
 
             int labelCount = (int)(((double)this.antigenMap.get(label).size()/antigens.length)*populationSize);
 
@@ -273,30 +282,6 @@ public class AIS {
         }
     }
 
-    public void createFeatureMap(ArrayList<Antigen> antigens){
-        double[][] features = new double[antigens.get(0).getAttributes().length][2];
-
-        for(double[] featureBound:features){
-            featureBound[0] = Double.MAX_VALUE;
-            featureBound[1] = Double.MIN_VALUE;
-        }
-
-        for (int j=0;j<antigens.size();j++){
-            for(int i=0;i<antigens.get(j).getAttributes().length;i++){
-
-                double featureValue = antigens.get(j).getAttributes()[i];
-
-                if(featureValue < features[i][0]){
-                    features[i][0] = featureValue;
-                }else if(featureValue > features[i][1]){
-                    features[i][1] = featureValue;
-                }
-            }
-        }
-        featureMap.put(antigens.get(0).getLabel(),features);
-    }
-
-
     public Antibody createAntibody(String label){
         double[][] featureList = featureMap.get(label);
         double[] attributes = new double[featureList.length];
@@ -323,48 +308,7 @@ public class AIS {
 
         return new Antibody(attributes, radius, label, this.antigens,this);
     }
-    /*
-        public static double vote(Antigen[] antigens, Antibody[] antibodies){
-            HashMap<Antigen,String> antigenClassification = new HashMap<>();
-            for(Antigen antigen: antigens){
-                HashMap<String,Double> votingMap = new HashMap<>();
-                for(Antibody antibody: antibodies){
-                    double distance = antibody.eucledeanDistance(antibody.getFeatures(),antigen.getAttributes());
-                    if(distance <= antibody.getRadius()){
-                        //antibody is inside recognition radius
-                        double voteWeight = 1/(1+distance)*antibody.getFitness();
-                        if(!votingMap.containsKey(antibody.getLabel())){
-                            votingMap.put(antibody.getLabel(),voteWeight);
-                        }else{
-                            double k = votingMap.get(antibody.getLabel());
-                            votingMap.put(antibody.getLabel(),k + voteWeight);
-                        }
-                    }
-                }
 
-                double highestVoteNumber = 0.0;
-                String highestVoteLabel = null;
-
-                for(String label: votingMap.keySet()){
-                    if(votingMap.get(label) > highestVoteNumber){
-                        highestVoteNumber = votingMap.get(label);
-                        highestVoteLabel = label;
-                    }
-                }
-                antigenClassification.put(antigen,highestVoteLabel);
-            }
-
-            int correctClassification = 0;
-            for(Antigen antigen: antigens){
-                if(antigen.getLabel().equals(antigenClassification.get(antigen))){
-                    correctClassification++;
-                }
-            }
-            double accuracy = (double)correctClassification/antigens.length;
-
-            return accuracy;
-        }
-    */
     public static double vote(HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antibody>> antibodyMap) {
         HashMap<Antigen, String> antigenClassification = new HashMap<>();
         for(String antigenLabel: antigenMap.keySet()){
@@ -375,7 +319,7 @@ public class AIS {
                         double distance = antibody.eucledeanDistance(antibody.getFeatures(), antigen.getAttributes());
                         if (distance <= antibody.getRadius()) {
                             //antibody is inside recognition radius
-                            double voteWeight = 1 / (distance) * antibody.getFitness();
+                            double voteWeight = (1 / (distance))*antibody.getAccuracy()  /* antibody.getFitness()*/;
                             if (!votingMap.containsKey(antibody.getLabel())) {
                                 votingMap.put(antibody.getLabel(), voteWeight);
                             } else {
@@ -455,6 +399,22 @@ public class AIS {
 
     public void setBestItreation(int bestItreation) {
         this.bestItreation = bestItreation;
+    }
+
+    public double getBestAccuracyTestSet() {
+        return bestAccuracyTestSet;
+    }
+
+    public void setBestAccuracyTestSet(double bestAccuracyTestSet) {
+        this.bestAccuracyTestSet = bestAccuracyTestSet;
+    }
+
+    public int getBestIterationTestSet() {
+        return bestIterationTestSet;
+    }
+
+    public void setBestIterationTestSet(int bestIterationTestSet) {
+        this.bestIterationTestSet = bestIterationTestSet;
     }
 
     public static HashMap<String, ArrayList<Antibody>> copy(HashMap<String, ArrayList<Antibody>> original)

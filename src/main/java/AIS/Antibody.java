@@ -99,8 +99,8 @@ public class Antibody {
                 sharingFactor += Math.pow(weight,2)/antigen.getTotalInteraction();
             }
 
-            //this.fitness = (sharingFactor*accuracy)/ totalInteraction;
-            this.fitness = (accuracy * (totalInteraction/boundAntigensCount));
+            this.fitness = (sharingFactor*accuracy)/ totalInteraction;
+            //this.fitness = (accuracy * (totalInteraction/boundAntigensCount));
         }
     }
 /*
@@ -168,6 +168,14 @@ public class Antibody {
 
     public HashMap<Antigen, Double> getConnectedAntigen() {
         return connectedAntigen;
+    }
+
+    public double getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(double accuracy) {
+        this.accuracy = accuracy;
     }
 
     public void setConnectedAntigen(HashMap<Antigen, Double> connectedAntigen) {

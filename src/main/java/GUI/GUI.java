@@ -36,8 +36,8 @@ public class GUI extends BorderPane {
 
     private final int sceneWidth = 1200;
     private final int sceneHeight = 800;
-    private final int solutionGraphWidth = 400;
-    private final int solutionGraphHeight = 400;
+    private final int solutionGraphWidth = 600;
+    private final int solutionGraphHeight = 600;
     private final int statisticGraphWidth = 800;
     private final int statisticGraphHeight = 500;
 
@@ -93,7 +93,7 @@ public class GUI extends BorderPane {
             if(taskBox.getValue().equals("Test")){
                 this.drawSolution(antigenTestMap,antibodyTestMap);
             }else{
-                HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations.get(Integer.valueOf(taskBox.getValue())-1);
+                HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations.get(Integer.valueOf(taskBox.getValue()));
                 this.drawSolution(antigenMap,antibodyMap);
             }
         });
@@ -102,7 +102,7 @@ public class GUI extends BorderPane {
     public String[] iterationList(int iterations){
         String[] iterationsArray = new String[iterations+1];
         for(int i=0;i<iterations;i++){
-            iterationsArray[i] = i+1+"";
+            iterationsArray[i] = i+"";
         }
         iterationsArray[iterations] = "Test";
         return iterationsArray;
