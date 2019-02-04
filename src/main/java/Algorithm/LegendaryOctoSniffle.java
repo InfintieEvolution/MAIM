@@ -23,17 +23,13 @@ public class LegendaryOctoSniffle extends Application{
         gui = new GUI(primaryStage,this);
     }
 
-    public void run(int iterations, int populationSize, double mutationRate, int numberOfTournaments, String dataSetName, double trainingTestSplit){
+    public void run(int iterations, int populationSize, double mutationRate, int numberOfTournaments, String dataSetName,int labelIndex, double trainingTestSplit){
         this.running = true;
         gui.startButton.setDisable(true);
+        gui.iterationTextField.setDisable(true);
         gui.stopButton.setDisable(false);
 
-        int labelColumn = 0;
-        if(dataSetName.equals("iris.data")){
-            labelColumn = 4;
-        }
-        //System.out.println(labelColumn);
-        DataSet dataSet = new DataSet("./DataSets/"+dataSetName,trainingTestSplit,labelColumn);
+        DataSet dataSet = new DataSet("./DataSets/"+dataSetName,trainingTestSplit,labelIndex);
         this.ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,populationSize, mutationRate,numberOfTournaments);
 
         gui.createStatisticGraph(iterations);
@@ -66,9 +62,10 @@ public class LegendaryOctoSniffle extends Application{
             //double accuracy = AIS.vote(testSetMap, ais.getAntibodyMap());
             Platform.runLater(() -> {
                 gui.startButton.setDisable(false);
+                gui.iterationTextField.setDisable(false);
                 gui.stopButton.setDisable(true);
-                this.gui.createSolutionGraph(ais.getFeatureMap(), ais.getAntibodyMap());
                 this.gui.setAntibodyGenerations(antibodyGenerations, ais.getAntigenMap(), testSetMap, antibodyGenerations.get(ais.getBestItreation()));
+                this.gui.createSolutionGraph(ais.getFeatureMap(), ais.getAntibodyMap());
                 gui.drawSolution(testSetMap, antibodyGenerations.get(ais.getBestItreation()));
                 gui.setBestAccuracyIteration(ais.getBestAccuracy(),ais.getBestItreation());
             });
