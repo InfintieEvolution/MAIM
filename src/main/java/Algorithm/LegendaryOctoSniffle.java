@@ -30,7 +30,7 @@ public class LegendaryOctoSniffle extends Application{
         gui.stopButton.setDisable(false);
 
         DataSet dataSet = new DataSet("./DataSets/"+dataSetName,trainingTestSplit,labelIndex);
-        this.ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,populationSize, mutationRate,numberOfTournaments);
+        this.ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,populationSize, mutationRate,numberOfTournaments,iterations);
 
         gui.createStatisticGraph(iterations);
 
@@ -41,6 +41,7 @@ public class LegendaryOctoSniffle extends Application{
                 if(!this.getRunning()){
                     break;
                 }
+                ais.setIteration(ais.getIteration()+1);
                 antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
                 double accuracy = AIS.vote(ais.getAntigenMap(), ais.getAntibodyMap());
                 double accuracyTestSet = AIS.vote(testSetMap,ais.getAntibodyMap());
@@ -62,6 +63,7 @@ public class LegendaryOctoSniffle extends Application{
             //double accuracy = AIS.vote(testSetMap, ais.getAntibodyMap());
             Platform.runLater(() -> {
                 gui.startButton.setDisable(false);
+                gui.startButton.requestFocus();
                 gui.iterationTextField.setDisable(false);
                 gui.stopButton.setDisable(true);
                 this.gui.setAntibodyGenerations(antibodyGenerations, ais.getAntigenMap(), testSetMap, antibodyGenerations.get(ais.getBestItreation()));
