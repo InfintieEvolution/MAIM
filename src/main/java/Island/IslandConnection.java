@@ -2,19 +2,27 @@ package Island;
 
 public class IslandConnection {
 
-    private Island sendingIsland;
-    private Island receivingIsland;
+    private Island sendToIsland;
+    private Island receiveFromIsland;
 
     public IslandConnection(Island sendingIsland, Island receivingIsland) {
-        this.sendingIsland = sendingIsland;
-        this.receivingIsland = receivingIsland;
+        this.sendToIsland = sendingIsland;
+        this.receiveFromIsland = receivingIsland;
     }
 
-    public Island getSendingIsland() {
-        return sendingIsland;
+    /**
+     * The island current island is sending migrants to.
+     * @return Island
+     */
+    public Island getSendToIsland() {
+        return sendToIsland;
     }
 
-    public Island getReceivingIsland() {
-        return receivingIsland;
+    /**
+     * This island current island is receiving immigrants from.
+     * @return Island
+     */
+    public Island getReceiveFromIsland() {
+        return receiveFromIsland;
     }
 }
