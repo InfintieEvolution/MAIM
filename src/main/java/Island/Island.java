@@ -16,11 +16,12 @@ public class Island {
     private double migrationRate;
     private double migrationFrequency;
     private ArrayList<IslandConnection> islandConnections;
-    public Island(AIS ais, double migrationRate, double migrationFrequency, ArrayList<IslandConnection> islandConnections) {
+
+    public Island(AIS ais, double migrationRate, double migrationFrequency) {
         this.ais = ais;
         this.migrationRate = migrationRate;
         this.migrationFrequency = migrationFrequency;
-        this.islandConnections = islandConnections;
+        this.islandConnections = new ArrayList<>();
     }
 
     public AIS getAis() {
