@@ -11,7 +11,7 @@ public class IGA {
     private int populationSize;
     private int iterations;
     private int currentIterations;
-
+    private int migrationCount;
     private double migrationFrequency;
     private double migrationRate; // TODO: NOT IN USE ATM
     private ArrayList<Island> islands;
@@ -35,6 +35,7 @@ public class IGA {
         this.migrationRate = migrationRate;
         islands = new ArrayList<>();
         islandConnections = new ArrayList<>();
+        this.migrationCount = 0;
     }
 
     public void initialize(DataSet dataSet, double mutationRate, int numberOfTournaments, int iterations){
@@ -69,16 +70,16 @@ public class IGA {
 
     }
 
-    // Synchronous migration
-
+    
     public void migrate() {
         this.currentIterations++;
-        double migrationTime = this.migrationFrequency * this.iterations;
+        double migrationTime = iterations / (this.migrationFrequency * this.iterations);
         // if it's time for migration do so, else something fancy.
         if(this.currentIterations >= migrationTime){
             for (IslandConnection islandConnection : this.islandConnections){
                 islandConnection.getReceiveFromIsland().receive(islandConnection.getSendToIsland());
             }
+            this.currentIterations = 0;
         }
     }
     @Override

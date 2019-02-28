@@ -50,7 +50,7 @@ public class Island {
         for (String label : labels){
             Antibody bestAntibody = null;
             for(Antibody antibody: ais.getAntibodyMap().get(label)){
-                if(antibody.getFitness() > bestAntibody.getFitness() || bestAntibody == null) {
+                if( bestAntibody == null || antibody.getFitness() > bestAntibody.getFitness()) {
                     bestAntibody = antibody;
                 }
             }
@@ -69,7 +69,7 @@ public class Island {
             Antibody weakestAntibody = null;
             ArrayList<Antibody> antibodies = ais.getAntibodyMap().get(label);
             for (Antibody antibody : antibodies) {
-                if (antibody.getFitness() < weakestAntibody.getFitness() || weakestAntibody == null) {
+                if (weakestAntibody == null || antibody.getFitness() < weakestAntibody.getFitness()) {
                     weakestAntibody = antibody;
                 }
             }
@@ -77,13 +77,13 @@ public class Island {
         }
     }
 
+
     public void receive(Island sendingIsland){
         // remove bad antibodies
         this.removeAntibodies(this.getAis());
-
         //Adds new antibodies with higher fitness
         HashMap<String, Antibody> receivingAntibodies = sendingIsland.sendMigrants(sendingIsland.getAis());
-        for (Map.Entry<String, Antibody> entry : receivingAntibodies.entrySet()){
+        for (Map.Entry<String, Antibody> entry : receivingAntibodies.entrySet()) {
             this.getAis().getAntibodyMap().get(entry.getKey()).add(entry.getValue());
         }
     }
@@ -92,6 +92,9 @@ public class Island {
     public String toString() {
         return "Island{" +
                 "islandId=" + islandId +
+//                ", AIS best accuracy= " + this.getAis().getBestAccuracy() +
+//                ", AIS best accuracy test= " + this.getAis().getBestAccuracyTestSet()+
+//                ", AIS best iteration= " + this.getAis().getBestItreation() +
                 '}';
     }
 }
