@@ -16,12 +16,14 @@ public class Island {
     private double migrationRate;
     private double migrationFrequency;
     private ArrayList<IslandConnection> islandConnections;
+    private int islandId;
 
-    public Island(AIS ais, double migrationRate, double migrationFrequency) {
+    public Island(AIS ais, double migrationRate, double migrationFrequency, int islandId) {
         this.ais = ais;
         this.migrationRate = migrationRate;
         this.migrationFrequency = migrationFrequency;
         this.islandConnections = new ArrayList<>();
+        this.islandId = islandId;
     }
 
     public AIS getAis() {
@@ -84,5 +86,12 @@ public class Island {
         for (Map.Entry<String, Antibody> entry : receivingAntibodies.entrySet()){
             this.getAis().getAntibodyMap().get(entry.getKey()).add(entry.getValue());
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Island{" +
+                "islandId=" + islandId +
+                '}';
     }
 }

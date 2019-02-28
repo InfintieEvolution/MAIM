@@ -13,7 +13,7 @@ public class IGA {
     private int currentIterations;
 
     private double migrationFrequency;
-    @Deprecated private double migrationRate; // TODO: NOT IN USE ATM
+    private double migrationRate; // TODO: NOT IN USE ATM
     private ArrayList<Island> islands;
     private ArrayList<IslandConnection> islandConnections;
 
@@ -23,15 +23,14 @@ public class IGA {
      * @param numberOfIslands Number of islands
      * @param populationSize Total population size
      * @param iterations Total iterations to run
-     * @param currentIterations Current Iteration (used to determine whether to migrate or not.
      * @param migrationFrequency Determines how ofter migration should occur
-     * @deprecated @param migrationRate How many individuals to migrate
+     * @@param migrationRate How many individuals to migrate
      */
-    public IGA(int numberOfIslands, int populationSize, int iterations, int currentIterations, double migrationFrequency, double migrationRate) {
+    public IGA(int numberOfIslands, int populationSize, int iterations, double migrationFrequency, double migrationRate) {
         this.numberOfIslands = numberOfIslands;
         this.populationSize = populationSize;
         this.iterations = iterations;
-        this.currentIterations = currentIterations;
+        this.currentIterations = 0;
         this.migrationFrequency = migrationFrequency;
         this.migrationRate = migrationRate;
         islands = new ArrayList<>();
@@ -43,11 +42,11 @@ public class IGA {
         // create islands
         for(int i=0; i < numberOfIslands; i++){
             AIS ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations);
-            this.islands.add(new Island(ais, migrationRate, migrationFrequency));
+            this.islands.add(new Island(ais, migrationRate, migrationFrequency, i));
         }
 
         // connect islands
-        for (int i=0; i < islands.size()-1; i++){
+        for (int i=0; i < islands.size(); i++){
             if (i == 0){
                 Island sendToIsland = this.islands.get(i+1);
                 Island receiveFromIsland = this.islands.get(this.islands.size()-1);
@@ -66,12 +65,12 @@ public class IGA {
         }
     }
 
-
     public void iterate() {
 
     }
 
     // Synchronous migration
+
     public void migrate() {
         this.currentIterations++;
         double migrationTime = this.migrationFrequency * this.iterations;
@@ -81,5 +80,14 @@ public class IGA {
                 islandConnection.getReceiveFromIsland().receive(islandConnection.getSendToIsland());
             }
         }
+    }
+    @Override
+    public String toString() {
+        return "IGA{" +
+                "numberOfIslandConnections=" + islandConnections.size() +
+                ", numberOfIslands=" + numberOfIslands +
+                ", populationSize=" + populationSize +
+                ", islandConnections=" + islandConnections +
+                '}';
     }
 }

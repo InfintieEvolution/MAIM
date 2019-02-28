@@ -25,4 +25,12 @@ public class IslandConnection {
     public Island getReceiveFromIsland() {
         return receiveFromIsland;
     }
+
+    @Override
+    public String toString() {
+        return "IslandConnection{" +
+                "sendToIsland=" + sendToIsland +
+                ", receiveFromIsland=" + receiveFromIsland +
+                '}';
+    }
 }
