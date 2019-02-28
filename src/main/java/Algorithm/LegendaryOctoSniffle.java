@@ -4,9 +4,12 @@ import AIS.Antigen;
 import AIS.Antibody;
 import GUI.GUI;
 import GUI.SolutionGraph;
+import Island.IGA;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -18,46 +21,53 @@ public class LegendaryOctoSniffle extends Application{
     private GUI gui;
     private AIS ais;
 
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         gui = new GUI(primaryStage,this);
     }
 
-    public void run(int iterations, int populationSize, double mutationRate, int numberOfTournaments, String dataSetName,int labelIndex, double trainingTestSplit){
+    public void run(int iterations, int populationSize, double mutationRate, int numberOfTournaments, String dataSetName,int labelIndex, double trainingTestSplit, double migrationFrequency, int numberOfIslands){
         this.running = true;
         gui.startButton.setDisable(true);
         gui.iterationTextField.setDisable(true);
         gui.stopButton.setDisable(false);
 
         DataSet dataSet = new DataSet("./DataSets/"+dataSetName,trainingTestSplit,labelIndex);
-        this.ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,populationSize, mutationRate,numberOfTournaments,iterations);
 
+        IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, numberOfTournaments);
+        iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations);
+
+//        this.ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,populationSize, mutationRate,numberOfTournaments,iterations);
+        this.ais = iga.getIsland(0).getAis(); //new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,populationSize, mutationRate,numberOfTournaments,iterations);
         gui.createStatisticGraph(iterations);
 
         HashMap<String,ArrayList<Antigen>> testSetMap = Antigen.createAntigenMap(dataSet.testSet);
         ArrayList<HashMap<String,ArrayList<Antibody>>> antibodyGenerations = new ArrayList<>();
         Thread aisThread = new Thread(() -> {
-            for (int i = 0; i < iterations; i++) {
-                if(!this.getRunning()){
-                    break;
-                }
-                ais.setIteration(ais.getIteration()+1);
-                antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
-                double accuracy = AIS.vote(ais.getAntigenMap(), ais.getAntibodyMap());
-                double accuracyTestSet = AIS.vote(testSetMap,ais.getAntibodyMap());
-                gui.addIteration(accuracy);
+                for (int i = 0; i < iterations; i++) {
+                    if(!this.getRunning()){
+                        break;
+                    }
+                    iga.migrate();
+                    ais.setIteration(ais.getIteration()+1);
+                    antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
+                    double accuracy = AIS.vote(ais.getAntigenMap(), ais.getAntibodyMap());
+                    double accuracyTestSet = AIS.vote(testSetMap,ais.getAntibodyMap());
+                    gui.addIteration(accuracy);
 
-                if(accuracy > ais.getBestAccuracy()){
-                    gui.setBestAccuracy(accuracy);
-                    ais.setBestAccuracy(accuracy);
-                    ais.setBestItreation(i);
+                    if(accuracy > ais.getBestAccuracy()){
+                        gui.setBestAccuracy(accuracy);
+                        ais.setBestAccuracy(accuracy);
+                        ais.setBestItreation(i);
+                    }
+                    if(accuracyTestSet > ais.getBestAccuracyTestSet()){
+                        ais.setBestAccuracyTestSet(accuracyTestSet);
+                        ais.setBestIterationTestSet(i);
+                    }
+                    ais.iterate();
                 }
-                if(accuracyTestSet > ais.getBestAccuracyTestSet()){
-                    ais.setBestAccuracyTestSet(accuracyTestSet);
-                    ais.setBestIterationTestSet(i);
-                }
-                ais.iterate();
-            }
+
             antibodyGenerations.add(ais.getAntibodyMap());
 
             //double accuracy = AIS.vote(testSetMap, ais.getAntibodyMap());
@@ -73,7 +83,6 @@ public class LegendaryOctoSniffle extends Application{
             });
         });
         aisThread.start();
-
     }
 
     public synchronized boolean getRunning() {
@@ -113,9 +122,9 @@ public class LegendaryOctoSniffle extends Application{
 
     public AIS getAis() {
         return ais;
-    }
+   }
 
-    public void setAis(AIS ais) {
-        this.ais = ais;
+   public void setAis(AIS ais) {
+       this.ais = ais;
     }
 }

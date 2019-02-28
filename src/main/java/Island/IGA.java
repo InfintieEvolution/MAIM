@@ -1,8 +1,10 @@
+
 package Island;
 
 import AIS.AIS;
 import Algorithm.DataSet;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class IGA {
@@ -16,7 +18,6 @@ public class IGA {
     private double migrationRate; // TODO: NOT IN USE ATM
     private ArrayList<Island> islands;
     private ArrayList<IslandConnection> islandConnections;
-
 
     /**
      *
@@ -70,7 +71,7 @@ public class IGA {
 
     }
 
-    
+
     public void migrate() {
         this.currentIterations++;
         double migrationTime = iterations / (this.migrationFrequency * this.iterations);
@@ -82,6 +83,38 @@ public class IGA {
             this.currentIterations = 0;
         }
     }
+
+    public int getNumberOfIslands() {
+        return numberOfIslands;
+    }
+
+    public int getPopulationSize() {
+        return populationSize;
+    }
+
+    public double getMigrationFrequency() {
+        return migrationFrequency;
+    }
+
+    public ArrayList<Island> getIslands() {
+        return islands;
+    }
+
+    public Island getIsland(int islandId) {
+        return this.islands.get(islandId);
+    }
+
+    public ArrayList<AIS> getAllAIS(){
+        ArrayList<AIS> ais = new ArrayList<>();
+        for (Island island : getIslands()){
+            ais.add(island.getAis());
+        }
+        return ais;
+    }
+    public ArrayList<IslandConnection> getIslandConnections() {
+        return islandConnections;
+    }
+
     @Override
     public String toString() {
         return "IGA{" +

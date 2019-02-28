@@ -553,6 +553,10 @@ public class AIS {
         this.maxIterations = maxIterations;
     }
 
+    public int getPopulationSize() {
+        return populationSize;
+    }
+
     public static HashMap<String, ArrayList<Antibody>> copy(HashMap<String, ArrayList<Antibody>> original)
     {
         HashMap<String, ArrayList<Antibody>> copy = new HashMap<>();

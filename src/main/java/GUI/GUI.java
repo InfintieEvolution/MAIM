@@ -1,5 +1,6 @@
 package GUI;
 
+import AIS.AIS;
 import AIS.Antigen;
 import AIS.Antibody;
 import Algorithm.LegendaryOctoSniffle;
@@ -17,6 +18,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -50,6 +52,8 @@ public class GUI extends BorderPane {
     private final TextField inputNumberOfTournaments = new TextField("5");
     private final TextField inputDataSetSplit = new TextField("0.1");
     public final TextField iterationTextField = new TextField();
+    private final TextField inputMigrationFrequency = new TextField("0.1");
+    private final TextField inputNumberOfIslands = new TextField("4");
 
     private final int sceneWidth = 1200;
     private final int sceneHeight = 850;
@@ -97,12 +101,14 @@ public class GUI extends BorderPane {
                 new Text("Population size:"), inputPopulationSize,
                 new Text("Mutation rate:"), inputMutationRate,
                 new Text("Number of tournaments:"),inputNumberOfTournaments,
+                new Text("Number of islands:"), inputNumberOfIslands,
+                new Text("Migration frequency:"), inputMigrationFrequency,
                 new Text("Name of dataset:"),dataSetBox,
                 new Text("Dataset split:"),inputDataSetSplit);
         setLeft(options);
 
         startButton.setOnAction((e) -> {
-            LOS.run(Integer.valueOf(inputIterations.getText()),Integer.valueOf(inputPopulationSize.getText()),Double.valueOf(inputMutationRate.getText()),Integer.valueOf(inputNumberOfTournaments.getText()),dataSetBox.getValue(),labelIndex,Double.valueOf(inputDataSetSplit.getText()));
+            LOS.run(Integer.valueOf(inputIterations.getText()),Integer.valueOf(inputPopulationSize.getText()),Double.valueOf(inputMutationRate.getText()),Integer.valueOf(inputNumberOfTournaments.getText()), dataSetBox.getValue(), labelIndex,Double.valueOf(inputDataSetSplit.getText()), Double.valueOf(inputMigrationFrequency.getText()), Integer.valueOf(inputNumberOfIslands.getText()));
         });
         stopButton.setOnAction(event -> LOS.stopRunning());
 
