@@ -194,8 +194,8 @@ public class GUI extends BorderPane {
         setCenter(statisticGraph);
     }
 
-    public void addIteration(double fitness) {
-        statisticGraph.addIteration(fitness);
+    public void addIteration(double fitness, boolean migration) {
+        statisticGraph.addIteration(fitness, migration);
     }
 
     public void setBestAccuracy(double accuracy) {

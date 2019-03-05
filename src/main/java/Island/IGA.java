@@ -63,7 +63,7 @@ public class IGA {
         }
     }
 
-    public void migrate() {
+    public boolean migrate() {
         this.currentIterations++;
         // if it's time for migration do so, else something fancy.
         if(this.currentIterations >= migrationTime){
@@ -71,7 +71,10 @@ public class IGA {
                 islandConnection.getReceiveFromIsland().receive(islandConnection.getSendToIsland());
             }
             this.currentIterations = 0;
+
+            return true;
         }
+        return false;
     }
 
     public int getNumberOfIslands() {

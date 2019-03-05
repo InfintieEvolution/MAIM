@@ -82,10 +82,13 @@ class StatisticGraph extends Pane {
         super.getChildren().addAll(line1, line2, line3, line4, line1Text, line2Text, line3Text, line4Text, bestAccuracyText);
     }
 
-    void addIteration(double fitness) {
+    void addIteration(double fitness, boolean migration) {
         final Line line = new Line();
-        line.setStroke(Color.BLUE);
-
+        if(migration){
+            line.setStroke(Color.RED);
+        }else{
+            line.setStroke(Color.BLUE);
+        }
         final double endX = ((double) currentIteration ++ / iterations) * width;
         final double endY = fitness * height;
         line.setEndX(endX);

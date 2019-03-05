@@ -50,7 +50,7 @@ public class LegendaryOctoSniffle extends Application{
                     if(!this.getRunning()){
                         break;
                     }
-                    iga.migrate();
+                    boolean migrate = iga.migrate();
                     int it = 0;
                     for (AIS _ais : allAIS) {
                         it++;
@@ -70,7 +70,7 @@ public class LegendaryOctoSniffle extends Application{
                     antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
                     double accuracy = AIS.vote(ais.getAntigenMap(), ais.getAntibodyMap());
                     double accuracyTestSet = AIS.vote(testSetMap,ais.getAntibodyMap());
-                    gui.addIteration(accuracy);
+                    gui.addIteration(accuracy, migrate);
 
                     if(accuracy > ais.getBestAccuracy()){
                         gui.setBestAccuracy(accuracy);
