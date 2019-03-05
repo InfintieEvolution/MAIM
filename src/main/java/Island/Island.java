@@ -60,14 +60,19 @@ public class Island {
 //            Antibody bestAntibody = null;
             ArrayList<Antibody> copyList = ais.getAntibodyMap().get(label);
             copyList.sort(migrationSelectionComparator);
-            ArrayList<Antibody> selectedAntibodies = new ArrayList<Antibody>(copyList.subList(0, migrationRate));
+            if(migrationRate > copyList.size()){
+                antibodyHashMap.put(label, copyList);
+            }else {
+                ArrayList<Antibody> selectedAntibodies = new ArrayList<Antibody>(copyList.subList(0, migrationRate));
+                antibodyHashMap.put(label, selectedAntibodies);
+
+            }
 //            System.out.println("0:= " + ais.getAntibodyMap().get(label).get(0).getFitness() + " 1:= " + ais.getAntibodyMap().get(label).get(1).getFitness() + " 2:= " + ais.getAntibodyMap().get(label).get(2).getFitness());
 //            for(Antibody antibody: ais.getAntibodyMap().get(label)){
 //                if( bestAntibody == null || antibody.getFitness() > bestAntibody.getFitness()) {
 //                    bestAntibody = antibody;
 //                }
 //            }
-            antibodyHashMap.put(label, selectedAntibodies);
         }
         return antibodyHashMap;
     }
@@ -83,8 +88,15 @@ public class Island {
             ArrayList<Antibody> antibodies = ais.getAntibodyMap().get(label);
             antibodies.sort(migrationSelectionComparator); // Sort the antibodies
 
-            ArrayList<Antibody> selectedForRemoval = new ArrayList<Antibody>(antibodies.subList((antibodies.size()-migrationRate), antibodies.size())); // Create new list with mRate worst antibodies
-            ais.getAntibodyMap().get(label).removeAll(selectedForRemoval); // remove from original list
+            if(migrationRate > antibodies.size()){
+                ArrayList<Antibody> selectedForRemoval = new ArrayList<Antibody>(antibodies.subList(0, antibodies.size())); // Create new list with mRate worst antibodies
+                ais.getAntibodyMap().get(label).removeAll(selectedForRemoval); // remove from original list
+
+            }else{
+                ArrayList<Antibody> selectedForRemoval = new ArrayList<Antibody>(antibodies.subList((antibodies.size()-migrationRate), antibodies.size())); // Create new list with mRate worst antibodies
+                ais.getAntibodyMap().get(label).removeAll(selectedForRemoval); // remove from original list
+
+            }
 
 //            for (Antibody antibody : antibodies) {
 //                if (weakestAntibody == null || antibody.getFitness() < weakestAntibody.getFitness()) {
