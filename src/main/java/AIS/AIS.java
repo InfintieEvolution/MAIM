@@ -41,7 +41,6 @@ public class AIS {
         this.featureMap = featureMap;
         this.labels = labels;
         this.maxIterations = maxIterations;
-
         selectionComparator = (o1, o2) -> {
             if (o1.getFitness() > o2.getFitness()) {
                 return -1;
@@ -66,7 +65,7 @@ public class AIS {
                 String randomLabel = this.labels.get(random.nextInt(labels.size()));
                 Antibody parent1;
                 Antibody parent2;
-                if(antibodyMap.get(randomLabel).size() > 1){
+                if(antibodyMap.get(randomLabel).size() > numberOfTournaments){
                     parent1 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
                     parent2 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
                 }
@@ -212,12 +211,11 @@ public class AIS {
         }
 
         HashMap<String,ArrayList<Antibody>> newAntibodyHashmap = new HashMap<>();
+        for (String label: labels){
+            newAntibodyHashmap.put(label,new ArrayList<>());
+        }
         for(Antibody antibody: survivors){
-            if(!newAntibodyHashmap.containsKey(antibody.getLabel())){
-                newAntibodyHashmap.put(antibody.getLabel(),new ArrayList<>(){{add(antibody);}});
-            }else{
-                newAntibodyHashmap.get(antibody.getLabel()).add(antibody);
-            }
+            newAntibodyHashmap.get(antibody.getLabel()).add(antibody);
         }
         this.antibodyMap = newAntibodyHashmap;
         //for(Anti)
