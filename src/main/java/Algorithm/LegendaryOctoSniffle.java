@@ -27,7 +27,7 @@ public class LegendaryOctoSniffle extends Application{
         gui = new GUI(primaryStage,this);
     }
 
-    public void run(int iterations, int populationSize, double mutationRate, int numberOfTournaments, String dataSetName,int labelIndex, double trainingTestSplit, double migrationFrequency, int numberOfIslands){
+    public void run(int iterations, int populationSize, double mutationRate, int numberOfTournaments, String dataSetName,int labelIndex, double trainingTestSplit, double migrationFrequency, int numberOfIslands, int migrationRate){
         this.running = true;
         gui.startButton.setDisable(true);
         gui.iterationTextField.setDisable(true);
@@ -35,7 +35,7 @@ public class LegendaryOctoSniffle extends Application{
 
         DataSet dataSet = new DataSet("./DataSets/"+dataSetName,trainingTestSplit,labelIndex);
 
-        IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, numberOfTournaments);
+        IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate);
         iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations);
 
 //        this.ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,populationSize, mutationRate,numberOfTournaments,iterations);
@@ -57,11 +57,11 @@ public class LegendaryOctoSniffle extends Application{
                         _ais.setIteration(_ais.getIteration()+1);
 //                        antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
                         double accuracy = AIS.vote(_ais.getAntigenMap(), _ais.getAntibodyMap());
-                        System.out.println("Island: " + it + ": Acc="+accuracy);
-                        if(iga.getNumberOfIslands() == it){
-                            it = 0;
-                            System.out.println("----- Iteration " + i + "-----");
-                        }
+//                        System.out.println("Island: " + it + ": Acc="+accuracy);
+//                        if(iga.getNumberOfIslands() == it){
+//                            it = 0;
+//                            System.out.println("----- Iteration " + i + "-----");
+//                        }
                         double accuracyTestSet = AIS.vote(testSetMap,ais.getAntibodyMap());
 //                        gui.addIteration(accuracy);
                     }

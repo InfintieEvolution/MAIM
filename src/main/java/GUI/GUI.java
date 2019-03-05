@@ -54,6 +54,7 @@ public class GUI extends BorderPane {
     public final TextField iterationTextField = new TextField();
     private final TextField inputMigrationFrequency = new TextField("0.1");
     private final TextField inputNumberOfIslands = new TextField("4");
+    private final TextField inputMigrationRate = new TextField("1");
 
     private final int sceneWidth = 1200;
     private final int sceneHeight = 850;
@@ -103,12 +104,13 @@ public class GUI extends BorderPane {
                 new Text("Number of tournaments:"),inputNumberOfTournaments,
                 new Text("Number of islands:"), inputNumberOfIslands,
                 new Text("Migration frequency:"), inputMigrationFrequency,
+                new Text("Migration rate:"), inputMigrationRate,
                 new Text("Name of dataset:"),dataSetBox,
                 new Text("Dataset split:"),inputDataSetSplit);
         setLeft(options);
 
         startButton.setOnAction((e) -> {
-            LOS.run(Integer.valueOf(inputIterations.getText()),Integer.valueOf(inputPopulationSize.getText()),Double.valueOf(inputMutationRate.getText()),Integer.valueOf(inputNumberOfTournaments.getText()), dataSetBox.getValue(), labelIndex,Double.valueOf(inputDataSetSplit.getText()), Double.valueOf(inputMigrationFrequency.getText()), Integer.valueOf(inputNumberOfIslands.getText()));
+            LOS.run(Integer.valueOf(inputIterations.getText()),Integer.valueOf(inputPopulationSize.getText()),Double.valueOf(inputMutationRate.getText()),Integer.valueOf(inputNumberOfTournaments.getText()), dataSetBox.getValue(), labelIndex,Double.valueOf(inputDataSetSplit.getText()), Double.valueOf(inputMigrationFrequency.getText()), Integer.valueOf(inputNumberOfIslands.getText()), Integer.valueOf(inputMigrationRate.getText()));
         });
         stopButton.setOnAction(event -> LOS.stopRunning());
 
