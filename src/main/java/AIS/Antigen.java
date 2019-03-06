@@ -11,7 +11,7 @@ public class Antigen {
     private String label;
     private ArrayList<Antibody> connectedAntibodies;
     private double totalInteraction;
-
+    private HashMap<AIS,Double> interactionMap;
     public Antigen(double[] attributes, String label){
 
         this.attributes = attributes;
@@ -51,6 +51,17 @@ public class Antigen {
         this.connectedAntibodies = connectedAntibodies;
     }
 
+    public HashMap<AIS, Double> getInteractionMap() {
+        return interactionMap;
+    }
+
+    public void setInteractionMap(HashMap<AIS, Double> interactionMap) {
+        this.interactionMap = interactionMap;
+    }
+    public void addInteraction(Antibody antibody){
+        if(interactionMap.containsKey(antibody))
+        antibody
+    }
     public static HashMap<String,ArrayList<Antigen>> createAntigenMap(Antigen[] antigens){
         HashMap<String,ArrayList<Antigen>> antigenMap = new HashMap<>();
 
