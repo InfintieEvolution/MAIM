@@ -214,6 +214,10 @@ public class Antibody {
         this.connectedAntigen = connectedAntigen;
     }
 
+    public Antigen[] getAntigens() {
+        return antigens;
+    }
+
     public double getTotalInteraction() {
         return totalInteraction;
     }
