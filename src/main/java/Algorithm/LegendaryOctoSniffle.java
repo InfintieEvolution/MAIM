@@ -29,7 +29,7 @@ public class LegendaryOctoSniffle extends Application {
 
     public void run(int iterations, int populationSize, double mutationRate, int numberOfTournaments,
             String dataSetName, int labelIndex, double trainingTestSplit, double migrationFrequency,
-            int numberOfIslands, int migrationRate) {
+            int numberOfIslands, double migrationRate) {
         this.running = true;
         gui.startButton.setDisable(true);
         gui.iterationTextField.setDisable(true);

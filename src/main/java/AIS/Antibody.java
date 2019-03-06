@@ -182,6 +182,14 @@ public class Antibody {
         this.connectedAntigen = connectedAntigen;
     }
 
+    public void setAis(AIS ais) {
+        this.ais = ais;
+    }
+
+    public AIS getAis() {
+        return ais;
+    }
+
     @Override
     public String toString() {
         return
