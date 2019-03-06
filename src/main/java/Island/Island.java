@@ -92,6 +92,10 @@ public class Island {
 
     public ArrayList<Antibody> sendAllRandom(AIS ais){
         ArrayList<Antibody>  antibodyList = new ArrayList<Antibody>();
+        Set<String> labels = ais.getAntibodyMap().keySet();
+        for (String label: labels){
+            antibodyList.addAll(ais.getAntibodyMap().get(label));
+        }
 
         for (int i = 0; i <this.numberOfMigrants; i++){
             int someRandomInteger = random.nextInt((ais.getAntibodies().length - 1) + 1);
