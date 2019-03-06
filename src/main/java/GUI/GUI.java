@@ -35,7 +35,7 @@ public class GUI extends BorderPane {
         dataSetLabelIndexes.put("iris.data", 4);
         dataSetLabelIndexes.put("wine.data", 0);
     }
-    private final ChoiceBox<String> dataSetBox = new ChoiceBox<>(FXCollections.observableArrayList("iris.data", "wine.data"));
+    private final ChoiceBox<String> dataSetBox = new ChoiceBox<>(FXCollections.observableArrayList("iris.data", "wine.data", "ionosphere.data", "glass.data", "crabs.csv", "abalone.data"));
     private int labelIndex;
 
     private final Stage primaryStage;
