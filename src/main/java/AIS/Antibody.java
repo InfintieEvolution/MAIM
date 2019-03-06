@@ -116,6 +116,8 @@ public class Antibody {
                 //double totalAntibodyWeight = 0.0;
 
                 sharingFactor += Math.pow(weight,2)/antigen.getInteractionMap().get(this.getAis());
+                //sharingFactor += Math.pow(weight,2)/antigen.getTotalInteraction();
+
             }
 
             double sum = 0.0;
@@ -125,6 +127,7 @@ public class Antibody {
             }
             double representation = ais.getAntibodyMap().get(this.label).size()/sum;
             double weightedAccuracy = (1 + correctInteraction) /(connectedAntigenOfLabel.keySet().size()+totalInteraction);
+            //double weightedAccuracy = correctInteraction / totalInteraction;
             this.fitness = (sharingFactor*weightedAccuracy)/ totalInteraction;
             //this.fitness = (accuracy * (totalInteraction/boundAntigensCount));
         }

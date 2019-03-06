@@ -219,8 +219,8 @@ public class AIS {
             newAntibodyHashmap.get(antibody.getLabel()).add(antibody);
         }
         this.antibodyMap = newAntibodyHashmap;
-        //for(Anti)
     }
+
     private void select3(){
         final ArrayList<Antibody> priorityQueue = new ArrayList<>();
 
