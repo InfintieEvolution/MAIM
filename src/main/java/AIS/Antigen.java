@@ -18,6 +18,7 @@ public class Antigen {
         this.label = label;
         this.connectedAntibodies = new ArrayList<>();
         this.totalInteraction = 0.0;
+        this.interactionMap = new HashMap<>();
     }
 
     public double getTotalInteraction() {
@@ -58,9 +59,13 @@ public class Antigen {
     public void setInteractionMap(HashMap<AIS, Double> interactionMap) {
         this.interactionMap = interactionMap;
     }
-    public void addInteraction(Antibody antibody){
-        if(interactionMap.containsKey(antibody))
-        antibody
+    public void addInteraction(Antibody antibody, double weight){
+        if(interactionMap.containsKey(antibody.getAis())){
+            this.interactionMap.put(antibody.getAis(),this.interactionMap.get(antibody.getAis()) +weight);
+        }else{
+            this.interactionMap.put(antibody.getAis(),weight);
+        }
+
     }
     public static HashMap<String,ArrayList<Antigen>> createAntigenMap(Antigen[] antigens){
         HashMap<String,ArrayList<Antigen>> antigenMap = new HashMap<>();

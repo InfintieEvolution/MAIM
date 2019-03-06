@@ -46,6 +46,7 @@ public class Antibody {
             for (Antigen antigen:connectedAntigen.keySet()){
                 antigen.getConnectedAntibodies().add(this);
                 antigen.setTotalInteraction(antigen.getTotalInteraction() + this.getConnectedAntigen().get(antigen));
+                antigen.addInteraction(this, this.getConnectedAntigen().get(antigen));
             }
         }else{  //first time calculating fitness
             for (Antigen antigen:antigens){
@@ -55,9 +56,14 @@ public class Antibody {
                     double weight = calcualteWeight(antigen,distance);
                     totalInteraction += weight;
                     connectedAntigen.put(antigen,weight);
+
+                    //interaction of antigen
                     antigen.setTotalInteraction(antigen.getTotalInteraction() + weight);
+                    antigen.addInteraction(this,weight);
+
                     this.connectedAntigensSet = true;
                     this.boundAntigensCount++;
+
                     if(connectedAntigenOfLabel.containsKey(antigen.getLabel())){
                         connectedAntigenOfLabel.get(antigen.getLabel()).add(antigen);
                     }else{
@@ -109,7 +115,7 @@ public class Antibody {
                 //double totalInteractionAntigen = antigen.getTotalInteraction();
                 //double totalAntibodyWeight = 0.0;
 
-                sharingFactor += Math.pow(weight,2)/antigen.getTotalInteraction();
+                sharingFactor += Math.pow(weight,2)/antigen.getInteractionMap().get(this.getAis());
             }
 
             double sum = 0.0;
@@ -119,7 +125,7 @@ public class Antibody {
             }
             double representation = ais.getAntibodyMap().get(this.label).size()/sum;
             double weightedAccuracy = (1 + correctInteraction) /(connectedAntigenOfLabel.keySet().size()+totalInteraction);
-            this.fitness = (sharingFactor*weightedAccuracy)/ totalInteraction;
+            this.fitness = (sharingFactor*weightedAccuracy)/ totalInteraction*representation;
             //this.fitness = (accuracy * (totalInteraction/boundAntigensCount));
         }
     }
@@ -211,6 +217,14 @@ public class Antibody {
 
     public void setTotalInteraction(double totalInteraction) {
         this.totalInteraction = totalInteraction;
+    }
+
+    public void setAis(AIS ais) {
+        this.ais = ais;
+    }
+
+    public AIS getAis() {
+        return ais;
     }
 
     @Override

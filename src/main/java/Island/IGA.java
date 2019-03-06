@@ -10,7 +10,7 @@ public class IGA {
     private int iterations;
     private int currentIterations;
     private double migrationFrequency;
-    private int migrationRate;
+    private double migrationRate;
     private double migrationTime;
     private ArrayList<Island> islands;
     private ArrayList<IslandConnection> islandConnections;
@@ -23,7 +23,7 @@ public class IGA {
      * @param migrationFrequency Determines how ofter migration should occur
      * @@param migrationRate How many individuals to migrate
      */
-    public IGA(int numberOfIslands, int populationSize, int iterations, double migrationFrequency, int migrationRate) {
+    public IGA(int numberOfIslands, int populationSize, int iterations, double migrationFrequency, double migrationRate) {
         this.numberOfIslands = numberOfIslands;
         this.populationSize = populationSize;
         this.iterations = iterations;
@@ -71,7 +71,7 @@ public class IGA {
         // if it's time for migration do so, else something fancy.
         if(this.currentIterations >= migrationTime){
             for (IslandConnection islandConnection : this.islandConnections){
-                islandConnection.getReceiveFromIsland().receive(islandConnection.getSendToIsland());
+                islandConnection.getReceiveFromIsland().receiveRandom(islandConnection.getSendToIsland());
             }
             this.currentIterations = 0;
 
