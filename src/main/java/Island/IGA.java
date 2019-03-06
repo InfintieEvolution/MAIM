@@ -42,25 +42,28 @@ public class IGA {
             AIS ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations);
             this.islands.add(new Island(ais, migrationRate, migrationFrequency, i));
         }
+        if(islands.size() > 1){
 
-        // connect islands
-        for (int i=0; i < islands.size(); i++){
-            if (i == 0){
-                Island sendToIsland = this.islands.get(i+1);
-                Island receiveFromIsland = this.islands.get(this.islands.size()-1);
-                this.islandConnections.add(new IslandConnection(sendToIsland, receiveFromIsland));
+            // connect islands
+            for (int i=0; i < islands.size(); i++){
+                if (i == 0){
+                    Island sendToIsland = this.islands.get(i+1);
+                    Island receiveFromIsland = this.islands.get(this.islands.size()-1);
+                    this.islandConnections.add(new IslandConnection(sendToIsland, receiveFromIsland));
 
-            }else if(i == this.islands.size()-1){
-                Island sendToIsland = this.islands.get(0);
-                Island receiveFromIsland = this.islands.get(i-1);
-                this.islandConnections.add(new IslandConnection(sendToIsland, receiveFromIsland));
+                }else if(i == this.islands.size()-1){
+                    Island sendToIsland = this.islands.get(0);
+                    Island receiveFromIsland = this.islands.get(i-1);
+                    this.islandConnections.add(new IslandConnection(sendToIsland, receiveFromIsland));
 
-            }else{
-                Island sendToIsland = this.islands.get(i+1);
-                Island receiveFromIsland = this.islands.get(i-1);
-                this.islandConnections.add(new IslandConnection(sendToIsland, receiveFromIsland));
+                }else{
+                    Island sendToIsland = this.islands.get(i+1);
+                    Island receiveFromIsland = this.islands.get(i-1);
+                    this.islandConnections.add(new IslandConnection(sendToIsland, receiveFromIsland));
+                }
             }
         }
+
     }
 
     public boolean migrate() {
