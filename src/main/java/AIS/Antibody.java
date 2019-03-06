@@ -1,7 +1,10 @@
 package AIS;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+
+import static java.lang.Double.NaN;
 
 public class Antibody {
 
@@ -11,10 +14,12 @@ public class Antibody {
     private double fitness;
     private Antigen[] antigens;
     private HashMap<Antigen,Double> connectedAntigen;
+    private HashMap<String, ArrayList<Antigen>> connectedAntigenOfLabel;
     private double boundAntigensCount;
     private double totalInteraction;
     private int correctClassificationCount;
     private boolean connectedAntigensSet;
+    private double correctInteraction;
     private double accuracy;
     private AIS ais;
 
@@ -31,6 +36,8 @@ public class Antibody {
         this.connectedAntigensSet = false;
         this.ais = ais;
         this.accuracy = 0.0;
+        this.correctInteraction = 0.0;
+        this.connectedAntigenOfLabel = new HashMap<>();
     }
 
     public void setConnectedAntigens(){
@@ -39,6 +46,7 @@ public class Antibody {
             for (Antigen antigen:connectedAntigen.keySet()){
                 antigen.getConnectedAntibodies().add(this);
                 antigen.setTotalInteraction(antigen.getTotalInteraction() + this.getConnectedAntigen().get(antigen));
+                antigen.addInteraction(this, this.getConnectedAntigen().get(antigen));
             }
         }else{  //first time calculating fitness
             for (Antigen antigen:antigens){
@@ -48,11 +56,22 @@ public class Antibody {
                     double weight = calcualteWeight(antigen,distance);
                     totalInteraction += weight;
                     connectedAntigen.put(antigen,weight);
+
+                    //interaction of antigen
                     antigen.setTotalInteraction(antigen.getTotalInteraction() + weight);
+                    antigen.addInteraction(this,weight);
+
                     this.connectedAntigensSet = true;
                     this.boundAntigensCount++;
+
+                    if(connectedAntigenOfLabel.containsKey(antigen.getLabel())){
+                        connectedAntigenOfLabel.get(antigen.getLabel()).add(antigen);
+                    }else{
+                        connectedAntigenOfLabel.put(antigen.getLabel(),new ArrayList<>(){{add(antigen);}});
+                    }
                     if(antigen.getLabel().equals(this.label)){
                         correctClassificationCount +=1;
+                        correctInteraction += weight;
                     }
                 }
             }
@@ -96,10 +115,17 @@ public class Antibody {
                 //double totalInteractionAntigen = antigen.getTotalInteraction();
                 //double totalAntibodyWeight = 0.0;
 
-                sharingFactor += Math.pow(weight,2)/antigen.getTotalInteraction();
+                sharingFactor += Math.pow(weight,2)/antigen.getInteractionMap().get(this.getAis());
             }
 
-            this.fitness = (sharingFactor*accuracy)/ totalInteraction;
+            double sum = 0.0;
+
+            for(String label: ais.getAntibodyMap().keySet()){
+                sum += ais.getAntibodyMap().get(label).size();
+            }
+            double representation = ais.getAntibodyMap().get(this.label).size()/sum;
+            double weightedAccuracy = (1 + correctInteraction) /(connectedAntigenOfLabel.keySet().size()+totalInteraction);
+            this.fitness = (sharingFactor*weightedAccuracy)/ totalInteraction;
             //this.fitness = (accuracy * (totalInteraction/boundAntigensCount));
         }
     }
@@ -127,6 +153,9 @@ public class Antibody {
 
         double eucledeanDistance = 0.0;
         for (int i=0;i<featureSet1.length;i++){
+            if(featureSet1[i] == -1.0 || featureSet2[i] == -1.0){
+                continue;
+            }
             eucledeanDistance += Math.pow(featureSet1[i] - featureSet2[i],2);
         }
 
@@ -184,6 +213,14 @@ public class Antibody {
 
     public Antigen[] getAntigens() {
         return antigens;
+    }
+
+    public double getTotalInteraction() {
+        return totalInteraction;
+    }
+
+    public void setTotalInteraction(double totalInteraction) {
+        this.totalInteraction = totalInteraction;
     }
 
     public void setAis(AIS ais) {

@@ -101,6 +101,7 @@ public class AIS {
         for(Antigen antigen:antigens){
             antigen.setConnectedAntibodies(new ArrayList<>());
             antigen.setTotalInteraction(0.0);
+            antigen.getInteractionMap().put(this,0.0);
         }
     }
 
