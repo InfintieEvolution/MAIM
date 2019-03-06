@@ -182,6 +182,10 @@ public class Antibody {
         this.connectedAntigen = connectedAntigen;
     }
 
+    public Antigen[] getAntigens() {
+        return antigens;
+    }
+
     public void setAis(AIS ais) {
         this.ais = ais;
     }
