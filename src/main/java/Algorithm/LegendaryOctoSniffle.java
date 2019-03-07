@@ -62,6 +62,9 @@ public class LegendaryOctoSniffle extends Application {
                     break;
                 }
                 boolean migrate = iga.migrate();
+                if(migrate){
+                    iga.migrateMaster();
+                }
 
                 // ais.setIteration(ais.getIteration()+1);
                 antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
