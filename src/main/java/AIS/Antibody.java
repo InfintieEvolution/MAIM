@@ -86,26 +86,6 @@ public class Antibody {
         return weight;
     }
 
-    /*public void calculateFitness(){
-        if(this.boundAntigensCount == 0){
-            this.fitness = 0.0;
-        }else{
-            double accuracy = (double) correctClassificationCount/(boundAntigensCount);
-            double sharingFactor = 0.0;
-            double totalInteraction = 0.0;
-            for(Antigen antigen: connectedAntigen.keySet()){
-                double weight = calcualteWeight(antigen);
-                totalInteraction+=weight;
-                double totalAntibodyWeight = 0.0;
-                for(Antibody antibody:antigen.getConnectedAntibodies()){
-                    totalAntibodyWeight += antibody.calcualteWeight(antigen);
-                }
-                sharingFactor += Math.pow(weight,2)/totalAntibodyWeight;
-            }
-            //System.out.println(sharingFactor);
-            this.fitness = ((accuracy *sharingFactor)/(totalInteraction));
-        }
-    }*/
     public void calculateFitness(){
         if(this.boundAntigensCount == 0){
             this.fitness = 0.0;
@@ -117,7 +97,7 @@ public class Antibody {
                 //double totalInteractionAntigen = antigen.getTotalInteraction();
                 //double totalAntibodyWeight = 0.0;
 
-                sharingFactor += Math.pow(weight,2)/antigen.getInteractionMap().get(this.getAis());
+                sharingFactor += Math.pow(weight,2)/antigen.getInteractionMap().get(this.getAis()); //part of the antigen that belongs to the antibody
                 //sharingFactor += Math.pow(weight,2)/antigen.getTotalInteraction();
 
             }
@@ -130,6 +110,8 @@ public class Antibody {
             double representation = ais.getAntibodyMap().get(this.label).size()/sum;
 
             //double weightedAccuracy = correctInteraction / totalInteraction;
+            //this. fitness = (sharingFactor*weightedAccuracy)/representation;
+
             this.fitness = (sharingFactor*weightedAccuracy)/ totalInteraction;
             //this.fitness = (accuracy * (totalInteraction/boundAntigensCount));
         }

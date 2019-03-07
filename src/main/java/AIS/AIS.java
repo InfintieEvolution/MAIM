@@ -92,7 +92,6 @@ public class AIS {
             for(Antibody antibody:newAntibodiesOfLabel){
                 antibodyMap.get(antibody.getLabel()).add(antibody);
             }
-        //}
 
         for(String label: antibodyMap.keySet()){
             for(Antibody antibody:antibodyMap.get(label)){
