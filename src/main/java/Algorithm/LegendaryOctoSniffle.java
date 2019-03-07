@@ -62,8 +62,9 @@ public class LegendaryOctoSniffle extends Application {
                     break;
                 }
                 boolean migrate = iga.migrate();
-                if(migrate){
+                if(migrate && iga.hasMaster()){
                     iga.migrateMaster();
+                    iga.getMasterIsland().getAis().iterate();
                 }
 
                 // ais.setIteration(ais.getIteration()+1);
