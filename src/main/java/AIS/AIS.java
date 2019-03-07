@@ -483,7 +483,12 @@ public class AIS {
         this.antigens = antigens;
     }
 
-    public Antibody[] getAntibodies() {
+    public ArrayList<Antibody> getAntibodies() {
+        ArrayList<Antibody> antibodies = new ArrayList<>();
+        Set<String> labels = this.getAntibodyMap().keySet();
+        for (String label : labels){
+            antibodies.addAll(this.getAntibodyMap().get(label));
+        }
         return antibodies;
     }
 

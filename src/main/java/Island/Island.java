@@ -14,7 +14,6 @@ public class Island {
     private double migrationFrequency;
     private ArrayList<IslandConnection> islandConnections;
     private int islandId;
-    private double localMigrationRate;
     private Comparator<Antibody> migrationSelectionComparator;
     private int numberOfMigrants;
     Random random = new Random();
@@ -26,7 +25,6 @@ public class Island {
         this.migrationFrequency = migrationFrequency;
         this.islandConnections = new ArrayList<>();
         this.islandId = islandId;
-        this.localMigrationRate = ((double) migrationRate/1000) * ais.getPopulationSize();
         this.numberOfMigrants = (int) (migrationRate * ais.getPopulationSize());
 
         migrationSelectionComparator = (o1, o2) -> {
@@ -39,19 +37,6 @@ public class Island {
             return 0;
         };
     }
-
-    public AIS getAis() {
-        return this.ais;
-    }
-
-    public double getMigrationRate() {
-        return this.migrationRate;
-    }
-
-    public double getMigrationFrequency() {
-        return this.migrationFrequency;
-    }
-
 
     /**
      * Selects the {migrationRate} best antibodies for each label for migration
@@ -74,32 +59,19 @@ public class Island {
         return antibodyHashMap;
     }
 
-    public HashMap<String, ArrayList<Antibody>> sendMigrantsBasedOnPopulationSize(AIS ais) {
-        Set<String> labels = ais.getAntibodyMap().keySet();
-        HashMap<String, ArrayList<Antibody>>  antibodyHashMap = new HashMap<>();
-        for (String label : labels){
-            ArrayList<Antibody> copyList = ais.getAntibodyMap().get(label);
-            copyList.sort(migrationSelectionComparator);
-            if(this.localMigrationRate > copyList.size()){
-                antibodyHashMap.put(label, copyList);
-            }else {
-                ArrayList<Antibody> selectedAntibodies = new ArrayList<Antibody>(copyList.subList(0, (int)this.localMigrationRate));
-                antibodyHashMap.put(label, selectedAntibodies);
-            }
-        }
-        return antibodyHashMap;
+
+    public ArrayList<Antibody> sendToMaster(AIS ais) {
+        ArrayList<Antibody> allAntibodies = new ArrayList<Antibody>(ais.getAntibodies());
+        allAntibodies.sort(migrationSelectionComparator);
+        return new ArrayList<Antibody>(allAntibodies.subList(0, numberOfMigrants));
     }
 
-    public ArrayList<Antibody> sendAllRandom(AIS ais){
-        ArrayList<Antibody>  antibodyList = new ArrayList<Antibody>();
-        Set<String> labels = ais.getAntibodyMap().keySet();
-        for (String label: labels){
-            antibodyList.addAll(ais.getAntibodyMap().get(label));
-        }
 
+    public ArrayList<Antibody> sendAllRandom(AIS ais){
+        ArrayList<Antibody> antibodyList = new ArrayList<>();
         for (int i = 0; i <this.numberOfMigrants; i++){
-            int someRandomInteger = random.nextInt((ais.getAntibodies().length - 1) + 1);
-            antibodyList.add(ais.getAntibodies()[someRandomInteger]);
+            int someRandomInteger = random.nextInt((ais.getAntibodies().size() - 1) + 1);
+            antibodyList.add(ais.getAntibodies().get(someRandomInteger));
         }
         return antibodyList;
     }
@@ -110,65 +82,26 @@ public class Island {
      * @param ais Current Island AIS
      */
     public void removeAntibodies(AIS ais) {
-        Set<String> labels = ais.getAntibodyMap().keySet();
-        for (String label : labels) {
-            ArrayList<Antibody> antibodies = ais.getAntibodyMap().get(label);
-            antibodies.sort(migrationSelectionComparator); // Sort the antibodies
 
-            if((migrationRate) > antibodies.size()){
-                ArrayList<Antibody> selectedForRemoval = new ArrayList<Antibody>(antibodies.subList(0, antibodies.size())); // Create new list with mRate worst antibodies
-                ais.getAntibodyMap().get(label).removeAll(selectedForRemoval); // remove from original list
-
-            }else{
-                ArrayList<Antibody> selectedForRemoval = new ArrayList<Antibody>(antibodies.subList((antibodies.size()-((int)migrationRate*100)), antibodies.size())); // Create new list with mRate worst antibodies
-                ais.getAntibodyMap().get(label).removeAll(selectedForRemoval); // remove from original list
-
-            }
+        ArrayList<Antibody> antibodies = ais.getAntibodies();
+        antibodies.sort(migrationSelectionComparator);
+        ArrayList<Antibody> selectedForRemoval = new ArrayList<Antibody>(antibodies.subList((antibodies.size()-numberOfMigrants), antibodies.size())); // Create new list with mRate worst antibodies
+        for(Antibody ab : selectedForRemoval){
+            antibodies.remove(ab);
         }
     }
 
-    public void removeAntibodiesBasedOnMigrationRate(AIS ais){
-        Set<String> labels = ais.getAntibodyMap().keySet();
-        for (String label : labels) {
-            ArrayList<Antibody> antibodies = ais.getAntibodyMap().get(label);
-            antibodies.sort(migrationSelectionComparator); // Sort the antibodies
-
-            if((migrationRate*ais.getPopulationSize()) > antibodies.size()){
-                ArrayList<Antibody> selectedForRemoval = new ArrayList<Antibody>(antibodies.subList(0, antibodies.size())); // Create new list with mRate worst antibodies
-                ais.getAntibodyMap().get(label).removeAll(selectedForRemoval); // remove from original list
-
-            }else{
-                ArrayList<Antibody> selectedForRemoval = new ArrayList<Antibody>(antibodies.subList((antibodies.size()-((int) migrationRate*ais.getPopulationSize())), antibodies.size())); // Create new list with mRate worst antibodies
-                ais.getAntibodyMap().get(label).removeAll(selectedForRemoval); // remove from original list
-
-            }
+    public void removeRandomAntibodies(AIS ais) {
+        ArrayList<Antibody> antibodies = ais.getAntibodies();
+        for (int i = 0; i <this.numberOfMigrants; i++){
+            int someRandomInteger = random.nextInt((antibodies.size() - 1) + 1);
+            antibodies.remove(someRandomInteger);
         }
     }
 
-    /**
-     * Removes the { migrationRate } weakest antibodies for each class
-     * @param ais Current Island AIS
-     */
-    public void removeAntibodies2(AIS ais) {
-        Set<String> labels = ais.getAntibodyMap().keySet();
-        for (String label : labels) {
-            ArrayList<Antibody> antibodies = ais.getAntibodyMap().get(label);
-            antibodies.sort(migrationSelectionComparator); // Sort the antibodies
-
-            if(this.localMigrationRate > antibodies.size()){
-                ArrayList<Antibody> selectedForRemoval = new ArrayList<Antibody>(antibodies.subList(0, antibodies.size())); // Create new list with mRate worst antibodies
-                ais.getAntibodyMap().get(label).removeAll(selectedForRemoval); // remove from original list
-
-            }else{
-                ArrayList<Antibody> selectedForRemoval = new ArrayList<Antibody>(antibodies.subList((antibodies.size()-(int) localMigrationRate), antibodies.size())); // Create new list with mRate worst antibodies
-                ais.getAntibodyMap().get(label).removeAll(selectedForRemoval); // remove from original list
-
-            }
-        }
-    }
 
     public void receiveRandom(Island sendingIsland) {
-        removeAntibodiesBasedOnMigrationRate(this.getAis());
+        removeAntibodies(this.getAis());
 
         ArrayList<Antibody> receivingAntibodies = sendingIsland.sendAllRandom(sendingIsland.getAis());
         for (Antibody antibody : receivingAntibodies){
@@ -178,13 +111,22 @@ public class Island {
         }
     }
 
+    public void masterReceive(Island sendingIsland) {
+//        this.removeRandomAntibodies(this.getAis());
+        this.removeAntibodies(this.getAis());
+
+        ArrayList<Antibody> receivingAntibodies = sendingIsland.sendToMaster(sendingIsland.getAis());
+        for (Antibody antibody : receivingAntibodies) {
+            var newAntibody = new Antibody(antibody.getFeatures(), antibody.getRadius(), antibody.getLabel(), antibody.getAntigens(), this.getAis());
+            this.getAis().getAntibodyMap().get(antibody.getLabel()).add(newAntibody);
+        }
+
+    }
+
 
     public void receive(Island sendingIsland){
         // remove bad antibodies
         this.removeAntibodies(this.getAis());
-//        this.removeAntibodies2(this.getAis());
-        //Adds new antibodies with higher fitness
-//        HashMap<String, ArrayList<Antibody>> receivingAntibodies = sendingIsland.sendMigrantsBasedOnPopulationSize(sendingIsland.getAis());
         HashMap<String, ArrayList<Antibody>> receivingAntibodies = sendingIsland.sendMigrants(sendingIsland.getAis());
         for (String label : receivingAntibodies.keySet()){
             for (Antibody antibody : receivingAntibodies.get(label)){
@@ -192,6 +134,24 @@ public class Island {
                 this.getAis().getAntibodyMap().get(label).add(antibody);
             }
         }
+    }
+
+
+
+    public AIS getAis() {
+        return this.ais;
+    }
+
+    public double getMigrationRate() {
+        return this.migrationRate;
+    }
+
+    public double getMigrationFrequency() {
+        return this.migrationFrequency;
+    }
+
+    public int getIslandId() {
+        return islandId;
     }
 
     @Override

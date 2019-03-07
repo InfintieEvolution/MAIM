@@ -1,6 +1,8 @@
 package Island;
 import AIS.AIS;
 import Algorithm.DataSet;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class IGA {
@@ -39,31 +41,43 @@ public class IGA {
 
         // create islands
         for(int i=0; i < numberOfIslands; i++){
-            AIS ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations);
-            this.islands.add(new Island(ais, migrationRate, migrationFrequency, i));
+            if(i==0){ // if master
+                AIS ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap, this.populationSize, mutationRate, numberOfTournaments, iterations);
+                this.islands.add(new Island(ais, migrationRate, migrationFrequency, i));
+
+            }else{
+                AIS ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap, (this.populationSize/(this.numberOfIslands-1)), mutationRate, numberOfTournaments, iterations);
+                this.islands.add(new Island(ais, migrationRate, migrationFrequency, i));
+            }
         }
         if(islands.size() > 1){
-
+            Island masterIsland = this.islands.get(0);
             // connect islands
             for (int i=0; i < islands.size(); i++){
+                // Define Master Island as island 0
                 if (i == 0){
-                    Island sendToIsland = this.islands.get(i+1);
-                    Island receiveFromIsland = this.islands.get(this.islands.size()-1);
-                    this.islandConnections.add(new IslandConnection(sendToIsland, receiveFromIsland));
+//                    Island sendToIsland = this.islands.get(i+1);
+//                    Island receiveFromIsland = this.islands.get(this.islands.size()-1);
+                    this.islandConnections.add(new IslandConnection(null, null, masterIsland)); // masterIsland should only receive
 
-                }else if(i == this.islands.size()-1){
-                    Island sendToIsland = this.islands.get(0);
-                    Island receiveFromIsland = this.islands.get(i-1);
-                    this.islandConnections.add(new IslandConnection(sendToIsland, receiveFromIsland));
+                }else if(i == 1){ // island 1
+                    Island sendToIsland = this.islands.get(i+1); // send to next island
+                    Island receiveFromIsland = this.islands.get(this.islands.size()-1); // receive from last island and not island 0 (masterIsland)
+                    this.islandConnections.add(new IslandConnection(sendToIsland, receiveFromIsland, masterIsland));
 
-                }else{
-                    Island sendToIsland = this.islands.get(i+1);
-                    Island receiveFromIsland = this.islands.get(i-1);
-                    this.islandConnections.add(new IslandConnection(sendToIsland, receiveFromIsland));
+
+                }else if(i == this.islands.size()-1) { // last island
+                    Island sendToIsland = this.islands.get(1); // send to island 1
+                    Island receiveFromIsland = this.islands.get(i-1); // receive from island before
+                    this.islandConnections.add(new IslandConnection(sendToIsland, receiveFromIsland, masterIsland));
+
+                }else{ // all middle islands
+                    Island sendToIsland = this.islands.get(i+1); // send to next island
+                    Island receiveFromIsland = this.islands.get(i-1); // receive from previous island
+                    this.islandConnections.add(new IslandConnection(sendToIsland, receiveFromIsland, masterIsland));
                 }
             }
         }
-
     }
 
     public boolean migrate() {
@@ -71,13 +85,27 @@ public class IGA {
         // if it's time for migration do so, else something fancy.
         if(this.currentIterations >= migrationTime){
             for (IslandConnection islandConnection : this.islandConnections){
-                islandConnection.getReceiveFromIsland().receiveRandom(islandConnection.getSendToIsland());
+                if(islandConnection.getReceiveFromIsland() != null){
+                    islandConnection.getReceiveFromIsland().receiveRandom(islandConnection.getSendToIsland());
+//                    System.out.println("RandomIsland=" + (islandConnection.getReceiveFromIsland().getAis().getAntibodies().size()));
+//                    System.out.println("MasterIsland=" + getMasterIsland().getAis().getAntibodies().size());
+                }
             }
             this.currentIterations = 0;
 
             return true;
         }
         return false;
+    }
+
+    public void migrateToMaster() {
+        for(Island island : getIslands()){
+            if(island != getMasterIsland()){
+                System.out.println("island id "+ island.getIslandId());
+//                System.out.println("MasterIslandSize=" + getMasterIsland().getAis().getAntibodies().size());
+                getMasterIsland().masterReceive(island);
+            }
+        }
     }
 
     public int getNumberOfIslands() {
@@ -90,6 +118,10 @@ public class IGA {
 
     public double getMigrationFrequency() {
         return migrationFrequency;
+    }
+
+    public Island getMasterIsland(){
+        return this.getIsland(0);
     }
 
     public ArrayList<Island> getIslands() {
