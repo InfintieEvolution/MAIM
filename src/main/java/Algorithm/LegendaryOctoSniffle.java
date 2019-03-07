@@ -29,7 +29,7 @@ public class LegendaryOctoSniffle extends Application {
 
     public void run(int iterations, int populationSize, double mutationRate, int numberOfTournaments,
             String dataSetName, int labelIndex, double trainingTestSplit, double migrationFrequency,
-            int numberOfIslands, double migrationRate) {
+            int numberOfIslands, double migrationRate, boolean masterIsland) {
         this.running = true;
         gui.startButton.setDisable(true);
         gui.iterationTextField.setDisable(true);
@@ -37,7 +37,7 @@ public class LegendaryOctoSniffle extends Application {
 
         DataSet dataSet = new DataSet("./DataSets/" + dataSetName, trainingTestSplit, labelIndex);
 
-        IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate);
+        IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland);
         iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations);
 
         // this.ais = new

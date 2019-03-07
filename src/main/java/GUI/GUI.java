@@ -9,10 +9,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -40,6 +37,7 @@ public class GUI extends BorderPane {
         dataSetLabelIndexes.put("crabs.data", 0);
     }
     private final ChoiceBox<String> dataSetBox = new ChoiceBox<>(FXCollections.observableArrayList("iris.data", "wine.data", "ionosphere.data", "glass.data", "crabs.csv", "abalone.data"));
+    private CheckBox checkBox = new CheckBox("MasterIsland");
     private int labelIndex;
 
     private final Stage primaryStage;
@@ -106,6 +104,7 @@ public class GUI extends BorderPane {
                 new Text("Population size:"), inputPopulationSize,
                 new Text("Mutation rate:"), inputMutationRate,
                 new Text("Number of tournaments:"),inputNumberOfTournaments,
+                new Text(""), checkBox,
                 new Text("Number of islands:"), inputNumberOfIslands,
                 new Text("Migration frequency:"), inputMigrationFrequency,
                 new Text("Migration rate:"), inputMigrationRate,
@@ -114,7 +113,7 @@ public class GUI extends BorderPane {
         setLeft(options);
 
         startButton.setOnAction((e) -> {
-            LOS.run(Integer.valueOf(inputIterations.getText()),Integer.valueOf(inputPopulationSize.getText()),Double.valueOf(inputMutationRate.getText()),Integer.valueOf(inputNumberOfTournaments.getText()), dataSetBox.getValue(), labelIndex,Double.valueOf(inputDataSetSplit.getText()), Double.valueOf(inputMigrationFrequency.getText()), Integer.valueOf(inputNumberOfIslands.getText()), Double.valueOf(inputMigrationRate.getText()));
+            LOS.run(Integer.valueOf(inputIterations.getText()),Integer.valueOf(inputPopulationSize.getText()),Double.valueOf(inputMutationRate.getText()),Integer.valueOf(inputNumberOfTournaments.getText()), dataSetBox.getValue(), labelIndex,Double.valueOf(inputDataSetSplit.getText()), Double.valueOf(inputMigrationFrequency.getText()), Integer.valueOf(inputNumberOfIslands.getText()), Double.valueOf(inputMigrationRate.getText()), checkBox.isSelected());
         });
         stopButton.setOnAction(event -> LOS.stopRunning());
 

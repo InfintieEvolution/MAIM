@@ -14,7 +14,8 @@ public class IGA {
     private double migrationTime;
     private ArrayList<Island> islands;
     private ArrayList<IslandConnection> islandConnections;
-
+    private final boolean MASTERISLAND;
+    private MasterIsland masterIsland;
     /**
      *
      * @param numberOfIslands Number of islands
@@ -23,7 +24,7 @@ public class IGA {
      * @param migrationFrequency Determines how ofter migration should occur
      * @@param migrationRate How many individuals to migrate
      */
-    public IGA(int numberOfIslands, int populationSize, int iterations, double migrationFrequency, double migrationRate) {
+    public IGA(int numberOfIslands, int populationSize, int iterations, double migrationFrequency, double migrationRate, boolean masterIsland) {
         this.numberOfIslands = numberOfIslands;
         this.populationSize = populationSize;
         this.iterations = iterations;
@@ -33,6 +34,7 @@ public class IGA {
         islands = new ArrayList<>();
         islandConnections = new ArrayList<>();
         this.migrationTime = iterations / (this.migrationFrequency * this.iterations);
+        this.MASTERISLAND = masterIsland;
     }
 
     public void initialize(DataSet dataSet, double mutationRate, int numberOfTournaments, int iterations){
@@ -64,6 +66,15 @@ public class IGA {
             }
         }
 
+        if(this.MASTERISLAND) {
+             this.masterIsland = new MasterIsland(
+                    new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap, this.populationSize, mutationRate, numberOfTournaments, iterations),
+                    migrationRate,
+                    migrationFrequency,
+                    this.islands
+            );
+            System.out.println("MasterIsland Created");
+        }
     }
 
     public boolean migrate() {
@@ -78,6 +89,15 @@ public class IGA {
             return true;
         }
         return false;
+    }
+
+    public void migrateMaster(){
+        if (this.MASTERISLAND){
+            this.masterIsland.removeAntibodies();
+            for(Island island : this.islands) {
+                this.masterIsland.receive(island);
+            }
+        }
     }
 
     public int getNumberOfIslands() {
