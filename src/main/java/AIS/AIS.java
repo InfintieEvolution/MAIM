@@ -67,7 +67,13 @@ public class AIS {
                 Antibody parent2;
                 if(antibodyMap.get(randomLabel).size() > numberOfTournaments){
                     parent1 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
+                    if(parent1.getWeightedAccuracy() == 0.0){ //if the antibody is not able to recognize anything correctly, do not allow it to reproduce
+                        parent1 = createAntibody(randomLabel);
+                    }
                     parent2 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
+                    if(parent2.getWeightedAccuracy() == 0.0){
+                        parent2 = createAntibody(randomLabel);
+                    }
                 }
                 else{
                     parent1 = createAntibody(randomLabel);
@@ -95,7 +101,7 @@ public class AIS {
             }
         }
 
-        this.select2();
+        this.select();
 
         //clear the connected antibodies list for the next iteration
         for(Antigen antigen:antigens){
@@ -105,31 +111,43 @@ public class AIS {
         }
     }
 
-    private void mutate(Antibody antibody){
-        double p = Math.random();
-        if(p > 0.5){
-            double rand = Math.random();
-            if(rand > 0.5){
-                antibody.setRadius(antibody.getRadius()*1.1);
-            }else{
-                antibody.setRadius(antibody.getRadius()*0.9);
-            }
-        }else {
-            double rand = Math.random();
-            if(rand > 0.5){
-                antibody.getFeatures()[random.nextInt(antibody.getFeatures().length)] *= 1.1;
-            }else{
-                antibody.getFeatures()[random.nextInt(antibody.getFeatures().length)] *= 0.9;
+    private void mutate2(Antibody antibody) {
+        double mutationProbability = 1.0/(1.0+antibody.getFeatures().length);
+
+        for(int i=0;i<antibody.getFeatures().length;i++){
+            double p = Math.random();
+            if(p <= mutationProbability){
+                antibody.getFeatures()[i] *= (Math.random()+Math.random());
             }
         }
-
-        /*p = Math.random();
-        if(p < 0.1){
-            antibody.getFeatures()[random.nextInt(antibody.getFeatures().length)] = -1.0;
-        }else{
-            antibody.getFeatures()[random.nextInt(antibody.getFeatures().length)] = p;
-        }*/
+        antibody.setRadius(antibody.getRadius()*Math.random()+Math.random());
     }
+
+    private void mutate(Antibody antibody){
+    double p = Math.random();
+    if(p > 0.5){
+        double rand = Math.random();
+        if(rand > 0.5){
+            antibody.setRadius(antibody.getRadius()*1.1);
+        }else{
+            antibody.setRadius(antibody.getRadius()*0.9);
+        }
+    }else {
+        double rand = Math.random();
+        if(rand > 0.5){
+            antibody.getFeatures()[random.nextInt(antibody.getFeatures().length)] *= 1.1;
+        }else{
+            antibody.getFeatures()[random.nextInt(antibody.getFeatures().length)] *= 0.9;
+        }
+    }
+
+    /*p = Math.random();
+    if(p < 0.1){
+        antibody.getFeatures()[random.nextInt(antibody.getFeatures().length)] = -1.0;
+    }else{
+        antibody.getFeatures()[random.nextInt(antibody.getFeatures().length)] = p;
+    }*/
+}
 
     private Antibody crossover(Antibody parent1, Antibody parent2){
 
@@ -177,7 +195,7 @@ public class AIS {
         return winner;
     }
 
-    private void select2(){
+    private void select(){
         final ArrayList<Antibody> priorityQueue = new ArrayList<>();
 
         for (String label:antibodyMap.keySet()){
@@ -190,6 +208,12 @@ public class AIS {
 
         int index = 0;
 
+        //decaying new offspring size
+        /*double offspringSize = this.populationSize*randomOffspringSize(this.populationSize,this.iteration,this.maxIterations);
+        for(int i=0; i < this.populationSize - (int)offspringSize;i++){
+            System.out.println(this.populationSize - (int)offspringSize);
+            survivors[index ++] = priorityQueue.remove(i);
+        }*/
         while (index < survivors.length) {
 
             double p = Math.random();
@@ -209,7 +233,6 @@ public class AIS {
                 if(p <= cumulativeProbability){
 
                     //if the solution is the best solution we've seen, add as such
-
                     survivors[index ++] = priorityQueue.remove(listIndex);
                     break;
                 }
@@ -228,141 +251,6 @@ public class AIS {
         this.antibodyMap = newAntibodyHashmap;
     }
 
-    private void select3(){
-        final ArrayList<Antibody> priorityQueue = new ArrayList<>();
-
-        for (String label:antibodyMap.keySet()){
-            priorityQueue.addAll(antibodyMap.get(label));
-        }
-
-        priorityQueue.sort(selectionComparator);
-
-        final Antibody[] survivors = new Antibody[populationSize];
-
-        int index = 0;
-
-        while (index < survivors.length) {
-
-            double p = Math.random();
-            //make survival selection more random as we go
-
-            //double rank = priorityQueue.size();
-            double rankSum = 0;
-            for(int i=0;i<priorityQueue.size();i++){
-                rankSum += priorityQueue.get(i).getFitness();
-            }
-            double cumulativeProbability = 0.0;
-            int listIndex = 0;
-
-            while (!priorityQueue.isEmpty()){
-                Antibody antibody = priorityQueue.get(listIndex);
-                cumulativeProbability += antibody.getFitness()/rankSum;
-
-                if(p <= cumulativeProbability){
-
-                    //if the solution is the best solution we've seen, add as such
-
-                    survivors[index ++] = priorityQueue.remove(listIndex);
-                    break;
-                }
-                listIndex++;
-                //rank--;
-            }
-        }
-
-        HashMap<String,ArrayList<Antibody>> newAntibodyHashmap = new HashMap<>();
-        for(Antibody antibody: survivors){
-            if(!newAntibodyHashmap.containsKey(antibody.getLabel())){
-                newAntibodyHashmap.put(antibody.getLabel(),new ArrayList<>(){{add(antibody);}});
-            }else{
-                newAntibodyHashmap.get(antibody.getLabel()).add(antibody);
-            }
-        }
-        this.antibodyMap = newAntibodyHashmap;
-        //for(Anti)
-    }
-    private void select(){
-
-        HashMap<String,Double> classDistributionMap = new HashMap<>();
-        double totalWeightSum = 0.0;
-        for(String label:antigenMap.keySet()){
-            double labelWeightSum = 1.0;
-            for(Antigen antigen:antigenMap.get(label)){
-                labelWeightSum += 1/antigen.getTotalInteraction();
-               /*for(Antibody antibody:antigen.getConnectedAntibodies()){
-                    labelWeightSum += (antibody.getConnectedAntigen().get(antigen)*antibody.getAccuracy());
-                }*/
-                //labelWeightSum += 1/antigen.getTotalInteraction();
-            }
-            totalWeightSum += labelWeightSum;
-            classDistributionMap.put(label,labelWeightSum);
-        }
-        for(String label:classDistributionMap.keySet()){
-            double numberOfIndividuals = (classDistributionMap.get(label)/totalWeightSum)*populationSize;
-            //System.out.println(numberOfIndividuals);
-            classDistributionMap.put(label,numberOfIndividuals);
-        }
-
-        HashMap<String,ArrayList<Antibody>> newAntibodyMap = new HashMap<>();
-        double totalFitness = 0.0;
-        int index = 0;
-        int totalSelectedIndividuals = 0;
-        int labelIndex = 0;
-        for (String label: antigenMap.keySet()){
-            labelIndex++;
-            int numberOfIndividuals = (int)(double)(classDistributionMap.get(label));
-            //int numberOfIndividuals = (int)(double)this.populationSize/this.labels.size();
-
-            totalSelectedIndividuals += numberOfIndividuals;
-            if(labelIndex == antibodyMap.keySet().size() && totalSelectedIndividuals < populationSize){
-                numberOfIndividuals++;
-            }
-            int selectedIndividualsOfLabel = 0;
-
-            if(antibodyMap.get(label) == null){
-                continue;
-            }
-            antibodyMap.get(label).sort(selectionComparator);
-            ArrayList<Antibody> priorityQueue = antibodyMap.get(label);
-
-            while (index < populationSize && selectedIndividualsOfLabel <= numberOfIndividuals){
-                double p = Math.random();
-
-                int rank = priorityQueue.size();
-                int rankSum = 0;
-                for(int i=priorityQueue.size();i>0;i--){
-                    rankSum += i;
-                }
-                double cumulativeProbability = 0.0;
-                int listIndex = 0;
-
-                while (!priorityQueue.isEmpty()){
-                    cumulativeProbability += (double) rank/rankSum;
-
-                    if(p <= cumulativeProbability){
-                        Antibody survivor = priorityQueue.remove(listIndex);
-
-                        this.antibodies[index ++] = survivor;
-                        selectedIndividualsOfLabel++;
-                        totalFitness += survivor.getFitness();
-                        if(!newAntibodyMap.containsKey(survivor.getLabel())){
-                            newAntibodyMap.put(survivor.getLabel(),new ArrayList<>(){{add(survivor);}});
-                        }else{
-                            newAntibodyMap.get(survivor.getLabel()).add(survivor);
-                        }
-                        break;
-                    }
-                    listIndex++;
-                    rank--;
-                }
-            }
-            totalSelectedIndividuals += selectedIndividualsOfLabel;
-        }
-
-        this.averageFitness = totalFitness / populationSize;
-        this.antibodyMap = newAntibodyMap;
-    }
-
     public void initialisePopulation(int populationSize){
         int antibodyCount = 0;
         for(String label:antigenMap.keySet()){
@@ -376,7 +264,6 @@ public class AIS {
                 Antibody antibody = createAntibody(label);
                 if(this.antibodyMap.containsKey(label)){
                     this.antibodyMap.get(label).add(antibody);
-
                 }else{
                     this.antibodyMap.put(label, new ArrayList<>(){ { add(antibody);}});
                 }

@@ -22,6 +22,7 @@ public class Antibody {
     private double correctInteraction;
     private double accuracy;
     private AIS ais;
+    private double weightedAccuracy;
 
     public Antibody(double[] features, double radius, String label, Antigen[] antigens, AIS ais){
         this.features = features;
@@ -75,6 +76,7 @@ public class Antibody {
                     }
                 }
             }
+            this.weightedAccuracy = (1 + correctInteraction) /(connectedAntigenOfLabel.keySet().size()+totalInteraction);
         }
     }
     public double calcualteWeight(Antigen antigen,double distance){
@@ -126,32 +128,13 @@ public class Antibody {
                 sum += ais.getAntibodyMap().get(label).size();
             }
             double representation = ais.getAntibodyMap().get(this.label).size()/sum;
-            double weightedAccuracy = (1 + correctInteraction) /(connectedAntigenOfLabel.keySet().size()+totalInteraction);
+
             //double weightedAccuracy = correctInteraction / totalInteraction;
             this.fitness = (sharingFactor*weightedAccuracy)/ totalInteraction;
             //this.fitness = (accuracy * (totalInteraction/boundAntigensCount));
         }
     }
-/*
-    public void calculateFitness(){
-        if(this.boundAntigensCount == 0){
-            this.fitness = 0.0;
-        }else{
-            double accuracy = (double) correctClassificationCount/(boundAntigensCount);
-            double sharingFactor = 0.0;
-            for(Antigen antigen: connectedAntigen.keySet()){
-                double weight = this.connectedAntigen.get(antigen);
-                double totalAntibodyWeight = 0.0;
-                for(Antibody antibody:antigen.getConnectedAntibodies()){
-                    totalAntibodyWeight += antibody.connectedAntigen.get(antigen);
-                }
-                sharingFactor += weight/totalAntibodyWeight;
-            }
-            //System.out.println(sharingFactor);
-            this.fitness = (sharingFactor*Math.pow(accuracy,2))/totalInteraction;
-        }
-    }
-*/
+
     public double eucledeanDistance(double[] featureSet1, double[] featureSet2){
 
         double eucledeanDistance = 0.0;
@@ -232,6 +215,14 @@ public class Antibody {
 
     public AIS getAis() {
         return ais;
+    }
+
+    public double getWeightedAccuracy() {
+        return weightedAccuracy;
+    }
+
+    public void setWeightedAccuracy(double weightedAccuracy) {
+        this.weightedAccuracy = weightedAccuracy;
     }
 
     @Override
