@@ -112,6 +112,14 @@ public class IGA {
         return migrationFrequency;
     }
 
+    public boolean hasMaster() {
+        return MASTERISLAND;
+    }
+
+    public MasterIsland getMasterIsland() {
+        return masterIsland;
+    }
+
     public ArrayList<Island> getIslands() {
         return islands;
     }

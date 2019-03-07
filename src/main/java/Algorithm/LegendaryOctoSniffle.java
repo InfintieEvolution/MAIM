@@ -43,7 +43,12 @@ public class LegendaryOctoSniffle extends Application {
         // this.ais = new
         // AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,populationSize,
         // mutationRate,numberOfTournaments,iterations);
-        this.ais = iga.getIsland(0).getAis(); // new
+        if(iga.hasMaster()){
+            this.ais = iga.getMasterIsland().getAis();
+        }
+        else{
+            this.ais = iga.getIsland(0).getAis(); // new
+        }
                                               // AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,populationSize,
                                               // mutationRate,numberOfTournaments,iterations);
         this.allAIS = iga.getAllAIS();
@@ -57,20 +62,6 @@ public class LegendaryOctoSniffle extends Application {
                     break;
                 }
                 boolean migrate = iga.migrate();
-                int it = 0;
-                for (AIS _ais : allAIS) {
-                    it++;
-                    _ais.setIteration(_ais.getIteration() + 1);
-                    // antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
-                    double accuracy = AIS.vote(_ais.getAntigenMap(), _ais.getAntibodyMap());
-                    // System.out.println("Island: " + it + ": Acc="+accuracy);
-                    // if(iga.getNumberOfIslands() == it){
-                    // it = 0;
-                    // System.out.println("----- Iteration " + i + "-----");
-                    // }
-                    double accuracyTestSet = AIS.vote(testSetMap, ais.getAntibodyMap());
-                    // gui.addIteration(accuracy);
-                }
 
                 // ais.setIteration(ais.getIteration()+1);
                 antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
@@ -87,9 +78,9 @@ public class LegendaryOctoSniffle extends Application {
                     ais.setBestAccuracyTestSet(accuracyTestSet);
                     ais.setBestIterationTestSet(i);
                 }
-                ais.iterate();
+//                ais.iterate();
 
-                for (int j = 1; j < allAIS.size(); j++) {
+                for (int j = 0; j < allAIS.size(); j++) {
                     allAIS.get(j).iterate();
                 }
             }
