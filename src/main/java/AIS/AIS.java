@@ -122,6 +122,13 @@ public class AIS {
                 antibody.getFeatures()[random.nextInt(antibody.getFeatures().length)] *= 0.9;
             }
         }
+
+        /*p = Math.random();
+        if(p < 0.1){
+            antibody.getFeatures()[random.nextInt(antibody.getFeatures().length)] = -1.0;
+        }else{
+            antibody.getFeatures()[random.nextInt(antibody.getFeatures().length)] = p;
+        }*/
     }
 
     private Antibody crossover(Antibody parent1, Antibody parent2){
