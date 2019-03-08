@@ -2,6 +2,7 @@ package Island;
 import AIS.AIS;
 import Algorithm.DataSet;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class IGA {
 
@@ -16,6 +17,7 @@ public class IGA {
     private ArrayList<IslandConnection> islandConnections;
     private final boolean MASTERISLAND;
     private MasterIsland masterIsland;
+    private Random random = new Random();
     /**
      *
      * @param numberOfIslands Number of islands
@@ -93,7 +95,11 @@ public class IGA {
 
     public void migrateMaster(){
         if (this.MASTERISLAND){
-            this.masterIsland.removeAntibodies();
+            if(random.nextDouble() > 0.5){
+                this.masterIsland.removeRandomAntibodies();
+            }else{
+                this.masterIsland.removeWorstAntibodies();
+            }
             for(Island island : this.islands) {
                 this.masterIsland.receive(island);
             }

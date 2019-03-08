@@ -32,7 +32,7 @@ public class MasterIsland {
         };
     }
 
-    public void removeAntibodies() {
+    public void removeRandomAntibodies() {
         Set<String> labels = this.ais.getAntibodyMap().keySet();
         ArrayList<Antibody>allAntibodies = new ArrayList<>();
         for (String label : labels) {
@@ -48,12 +48,25 @@ public class MasterIsland {
     }
 
     public void receive(Island fromIsland) {
-//        this.removeAntibodies();
-        var receieveingAntibodies = fromIsland.sendMigrants();
-        for (Antibody antibody: receieveingAntibodies) {
+//        this.removeRandomAntibodies();
+        var receivingAntibodies = fromIsland.sendMigrants();
+        for (Antibody antibody: receivingAntibodies) {
             this.ais.getAntibodyMap().get(antibody.getLabel()).add(antibody);
         }
+    }
 
+
+    public void removeWorstAntibodies() {
+        Set<String> labels = this.ais.getAntibodyMap().keySet();
+        ArrayList<Antibody> allAntibodies = new ArrayList<>();
+        for (String label : labels) {
+            allAntibodies.addAll(ais.getAntibodyMap().get(label));
+        }
+        allAntibodies.sort(migrationSelectionComparator); // Sort the antibodies
+        ArrayList<Antibody> worstAntibodies = new ArrayList<>(allAntibodies.subList(allAntibodies.size()-this.numberOfMigrants, allAntibodies.size()));
+        for (Antibody antibody : worstAntibodies) {
+            this.ais.getAntibodyMap().get(antibody.getLabel()).remove(antibody);
+        }
     }
 
 
