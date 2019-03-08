@@ -29,7 +29,7 @@ public class LegendaryOctoSniffle extends Application {
 
     public void run(int iterations, int populationSize, double mutationRate, int numberOfTournaments,
             String dataSetName, int labelIndex, double trainingTestSplit, double migrationFrequency,
-            int numberOfIslands, double migrationRate) {
+            int numberOfIslands, double migrationRate, boolean masterIsland) {
         this.running = true;
         gui.startButton.setDisable(true);
         gui.iterationTextField.setDisable(true);
@@ -37,13 +37,18 @@ public class LegendaryOctoSniffle extends Application {
 
         DataSet dataSet = new DataSet("./DataSets/" + dataSetName, trainingTestSplit, labelIndex);
 
-        IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate);
+        IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland);
         iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations);
 
         // this.ais = new
         // AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,populationSize,
         // mutationRate,numberOfTournaments,iterations);
-        this.ais = iga.getIsland(0).getAis(); // new
+        if(iga.hasMaster()){
+            this.ais = iga.getMasterIsland().getAis();
+        }
+        else{
+            this.ais = iga.getIsland(0).getAis(); // new
+        }
                                               // AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,populationSize,
                                               // mutationRate,numberOfTournaments,iterations);
         this.allAIS = iga.getAllAIS();
@@ -57,19 +62,9 @@ public class LegendaryOctoSniffle extends Application {
                     break;
                 }
                 boolean migrate = iga.migrate();
-                int it = 0;
-                for (AIS _ais : allAIS) {
-                    it++;
-                    _ais.setIteration(_ais.getIteration() + 1);
-                    // antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
-                    double accuracy = AIS.vote(_ais.getAntigenMap(), _ais.getAntibodyMap());
-                    // System.out.println("Island: " + it + ": Acc="+accuracy);
-                    // if(iga.getNumberOfIslands() == it){
-                    // it = 0;
-                    // System.out.println("----- Iteration " + i + "-----");
-                    // }
-                    double accuracyTestSet = AIS.vote(testSetMap, ais.getAntibodyMap());
-                    // gui.addIteration(accuracy);
+                if(migrate && iga.hasMaster()){
+                    iga.migrateMaster();
+                    iga.getMasterIsland().getAis().iterate();
                 }
 
                 // ais.setIteration(ais.getIteration()+1);
@@ -87,9 +82,9 @@ public class LegendaryOctoSniffle extends Application {
                     ais.setBestAccuracyTestSet(accuracyTestSet);
                     ais.setBestIterationTestSet(i);
                 }
-                ais.iterate();
+//                ais.iterate();
 
-                for (int j = 1; j < allAIS.size(); j++) {
+                for (int j = 0; j < allAIS.size(); j++) {
                     allAIS.get(j).iterate();
                 }
             }

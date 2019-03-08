@@ -2,6 +2,7 @@ package Island;
 import AIS.AIS;
 import Algorithm.DataSet;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class IGA {
 
@@ -14,7 +15,9 @@ public class IGA {
     private double migrationTime;
     private ArrayList<Island> islands;
     private ArrayList<IslandConnection> islandConnections;
-
+    private final boolean MASTERISLAND;
+    private MasterIsland masterIsland;
+    private Random random = new Random();
     /**
      *
      * @param numberOfIslands Number of islands
@@ -23,7 +26,7 @@ public class IGA {
      * @param migrationFrequency Determines how ofter migration should occur
      * @@param migrationRate How many individuals to migrate
      */
-    public IGA(int numberOfIslands, int populationSize, int iterations, double migrationFrequency, double migrationRate) {
+    public IGA(int numberOfIslands, int populationSize, int iterations, double migrationFrequency, double migrationRate, boolean masterIsland) {
         this.numberOfIslands = numberOfIslands;
         this.populationSize = populationSize;
         this.iterations = iterations;
@@ -33,6 +36,7 @@ public class IGA {
         islands = new ArrayList<>();
         islandConnections = new ArrayList<>();
         this.migrationTime = iterations / (this.migrationFrequency * this.iterations);
+        this.MASTERISLAND = masterIsland;
     }
 
     public void initialize(DataSet dataSet, double mutationRate, int numberOfTournaments, int iterations){
@@ -64,6 +68,15 @@ public class IGA {
             }
         }
 
+        if(this.MASTERISLAND) {
+             this.masterIsland = new MasterIsland(
+                    new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap, this.populationSize, mutationRate, numberOfTournaments, iterations),
+                    migrationRate,
+                    migrationFrequency,
+                    this.islands
+            );
+            System.out.println("MasterIsland Created");
+        }
     }
 
     public boolean migrate() {
@@ -80,6 +93,19 @@ public class IGA {
         return false;
     }
 
+    public void migrateMaster(){
+        if (this.MASTERISLAND){
+            if(random.nextDouble() > 0.5){
+                this.masterIsland.removeRandomAntibodies();
+            }else{
+                this.masterIsland.removeWorstAntibodies();
+            }
+            for(Island island : this.islands) {
+                this.masterIsland.receive(island);
+            }
+        }
+    }
+
     public int getNumberOfIslands() {
         return numberOfIslands;
     }
@@ -90,6 +116,14 @@ public class IGA {
 
     public double getMigrationFrequency() {
         return migrationFrequency;
+    }
+
+    public boolean hasMaster() {
+        return MASTERISLAND;
+    }
+
+    public MasterIsland getMasterIsland() {
+        return masterIsland;
     }
 
     public ArrayList<Island> getIslands() {

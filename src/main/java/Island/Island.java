@@ -58,20 +58,31 @@ public class Island {
      * @param ais - This islands AIS
      * @return HashMap<String, ArrayList<Antibody>> with the highest fitness from this ais
      */
-    public HashMap<String, ArrayList<Antibody>> sendMigrants(AIS ais) {
+    public HashMap<String, ArrayList<Antibody>> sendMigrantsBasedOnLabel(AIS ais) {
         Set<String> labels = ais.getAntibodyMap().keySet();
         HashMap<String, ArrayList<Antibody>>  antibodyHashMap = new HashMap<>();
         for (String label : labels){
             ArrayList<Antibody> copyList = ais.getAntibodyMap().get(label);
             copyList.sort(migrationSelectionComparator);
-            if(migrationRate > copyList.size()){
+            if((numberOfMigrants/labels.size()) > copyList.size()){
                 antibodyHashMap.put(label, copyList);
             }else {
-                ArrayList<Antibody> selectedAntibodies = new ArrayList<Antibody>(copyList.subList(0, (int)migrationRate*100));
+                ArrayList<Antibody> selectedAntibodies = new ArrayList<Antibody>(copyList.subList(0, (numberOfMigrants/labels.size())));
                 antibodyHashMap.put(label, selectedAntibodies);
             }
         }
         return antibodyHashMap;
+    }
+
+    public ArrayList<Antibody> sendMigrants() {
+        Set<String> labels = this.ais.getAntibodyMap().keySet();
+        ArrayList<Antibody> allAntibodies = new ArrayList<>();
+        for (String label: labels) {
+            allAntibodies.addAll(this.ais.getAntibodyMap().get(label));
+        }
+        allAntibodies.sort(migrationSelectionComparator);
+        return new ArrayList<Antibody>(allAntibodies.subList(0, numberOfMigrants));
+
     }
 
     public HashMap<String, ArrayList<Antibody>> sendMigrantsBasedOnPopulationSize(AIS ais) {
@@ -186,7 +197,7 @@ public class Island {
 //        this.removeAntibodies2(this.getAis());
         //Adds new antibodies with higher fitness
 //        HashMap<String, ArrayList<Antibody>> receivingAntibodies = sendingIsland.sendMigrantsBasedOnPopulationSize(sendingIsland.getAis());
-        HashMap<String, ArrayList<Antibody>> receivingAntibodies = sendingIsland.sendMigrants(sendingIsland.getAis());
+        HashMap<String, ArrayList<Antibody>> receivingAntibodies = sendingIsland.sendMigrantsBasedOnLabel(sendingIsland.getAis());
         for (String label : receivingAntibodies.keySet()){
             for (Antibody antibody : receivingAntibodies.get(label)){
                 antibody.setAis(this.getAis());
