@@ -62,15 +62,22 @@ public class LegendaryOctoSniffle extends Application {
                     break;
                 }
                 boolean migrate = iga.migrate();
-                if(migrate && iga.hasMaster()){
-                    iga.migrateMaster();
+
+                if(iga.hasMaster()){
+                    iga.migrateMaster2();
                     iga.getMasterIsland().getAis().iterate();
                 }
 
                 // ais.setIteration(ais.getIteration()+1);
                 antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
-                double accuracy = AIS.vote(ais.getAntigenMap(), ais.getAntibodyMap());
-                double accuracyTestSet = AIS.vote(testSetMap, ais.getAntibodyMap());
+                double accuracy = 0.0;
+                if(iga.hasMaster()){
+                    accuracy = iga.getMasterIsland().getCurrentAccuracy();
+                }else{
+                    accuracy = AIS.vote(ais.getAntigenMap(), ais.getAntibodyMap());
+                }
+                //iga.getMasterIsland().setCurrentAccuracy(accuracy);
+                //double accuracyTestSet = AIS.vote(testSetMap, ais.getAntibodyMap());
                 gui.addIteration(accuracy, migrate);
 
                 if (accuracy > ais.getBestAccuracy()) {
@@ -78,10 +85,10 @@ public class LegendaryOctoSniffle extends Application {
                     ais.setBestAccuracy(accuracy);
                     ais.setBestItreation(i);
                 }
-                if (accuracyTestSet > ais.getBestAccuracyTestSet()) {
+                /*if (accuracyTestSet > ais.getBestAccuracyTestSet()) {
                     ais.setBestAccuracyTestSet(accuracyTestSet);
                     ais.setBestIterationTestSet(i);
-                }
+                }*/
 //                ais.iterate();
 
                 for (int j = 0; j < allAIS.size(); j++) {
@@ -105,6 +112,7 @@ public class LegendaryOctoSniffle extends Application {
             });
         });
         aisThread.start();
+
     }
 
     public synchronized boolean getRunning() {

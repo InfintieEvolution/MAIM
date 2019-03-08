@@ -397,6 +397,10 @@ public class AIS {
         return this.antibodyMap;
     }
 
+    public void setAntibodyMap(HashMap<String, ArrayList<Antibody>> antibodyMap) {
+        this.antibodyMap = antibodyMap;
+    }
+
     public double getBestAccuracy() {
         return bestAccuracy;
     }
@@ -447,6 +451,14 @@ public class AIS {
 
     public int getPopulationSize() {
         return populationSize;
+    }
+
+    public ArrayList<String> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(ArrayList<String> labels) {
+        this.labels = labels;
     }
 
     public static HashMap<String, ArrayList<Antibody>> copy(HashMap<String, ArrayList<Antibody>> original)

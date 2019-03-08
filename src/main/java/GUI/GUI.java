@@ -35,8 +35,10 @@ public class GUI extends BorderPane {
         dataSetLabelIndexes.put("glass.data", 9);
         dataSetLabelIndexes.put("abalone.data", 0);
         dataSetLabelIndexes.put("crabs.data", 0);
+        dataSetLabelIndexes.put("onar.all-data", 60);
+
     }
-    private final ChoiceBox<String> dataSetBox = new ChoiceBox<>(FXCollections.observableArrayList("iris.data", "wine.data", "ionosphere.data", "glass.data", "crabs.csv", "abalone.data"));
+    private final ChoiceBox<String> dataSetBox = new ChoiceBox<>(FXCollections.observableArrayList("iris.data", "wine.data", "ionosphere.data", "glass.data", "crabs.csv", "abalone.data","sonar.all-data"));
     private CheckBox checkBox = new CheckBox("MasterIsland");
     private int labelIndex;
 

@@ -2,6 +2,7 @@ package Island;
 import AIS.AIS;
 import Algorithm.DataSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 public class IGA {
@@ -104,6 +105,14 @@ public class IGA {
                 this.masterIsland.receive(island);
             }
         }
+    }
+
+    public void migrateMaster2(){
+        this.masterIsland.setRecievedAntibodyMap(new HashMap<>());
+        for(Island island : this.islands) {
+            this.masterIsland.receive2(island);
+        }
+        this.masterIsland.select(4);
     }
 
     public int getNumberOfIslands() {
