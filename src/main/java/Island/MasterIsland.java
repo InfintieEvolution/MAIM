@@ -18,6 +18,7 @@ public class MasterIsland {
     Random random = new Random();
     private HashMap<String,ArrayList<Antibody>> recievedAntibodyMap;
     private double currentAccuracy;
+
     public MasterIsland(AIS ais, double migrationRate, double migrationFrequency, ArrayList<Island> allIslands) {
         this.ais = ais;
         this.migrationRate = migrationRate;
@@ -25,6 +26,7 @@ public class MasterIsland {
         this.numberOfMigrants = (int) (migrationRate * ais.getPopulationSize());
         this.allIslands = allIslands;
         this.currentAccuracy = 0.0;
+
         this.migrationSelectionComparator = (o1, o2) -> {
             if (o1.getFitness() > o2.getFitness()) {
                 return -1;
@@ -74,6 +76,57 @@ public class MasterIsland {
         }
     }
 
+    public void select2(){
+        ArrayList<Antibody> subPopulationList = new ArrayList<>();
+
+        for(String label: this.ais.getAntibodyMap().keySet()){
+            subPopulationList.addAll(this.ais.getAntibodyMap().get(label));
+        }
+        final Antibody[] survivors = new Antibody[(subPopulationList.size()*(allIslands.size()/allIslands.size()-1))];
+
+        subPopulationList.sort(migrationSelectionComparator);
+
+        for(int i=0; i<survivors.length;i++){
+            survivors[i] = subPopulationList.get(i);
+        }
+
+        HashMap<String,ArrayList<Antibody>>[] subPopulations = new HashMap[allIslands.size()];
+        for(int i = 0; i<subPopulations.length;i++){
+            subPopulations[i] = new HashMap<>();
+        }
+        for(HashMap<String,ArrayList<Antibody>> subPopulation: subPopulations){
+            for(String label: ais.getLabels()){
+                subPopulation.put(label,new ArrayList<>());
+            }
+            for(Antibody antibody: survivors){
+                subPopulation.get(antibody.getLabel()).add(antibody);
+            }
+
+        }
+
+        int islandCount = 0;
+        int bestIslandIndex = 0;
+        double bestIslandAccuracy = 0.0;
+        for(Island island: allIslands){
+            HashMap<String,ArrayList<Antibody>> subPopulation = subPopulations[islandCount];
+
+            for(String label: island.getAis().getAntibodyMap().keySet()){
+                subPopulations[islandCount].get(label).addAll(island.getAis().getAntibodyMap().get(label));
+            }
+            double accuracy = AIS.vote(this.ais.getAntigenMap(),subPopulation);
+            if(accuracy > bestIslandAccuracy){
+                bestIslandIndex = islandCount;
+                bestIslandAccuracy = accuracy;
+            }
+            islandCount++;
+        }
+
+        if(bestIslandAccuracy > currentAccuracy){
+            this.ais.setAntibodyMap(subPopulations[bestIslandIndex]);
+            currentAccuracy = bestIslandAccuracy;
+        }
+    }
+
     public void select(int split){
         ArrayList<Antigen> antigenList = new ArrayList<>();
         antigenList.addAll(Arrays.asList(this.ais.getAntigens()));
@@ -107,9 +160,9 @@ public class MasterIsland {
             }
         }
 
-
         ArrayList<HashMap<String,ArrayList<Antibody>>> subPopulations = splitIntoSubpopulations(split);
 
+        //select the best subpopulation based on the best average fitness over the split datasets
         int bestIndex = 0;
         double bestAccuracy = 0.0;
         int index = 0;
@@ -131,58 +184,59 @@ public class MasterIsland {
         this.ais.setAntibodyMap(bestSubPopulation);
     }
 
+
     public ArrayList<HashMap<String,ArrayList<Antibody>>> splitIntoSubpopulations(int subPopulationCount){
-        ArrayList<HashMap<String,ArrayList<Antibody>>> subPopulations = new ArrayList<>();
+    ArrayList<HashMap<String,ArrayList<Antibody>>> subPopulations = new ArrayList<>();
 
-        ArrayList<String> labels = this.ais.getLabels();
+    ArrayList<String> labels = this.ais.getLabels();
 
-        for(int i=0; i <subPopulationCount;i++){
+    for(int i=0; i <subPopulationCount;i++){
 
-            HashMap<String,ArrayList<Antibody>> subPopulation = new HashMap<>();
-            HashSet<Antibody> subPopulationSet = new HashSet<>();
+        HashMap<String,ArrayList<Antibody>> subPopulation = new HashMap<>();
+        HashSet<Antibody> subPopulationSet = new HashSet<>();
 
-            int selectedAntibodies = 0;
-            while (selectedAntibodies < this.ais.getPopulationSize()){
+        int selectedAntibodies = 0;
+        while (selectedAntibodies < this.ais.getPopulationSize()){
 
-                //select random label and create arraylist
-                String label = labels.get(random.nextInt(labels.size()));
-                if(!subPopulation.containsKey(label)){
-                    subPopulation.put(label,new ArrayList<>());
-                }
+            //select random label and create arraylist
+            String label = labels.get(random.nextInt(labels.size()));
+            if(!subPopulation.containsKey(label)){
+                subPopulation.put(label,new ArrayList<>());
+            }
 
-                double p = Math.random();
-                if(p < 0.5){
-                    if(!recievedAntibodyMap.get(label).isEmpty()){
-                        Antibody antibody = recievedAntibodyMap.get(label).get(random.nextInt(recievedAntibodyMap.get(label).size()));
-                        if(!subPopulationSet.contains(antibody)){
-                            subPopulation.get(label).add(antibody);
-                            subPopulationSet.add(antibody);
-                        }else{
-                            subPopulation.get(label).add(this.ais.createAntibody(label));
-                        }
+            double p = Math.random();
+            if(p < 0.5){
+                if(!recievedAntibodyMap.get(label).isEmpty()){
+                    Antibody antibody = recievedAntibodyMap.get(label).get(random.nextInt(recievedAntibodyMap.get(label).size()));
+                    if(!subPopulationSet.contains(antibody)){
+                        subPopulation.get(label).add(antibody);
+                        subPopulationSet.add(antibody);
                     }else{
                         subPopulation.get(label).add(this.ais.createAntibody(label));
                     }
                 }else{
-                    if(!ais.getAntibodyMap().get(label).isEmpty()){
-                        Antibody antibody = ais.getAntibodyMap().get(label).get(random.nextInt(ais.getAntibodyMap().get(label).size()));
-                        if(!subPopulationSet.contains(antibody)){
-                            subPopulation.get(label).add(antibody);
-                            subPopulationSet.add(antibody);
-                        }else{
-                            subPopulation.get(label).add(this.ais.createAntibody(label));
-                        }
+                    subPopulation.get(label).add(this.ais.createAntibody(label));
+                }
+            }else{
+                if(!ais.getAntibodyMap().get(label).isEmpty()){
+                    Antibody antibody = ais.getAntibodyMap().get(label).get(random.nextInt(ais.getAntibodyMap().get(label).size()));
+                    if(!subPopulationSet.contains(antibody)){
+                        subPopulation.get(label).add(antibody);
+                        subPopulationSet.add(antibody);
                     }else{
                         subPopulation.get(label).add(this.ais.createAntibody(label));
                     }
+                }else{
+                    subPopulation.get(label).add(this.ais.createAntibody(label));
                 }
-                selectedAntibodies++;
             }
-
-            subPopulations.add(subPopulation);
+            selectedAntibodies++;
         }
 
-        return subPopulations;
+        subPopulations.add(subPopulation);
+    }
+
+    return subPopulations;
     }
 
     public void removeWorstAntibodies() {

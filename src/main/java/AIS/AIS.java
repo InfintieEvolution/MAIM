@@ -327,7 +327,7 @@ public class AIS {
                         double distance = antibody.eucledeanDistance(antibody.getFeatures(), antigen.getAttributes());
                         if (distance <= antibody.getRadius()) {
                             //antibody is inside recognition radius
-                            double voteWeight = (1 / (distance))*antibody.getAccuracy()  /* antibody.getFitness()*/;
+                            double voteWeight = (1 / (distance))  * antibody.getAccuracy();
                             if (!votingMap.containsKey(antibody.getLabel())) {
                                 votingMap.put(antibody.getLabel(), voteWeight);
                             } else {

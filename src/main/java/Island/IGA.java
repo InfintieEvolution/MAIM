@@ -112,7 +112,7 @@ public class IGA {
         for(Island island : this.islands) {
             this.masterIsland.receive2(island);
         }
-        this.masterIsland.select(4);
+        this.masterIsland.select2();
     }
 
     public int getNumberOfIslands() {

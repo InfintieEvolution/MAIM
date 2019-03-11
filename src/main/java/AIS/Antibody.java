@@ -183,6 +183,10 @@ public class Antibody {
         return antigens;
     }
 
+    public void setAntigens(Antigen[] antigens) {
+        this.antigens = antigens;
+    }
+
     public double getTotalInteraction() {
         return totalInteraction;
     }
@@ -205,6 +209,13 @@ public class Antibody {
 
     public void setWeightedAccuracy(double weightedAccuracy) {
         this.weightedAccuracy = weightedAccuracy;
+    }
+
+    public boolean isConnectedAntigensSet() {
+        return connectedAntigensSet;
+    }
+    public void setConnectedAntigensSet(boolean connectedAntigensSet) {
+        this.connectedAntigensSet = connectedAntigensSet;
     }
 
     @Override
