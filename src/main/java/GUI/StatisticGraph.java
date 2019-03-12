@@ -19,6 +19,7 @@ class StatisticGraph extends Pane {
     private double previousX, previousY;
 
     private Text bestAccuracyText = new Text();
+    private Text averageAccuracyText = new Text();
 
     StatisticGraph(double width, double height, int iterations) {
         super();
@@ -79,7 +80,12 @@ class StatisticGraph extends Pane {
         bestAccuracyText.setY(height+50);
         bestAccuracyText.setX((width/2)*0.7);
         BorderPane.setAlignment(bestAccuracyText, Pos.CENTER);
-        super.getChildren().addAll(line1, line2, line3, line4, line1Text, line2Text, line3Text, line4Text, bestAccuracyText);
+
+        averageAccuracyText.setY(height+70);
+        averageAccuracyText.setX((width/2)*0.7);
+        BorderPane.setAlignment(averageAccuracyText, Pos.CENTER);
+
+        super.getChildren().addAll(line1, line2, line3, line4, line1Text, line2Text, line3Text, line4Text, bestAccuracyText,averageAccuracyText);
     }
 
     void addIteration(double fitness, boolean migration) {
@@ -106,6 +112,10 @@ class StatisticGraph extends Pane {
     }
 
     void setBestAccuracy(double accuracy) {
-        Platform.runLater(() -> bestAccuracyText.setText(String.format(Locale.US, "Highest achieved accuracy: %.2f", accuracy)));
+        Platform.runLater(() -> bestAccuracyText.setText(String.format(Locale.US, "Highest achieved accuracy: %.2f%%", accuracy*100)));
+    }
+
+    void setAverageAccuracy(double accuracy) {
+        Platform.runLater(() -> averageAccuracyText.setText(String.format(Locale.US, "Average achieved accuracy: %.2f%%", accuracy*100)));
     }
 }

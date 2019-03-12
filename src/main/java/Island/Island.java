@@ -186,6 +186,7 @@ public class Island {
             var newAntibody = new Antibody(antibody.getFeatures(), antibody.getRadius(), antibody.getLabel(), antibody.getAntigens(), this.getAis());
             newAntibody.setAccuracy(antibody.getAccuracy());
             newAntibody.setWeightedAccuracy(antibody.getWeightedAccuracy());
+            newAntibody.setFitness(antibody.getFitness());
             this.getAis().getAntibodyMap().get(antibody.getLabel()).add(newAntibody);
         }
     }

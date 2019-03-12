@@ -76,14 +76,13 @@ public class IGA {
                     migrationFrequency,
                     this.islands
             );
-            System.out.println("MasterIsland Created");
         }
     }
 
     public boolean migrate() {
         this.currentIterations++;
         // if it's time for migration do so, else something fancy.
-        if(this.currentIterations >= migrationTime){
+        if(this.currentIterations >= migrationTime && islands.size() > 1){
             for (IslandConnection islandConnection : this.islandConnections){
                 islandConnection.getReceiveFromIsland().receiveRandom(islandConnection.getSendToIsland());
             }
@@ -94,7 +93,7 @@ public class IGA {
         return false;
     }
 
-    public void migrateMaster(){
+    public void migrateMasterOld(){
         if (this.MASTERISLAND){
             if(random.nextDouble() > 0.5){
                 this.masterIsland.removeRandomAntibodies();
@@ -107,12 +106,8 @@ public class IGA {
         }
     }
 
-    public void migrateMaster2(){
-        this.masterIsland.setRecievedAntibodyMap(new HashMap<>());
-        for(Island island : this.islands) {
-            this.masterIsland.receive2(island);
-        }
-        this.masterIsland.select2();
+    public void migrateMaster(){
+        this.masterIsland.select();
     }
 
     public int getNumberOfIslands() {

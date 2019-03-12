@@ -150,4 +150,59 @@ public class DataSet {
 
         }
     }
- }
+
+    public static HashMap<String,ArrayList<Antigen>>[] splitDataSet(int split, HashMap<String,ArrayList<Antigen>> dataSet){
+        ArrayList<Antigen> antigenList = new ArrayList<>();
+        for(String label: dataSet.keySet()){
+            antigenList.addAll(dataSet.get(label));
+        }
+        Random random = new Random();
+        HashMap<String,ArrayList<Antigen>>[] splitAntigenLists = new HashMap[split];
+
+        int numberOfAntigenPerList = antigenList.size()/split;
+
+        //split the antigen into <split> number of equal sized lists of antigen
+        for(int i= 0; i < split; i++){
+            splitAntigenLists[i] = new HashMap<>();
+            int antigenCount = 0;
+
+            while (antigenCount < numberOfAntigenPerList){
+                Antigen antigen = antigenList.remove(random.nextInt(antigenList.size()));
+
+                if(splitAntigenLists[i].containsKey(antigen.getLabel())){
+                    splitAntigenLists[i].get(antigen.getLabel()).add(antigen);
+                }else splitAntigenLists[i].put(antigen.getLabel(), new ArrayList<>() {{
+                    add(antigen);
+                }});
+                antigenCount++;
+            }
+        }
+        while (!antigenList.isEmpty()){
+            Antigen antigen =  antigenList.remove(0);
+            int randomListIndex = random.nextInt(split);
+            if(splitAntigenLists[randomListIndex].containsKey(antigen.getLabel()))
+                splitAntigenLists[randomListIndex].get(antigen.getLabel()).add(antigen);
+            else{
+                splitAntigenLists[randomListIndex].put(antigen.getLabel(),new ArrayList<>(){{add(antigen);}});
+            }
+        }
+
+        return splitAntigenLists;
+    }
+
+    public Antigen[] getTrainingSet() {
+        return trainingSet;
+    }
+
+    public void setTrainingSet(Antigen[] trainingSet) {
+        this.trainingSet = trainingSet;
+    }
+
+    public HashMap<String, ArrayList<Antigen>> getAntigenMap() {
+        return antigenMap;
+    }
+
+    public void setAntigenMap(HashMap<String, ArrayList<Antigen>> antigenMap) {
+        this.antigenMap = antigenMap;
+    }
+}

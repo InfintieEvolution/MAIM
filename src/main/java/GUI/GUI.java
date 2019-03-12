@@ -59,6 +59,7 @@ public class GUI extends BorderPane {
     private final TextField inputMigrationFrequency = new TextField("0.1");
     private final TextField inputNumberOfIslands = new TextField("4");
     private final TextField inputMigrationRate = new TextField("0.1");
+    private final TextField inputK = new TextField("0");
 
     private final int sceneWidth = 1200;
     private final int sceneHeight = 850;
@@ -111,11 +112,12 @@ public class GUI extends BorderPane {
                 new Text("Migration frequency:"), inputMigrationFrequency,
                 new Text("Migration rate:"), inputMigrationRate,
                 new Text("Name of dataset:"),dataSetBox,
-                new Text("Dataset split:"),inputDataSetSplit);
+                new Text("Dataset split:"),inputDataSetSplit,
+                new Text("k-fold cross validation:"),inputK);
         setLeft(options);
 
         startButton.setOnAction((e) -> {
-            LOS.run(Integer.valueOf(inputIterations.getText()),Integer.valueOf(inputPopulationSize.getText()),Double.valueOf(inputMutationRate.getText()),Integer.valueOf(inputNumberOfTournaments.getText()), dataSetBox.getValue(), labelIndex,Double.valueOf(inputDataSetSplit.getText()), Double.valueOf(inputMigrationFrequency.getText()), Integer.valueOf(inputNumberOfIslands.getText()), Double.valueOf(inputMigrationRate.getText()), checkBox.isSelected());
+            LOS.run(Integer.valueOf(inputIterations.getText()),Integer.valueOf(inputPopulationSize.getText()),Double.valueOf(inputMutationRate.getText()),Integer.valueOf(inputNumberOfTournaments.getText()), dataSetBox.getValue(), labelIndex,Double.valueOf(inputDataSetSplit.getText()), Double.valueOf(inputMigrationFrequency.getText()), Integer.valueOf(inputNumberOfIslands.getText()), Double.valueOf(inputMigrationRate.getText()), checkBox.isSelected(),Integer.valueOf(inputK.getText()));
         });
         stopButton.setOnAction(event -> LOS.stopRunning());
 
@@ -205,6 +207,9 @@ public class GUI extends BorderPane {
 
     public void setBestAccuracy(double accuracy) {
         statisticGraph.setBestAccuracy(accuracy);
+    }
+    public void setAverageAccuracy(double accuracy) {
+        statisticGraph.setAverageAccuracy(accuracy);
     }
 
     public void setBestAccuracyIteration(double accuracy, int iteration) {

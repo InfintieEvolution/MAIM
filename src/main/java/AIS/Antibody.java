@@ -117,6 +117,20 @@ public class Antibody {
         }
     }
 
+    /**
+     * Checks if a antibody is connected to any nearby antigen.
+     * @return
+     */
+    public boolean isConnected(){
+        for (Antigen antigen:antigens){
+            double distance = eucledeanDistance(this.features,antigen.getAttributes());
+            if (distance <= this.radius) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public double eucledeanDistance(double[] featureSet1, double[] featureSet2){
 
         double eucledeanDistance = 0.0;

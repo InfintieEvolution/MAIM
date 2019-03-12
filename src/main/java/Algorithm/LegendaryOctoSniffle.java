@@ -29,7 +29,13 @@ public class LegendaryOctoSniffle extends Application {
 
     public void run(int iterations, int populationSize, double mutationRate, int numberOfTournaments,
             String dataSetName, int labelIndex, double trainingTestSplit, double migrationFrequency,
-            int numberOfIslands, double migrationRate, boolean masterIsland) {
+            int numberOfIslands, double migrationRate, boolean masterIsland,int k) {
+
+        if(k > 1){
+            this.validateAccuracies(k, iterations, populationSize, mutationRate, numberOfTournaments,
+                    dataSetName, labelIndex, trainingTestSplit, migrationFrequency,
+                    numberOfIslands, migrationRate, masterIsland);
+        }else{
         this.running = true;
         gui.startButton.setDisable(true);
         gui.iterationTextField.setDisable(true);
@@ -40,9 +46,6 @@ public class LegendaryOctoSniffle extends Application {
         IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland);
         iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations);
 
-        // this.ais = new
-        // AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,populationSize,
-        // mutationRate,numberOfTournaments,iterations);
         if(iga.hasMaster()){
             this.ais = iga.getMasterIsland().getAis();
         }
@@ -64,20 +67,17 @@ public class LegendaryOctoSniffle extends Application {
                 boolean migrate = iga.migrate();
 
                 if(iga.hasMaster()){
-                    iga.migrateMaster2();
-                    //iga.getMasterIsland().getAis().iterate();
+                    iga.migrateMaster();
                 }
 
-                // ais.setIteration(ais.getIteration()+1);
                 antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
-                double accuracy = 0.0;
+                double accuracy;
                 if(iga.hasMaster()){
                     accuracy = iga.getMasterIsland().getCurrentAccuracy();
                 }else{
                     accuracy = AIS.vote(ais.getAntigenMap(), ais.getAntibodyMap());
                 }
-                //iga.getMasterIsland().setCurrentAccuracy(accuracy);
-                //double accuracyTestSet = AIS.vote(testSetMap, ais.getAntibodyMap());
+
                 gui.addIteration(accuracy, migrate);
 
                 if (accuracy > ais.getBestAccuracy()) {
@@ -85,11 +85,6 @@ public class LegendaryOctoSniffle extends Application {
                     ais.setBestAccuracy(accuracy);
                     ais.setBestItreation(i);
                 }
-                /*if (accuracyTestSet > ais.getBestAccuracyTestSet()) {
-                    ais.setBestAccuracyTestSet(accuracyTestSet);
-                    ais.setBestIterationTestSet(i);
-                }*/
-//                ais.iterate();
 
                 for (int j = 0; j < allAIS.size(); j++) {
                     allAIS.get(j).iterate();
@@ -98,7 +93,6 @@ public class LegendaryOctoSniffle extends Application {
 
             antibodyGenerations.add(ais.getAntibodyMap());
 
-            // double accuracy = AIS.vote(testSetMap, ais.getAntibodyMap());
             Platform.runLater(() -> {
                 gui.startButton.setDisable(false);
                 gui.startButton.requestFocus();
@@ -112,7 +106,126 @@ public class LegendaryOctoSniffle extends Application {
             });
         });
         aisThread.start();
+        }
+    }
 
+    public void validateAccuracies(int k, int iterations, int populationSize, double mutationRate, int numberOfTournaments,
+                                   String dataSetName, int labelIndex, double trainingTestSplit, double migrationFrequency,
+                                   int numberOfIslands, double migrationRate, boolean masterIsland){
+
+        this.running = true;
+        gui.startButton.setDisable(true);
+        gui.iterationTextField.setDisable(true);
+        gui.stopButton.setDisable(false);
+
+        double[] accuracies = new double[k];
+        DataSet dataSet = new DataSet("./DataSets/" + dataSetName, 0.0, labelIndex);
+        HashMap<String,ArrayList<Antigen>>[] dataSetSplits = DataSet.splitDataSet(k,dataSet.antigenMap);
+        gui.createStatisticGraph(k-1);
+
+        Thread aisThread = new Thread(() -> {
+
+            double totalBestAccuracy = 0.0;
+            for(int j=0; j<accuracies.length;j++){
+                if (!this.getRunning()) {
+                    break;
+                }
+            HashMap<String,ArrayList<Antigen>> testSetMap = dataSetSplits[j];
+            HashMap<String,ArrayList<Antigen>> trainingSetMap = new HashMap<>();
+            ArrayList<Antigen> antigenArrayList = new ArrayList<>();
+            for(String label: dataSet.labels){
+                trainingSetMap.put(label,new ArrayList<>());
+            }
+
+            for(int n=0; n<dataSetSplits.length;n++){
+                if(n == j){
+                    continue;
+                }
+                for(String label: dataSetSplits[n].keySet()){
+                    trainingSetMap.get(label).addAll(dataSetSplits[n].get(label));
+                    antigenArrayList.addAll(dataSetSplits[n].get(label));
+                }
+            }
+            Antigen[] antigens = new Antigen[antigenArrayList.size()];
+            antigens = antigenArrayList.toArray(antigens);
+
+            dataSet.setTrainingSet(antigens);
+            dataSet.setAntigenMap(trainingSetMap);
+
+            IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland);
+            iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations);
+
+            if(iga.hasMaster()){
+                this.ais = iga.getMasterIsland().getAis();
+            }
+            else{
+                this.ais = iga.getIsland(0).getAis(); // new
+            }
+
+            this.allAIS = iga.getAllAIS();
+
+            ArrayList<HashMap<String, ArrayList<Antibody>>> antibodyGenerations = new ArrayList<>();
+                for (int i = 0; i < iterations; i++) {
+                    if (!this.getRunning()) {
+                        break;
+                    }
+                    for (int m = 0; m < allAIS.size(); m++) {
+                        allAIS.get(m).iterate();
+                    }
+                    iga.migrate();
+
+                    if(iga.hasMaster()){
+                        iga.migrateMaster();
+                    }
+
+                    antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
+                    double accuracy;
+                    if(iga.hasMaster()){
+                        accuracy = iga.getMasterIsland().getCurrentAccuracy();
+                    }else{
+                        accuracy = AIS.vote(ais.getAntigenMap(), ais.getAntibodyMap());
+                    }
+
+                    if (accuracy > ais.getBestAccuracy()) {
+                        ais.setBestAccuracy(accuracy);
+                        ais.setBestItreation(i);
+                    }
+                }
+
+            antibodyGenerations.add(ais.getAntibodyMap());
+
+            HashMap<String, ArrayList<Antibody>> bestGeneration =  antibodyGenerations.get(ais.getBestItreation());
+
+            double accuracy =AIS.vote(testSetMap,bestGeneration);
+            gui.addIteration(accuracy, false);
+            accuracies[j] = accuracy;
+
+            if(accuracy > totalBestAccuracy){
+                totalBestAccuracy = accuracy;
+                gui.setBestAccuracy(accuracy);
+            }
+
+        }
+
+        double accuracySum = 0.0;
+            int accuracyCount = 0;
+        for(double accuracy: accuracies){
+            if(accuracy != 0.0){
+                accuracySum += accuracy;
+                accuracyCount++;
+            }
+        }
+        gui.setAverageAccuracy(accuracySum/accuracyCount);
+
+        Platform.runLater(() -> {
+            gui.startButton.setDisable(false);
+            gui.startButton.requestFocus();
+            gui.iterationTextField.setDisable(false);
+            gui.stopButton.setDisable(true);
+        });
+        });
+
+        aisThread.start();
     }
 
     public synchronized boolean getRunning() {
