@@ -33,7 +33,7 @@ public class LegendaryOctoSniffle extends Application {
 
         if(k > 1){
             this.validateAccuracies(k, iterations, populationSize, mutationRate, numberOfTournaments,
-                    dataSetName, labelIndex, trainingTestSplit, migrationFrequency,
+                    dataSetName, labelIndex, migrationFrequency,
                     numberOfIslands, migrationRate, masterIsland);
         }else{
         this.running = true;
@@ -59,7 +59,9 @@ public class LegendaryOctoSniffle extends Application {
 
         HashMap<String, ArrayList<Antigen>> testSetMap = Antigen.createAntigenMap(dataSet.testSet);
         ArrayList<HashMap<String, ArrayList<Antibody>>> antibodyGenerations = new ArrayList<>();
-        Thread aisThread = new Thread(() -> {
+        ArrayList<Double> antibodyGenerationAccuracies = new ArrayList<>();
+
+            Thread aisThread = new Thread(() -> {
             for (int i = 0; i < iterations; i++) {
                 if (!this.getRunning()) {
                     break;
@@ -71,12 +73,14 @@ public class LegendaryOctoSniffle extends Application {
                 }
 
                 antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
+
                 double accuracy;
                 if(iga.hasMaster()){
                     accuracy = iga.getMasterIsland().getCurrentAccuracy();
                 }else{
                     accuracy = AIS.vote(ais.getAntigenMap(), ais.getAntibodyMap());
                 }
+                antibodyGenerationAccuracies.add(accuracy);
 
                 gui.addIteration(accuracy, migrate);
 
@@ -92,6 +96,7 @@ public class LegendaryOctoSniffle extends Application {
             }
 
             antibodyGenerations.add(ais.getAntibodyMap());
+            antibodyGenerationAccuracies.add(AIS.vote(ais.getAntigenMap(),ais.getAntibodyMap()));
 
             Platform.runLater(() -> {
                 gui.startButton.setDisable(false);
@@ -99,9 +104,9 @@ public class LegendaryOctoSniffle extends Application {
                 gui.iterationTextField.setDisable(false);
                 gui.stopButton.setDisable(true);
                 this.gui.setAntibodyGenerations(antibodyGenerations, ais.getAntigenMap(), testSetMap,
-                        antibodyGenerations.get(ais.getBestItreation()));
+                        antibodyGenerations.get(ais.getBestItreation()),antibodyGenerationAccuracies);
                 this.gui.createSolutionGraph(ais.getFeatureMap(), ais.getAntibodyMap());
-                gui.drawSolution(testSetMap, antibodyGenerations.get(ais.getBestItreation()));
+                gui.drawSolution(testSetMap, antibodyGenerations.get(ais.getBestItreation()),0.0);
                 gui.setBestAccuracyIteration(ais.getBestAccuracy(), ais.getBestItreation());
             });
         });
@@ -110,7 +115,7 @@ public class LegendaryOctoSniffle extends Application {
     }
 
     public void validateAccuracies(int k, int iterations, int populationSize, double mutationRate, int numberOfTournaments,
-                                   String dataSetName, int labelIndex, double trainingTestSplit, double migrationFrequency,
+                                   String dataSetName, int labelIndex, double migrationFrequency,
                                    int numberOfIslands, double migrationRate, boolean masterIsland){
 
         this.running = true;

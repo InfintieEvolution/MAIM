@@ -125,7 +125,7 @@ public class GUI extends BorderPane {
         primaryStage.show();
     }
 
-    public void setAntibodyGenerations(ArrayList<HashMap<String,ArrayList<Antibody>>> antibodyGenerations, HashMap<String,ArrayList<Antigen>> antigenMap, HashMap<String,ArrayList<Antigen>> antigenTestMap, HashMap<String,ArrayList<Antibody>> antibodyTestMap){
+    public void setAntibodyGenerations(ArrayList<HashMap<String,ArrayList<Antibody>>> antibodyGenerations, HashMap<String,ArrayList<Antigen>> antigenMap, HashMap<String,ArrayList<Antigen>> antigenTestMap, HashMap<String,ArrayList<Antibody>> antibodyTestMap,ArrayList<Double> antibodyGenerationAccuracies){
         this.antibodyGenerations = antibodyGenerations;
 
         HBox menu2 = new HBox(5);
@@ -138,12 +138,13 @@ public class GUI extends BorderPane {
             boolean isInteger = tryParseInt(iterationTextField.getText());
             if(e.getCode() == KeyCode.ENTER){
                 if(!isInteger){
-                    this.drawSolution(antigenTestMap,antibodyTestMap);
+                    this.drawSolution(antigenTestMap,antibodyTestMap,0.0);
                 }else{
                     int iteration = Integer.valueOf(iterationTextField.getText());
                     if(iteration >= 0 && iteration <antibodyGenerations.size()){
                         HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations.get(iteration);
-                        this.drawSolution(antigenMap,antibodyMap);
+                        double accuracy = antibodyGenerationAccuracies.get(iteration);
+                        this.drawSolution(antigenMap,antibodyMap,accuracy);
                     }
                 }
             }
@@ -151,24 +152,27 @@ public class GUI extends BorderPane {
                 int iteration = Integer.valueOf(iterationTextField.getText())-1;
                 if(iteration >= 0 && iteration <antibodyGenerations.size()){
                     HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations.get(iteration);
-                    this.drawSolution(antigenMap,antibodyMap);
+                    double accuracy = antibodyGenerationAccuracies.get(iteration);
+                    this.drawSolution(antigenMap,antibodyMap,accuracy);
                     iterationTextField.setText(Integer.toString(iteration));
                 }
             }else if(e.getCode() == KeyCode.DOWN){
                 int iteration = antibodyGenerations.size()-1;
                 HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations.get(iteration);
-                this.drawSolution(antigenMap,antibodyMap);
+                double accuracy = antibodyGenerationAccuracies.get(iteration);
+                this.drawSolution(antigenMap,antibodyMap,accuracy);
                 iterationTextField.setText(Integer.toString(iteration));
             }
             else if(e.getCode() == KeyCode.UP && isInteger){
                 int iteration = Integer.valueOf(iterationTextField.getText())+1;
                 if(iteration >= 0 && iteration < antibodyGenerations.size()){
                     HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations.get(iteration);
-                    this.drawSolution(antigenMap,antibodyMap);
+                    double accuracy = antibodyGenerationAccuracies.get(iteration);
+                    this.drawSolution(antigenMap,antibodyMap,accuracy);
                     iterationTextField.setText(Integer.toString(iteration));
                 }else if(iteration == antibodyGenerations.size()){
                     iterationTextField.setText("Test");
-                    this.drawSolution(antigenTestMap,antibodyTestMap);
+                    this.drawSolution(antigenTestMap,antibodyTestMap,0.0);
                 }
             }
         });
@@ -187,8 +191,8 @@ public class GUI extends BorderPane {
         setCenter(solutionGraph);
     }
 
-    public void drawSolution(HashMap<String, ArrayList<Antigen>> antigenMap, HashMap<String, ArrayList<Antibody>> antibodyMap){
-        solutionGraph.drawSolutionGraph(antigenMap,antibodyMap);
+    public void drawSolution(HashMap<String, ArrayList<Antigen>> antigenMap, HashMap<String, ArrayList<Antibody>> antibodyMap, double accuracy){
+        solutionGraph.drawSolutionGraph(antigenMap,antibodyMap,accuracy);
     }
 
     public void setAccuracy(double accuracy) {

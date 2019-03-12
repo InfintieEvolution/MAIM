@@ -35,7 +35,7 @@ public class SolutionGraph extends Pane {
     private HashMap<String,String> colorMap;
     private Text accuracyText = new Text();
     private Text bestAccuracyText = new Text();
-
+    private double accuracy;
     private double width;
     public SolutionGraph(double width, double height, HashMap<String, double[][]> featureMap, HashMap<String, ArrayList<Antibody>> antibodyMap) {
         super();
@@ -51,7 +51,7 @@ public class SolutionGraph extends Pane {
         this.width = width;
         setRandomColors(this.featureMap);
         setBounds(featureMap, antibodyMap);
-
+        this.accuracy = 0.0;
         this.height = height;
         this.factorX = width / Math.abs(this.maxX - this.minX);
         this.factorY = height / Math.abs(this.maxY - this.minY);
@@ -65,10 +65,11 @@ public class SolutionGraph extends Pane {
         super.getChildren().addAll(accuracyText, bestAccuracyText);
     }
 
-    public void drawSolutionGraph(HashMap<String, ArrayList<Antigen>> antigenMap,HashMap<String, ArrayList<Antibody>> antibodyMap){
+    public void drawSolutionGraph(HashMap<String, ArrayList<Antigen>> antigenMap,HashMap<String, ArrayList<Antibody>> antibodyMap, double accuracy){
         setBounds(featureMap,antibodyMap);
         this.factorX = width / Math.abs(this.maxX - this.minX);
         this.factorY = height / Math.abs(this.maxY - this.minY);
+        this.accuracy = accuracy;
         //plot antigens
         this.setAntigens(antigenMap);
         //plot antibodies
@@ -132,7 +133,11 @@ public class SolutionGraph extends Pane {
                 }
             }
         }
-        setAccuracy(AIS.vote(this.antigenMap,this.antibodyMap));
+        if(accuracy > 0.0){
+            setAccuracy(this.accuracy);
+        }else{
+            setAccuracy(AIS.vote(this.antigenMap,this.antibodyMap));
+        }
     }
 
     private void setRandomColors(HashMap<String, double[][]> featureMap) {

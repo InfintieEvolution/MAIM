@@ -51,12 +51,11 @@ public class AIS {
             return 0;
         };
 
-        initialisePopulation(this.populationSize,false);
+        initialisePopulation(this.populationSize,true);
     }
 
     public void iterate(){
         this.iteration++;
-
         ArrayList<Antibody> newAntibodiesOfLabel = new ArrayList<>();
         for(int i=0;i<populationSize;i++){
                 String randomLabel = this.labels.get(random.nextInt(labels.size()));
