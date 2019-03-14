@@ -76,13 +76,13 @@ public class MasterIsland {
         }
     }
 
-    public void select(){
+    public void select(int islandIntegrationCount){
         ArrayList<Antibody> subPopulationList = new ArrayList<>();
 
         for(String label: this.ais.getAntibodyMap().keySet()){
             subPopulationList.addAll(this.ais.getAntibodyMap().get(label));
         }
-        final Antibody[] survivors = new Antibody[(subPopulationList.size()*((allIslands.size()-1)/allIslands.size()))];
+        final Antibody[] survivors = new Antibody[(subPopulationList.size()*((allIslands.size()-islandIntegrationCount)/allIslands.size()))];
 
         subPopulationList.sort(migrationSelectionComparator);
 

@@ -106,8 +106,8 @@ public class IGA {
         }
     }
 
-    public void migrateMaster(){
-        this.masterIsland.select();
+    public void migrateMaster(int islandIntegrationCount){
+        this.masterIsland.select(islandIntegrationCount);
     }
 
     public int getNumberOfIslands() {

@@ -29,12 +29,12 @@ public class LegendaryOctoSniffle extends Application {
 
     public void run(int iterations, int populationSize, double mutationRate, int numberOfTournaments,
             String dataSetName, int labelIndex, double trainingTestSplit, double migrationFrequency,
-            int numberOfIslands, double migrationRate, boolean masterIsland,int k) {
+            int numberOfIslands, double migrationRate, boolean masterIsland,int k, int islandIntegrationCount) {
 
         if(k > 1){
             this.validateAccuracies(k, iterations, populationSize, mutationRate, numberOfTournaments,
                     dataSetName, labelIndex, migrationFrequency,
-                    numberOfIslands, migrationRate, masterIsland);
+                    numberOfIslands, migrationRate, masterIsland, islandIntegrationCount);
         }else{
         this.running = true;
         gui.startButton.setDisable(true);
@@ -69,7 +69,7 @@ public class LegendaryOctoSniffle extends Application {
                 boolean migrate = iga.migrate();
 
                 if(iga.hasMaster()){
-                    iga.migrateMaster();
+                    iga.migrateMaster(islandIntegrationCount);
                 }
 
                 antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
@@ -116,7 +116,7 @@ public class LegendaryOctoSniffle extends Application {
 
     public void validateAccuracies(int k, int iterations, int populationSize, double mutationRate, int numberOfTournaments,
                                    String dataSetName, int labelIndex, double migrationFrequency,
-                                   int numberOfIslands, double migrationRate, boolean masterIsland){
+                                   int numberOfIslands, double migrationRate, boolean masterIsland, int islandIntegrationCount){
 
         this.running = true;
         gui.startButton.setDisable(true);
@@ -180,7 +180,7 @@ public class LegendaryOctoSniffle extends Application {
                     iga.migrate();
 
                     if(iga.hasMaster()){
-                        iga.migrateMaster();
+                        iga.migrateMaster(islandIntegrationCount);
                     }
 
                     antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));

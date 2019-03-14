@@ -36,9 +36,10 @@ public class GUI extends BorderPane {
         dataSetLabelIndexes.put("abalone.data", 0);
         dataSetLabelIndexes.put("crabs.data", 0);
         dataSetLabelIndexes.put("sonar.all-data.txt", 60);
+        dataSetLabelIndexes.put("diabetes.csv",8);
 
     }
-    private final ChoiceBox<String> dataSetBox = new ChoiceBox<>(FXCollections.observableArrayList("iris.data", "wine.data", "ionosphere.data", "glass.data", "crabs.csv", "abalone.data","sonar.all-data.txt"));
+    private final ChoiceBox<String> dataSetBox = new ChoiceBox<>(FXCollections.observableArrayList("iris.data", "wine.data", "ionosphere.data", "glass.data", "crabs.csv", "abalone.data","sonar.all-data.txt","diabetes.csv"));
     private CheckBox checkBox = new CheckBox("MasterIsland");
     private int labelIndex;
 
@@ -59,6 +60,7 @@ public class GUI extends BorderPane {
     private final TextField inputMigrationFrequency = new TextField("0.1");
     private final TextField inputNumberOfIslands = new TextField("4");
     private final TextField inputMigrationRate = new TextField("0.1");
+    private final TextField islandIntegrationCount = new TextField("1");
     private final TextField inputK = new TextField("0");
 
     private final int sceneWidth = 1200;
@@ -111,13 +113,26 @@ public class GUI extends BorderPane {
                 new Text("Number of islands:"), inputNumberOfIslands,
                 new Text("Migration frequency:"), inputMigrationFrequency,
                 new Text("Migration rate:"), inputMigrationRate,
+                new Text("Elitist island integration:"), islandIntegrationCount,
                 new Text("Name of dataset:"),dataSetBox,
                 new Text("Dataset split:"),inputDataSetSplit,
                 new Text("k-fold cross validation:"),inputK);
         setLeft(options);
 
         startButton.setOnAction((e) -> {
-            LOS.run(Integer.valueOf(inputIterations.getText()),Integer.valueOf(inputPopulationSize.getText()),Double.valueOf(inputMutationRate.getText()),Integer.valueOf(inputNumberOfTournaments.getText()), dataSetBox.getValue(), labelIndex,Double.valueOf(inputDataSetSplit.getText()), Double.valueOf(inputMigrationFrequency.getText()), Integer.valueOf(inputNumberOfIslands.getText()), Double.valueOf(inputMigrationRate.getText()), checkBox.isSelected(),Integer.valueOf(inputK.getText()));
+            LOS.run(Integer.valueOf(inputIterations.getText()),
+                    Integer.valueOf(inputPopulationSize.getText()),
+                    Double.valueOf(inputMutationRate.getText()),
+                    Integer.valueOf(inputNumberOfTournaments.getText()),
+                    dataSetBox.getValue(),
+                    labelIndex,
+                    Double.valueOf(inputDataSetSplit.getText()),
+                    Double.valueOf(inputMigrationFrequency.getText()),
+                    Integer.valueOf(inputNumberOfIslands.getText()),
+                    Double.valueOf(inputMigrationRate.getText()),
+                    checkBox.isSelected(),
+                    Integer.valueOf(inputK.getText()),
+                    Integer.valueOf(islandIntegrationCount.getText()));
         });
         stopButton.setOnAction(event -> LOS.stopRunning());
 

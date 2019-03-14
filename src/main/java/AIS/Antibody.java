@@ -131,6 +131,21 @@ public class Antibody {
         return false;
     }
 
+    public double checkAccuracy(){
+        int totalClassifications = 0;
+        int correctClassifications = 0;
+        for (Antigen antigen:antigens){
+            double distance = eucledeanDistance(this.features,antigen.getAttributes());
+            if (distance <= this.radius) {
+                if(antigen.getLabel().equals(this.getLabel())){
+                    correctClassifications++;
+                }
+                totalClassifications ++;
+            }
+        }
+        return (double)correctClassifications/totalClassifications;
+    }
+
     public double eucledeanDistance(double[] featureSet1, double[] featureSet2){
 
         double eucledeanDistance = 0.0;
