@@ -101,6 +101,13 @@ public class Island {
         return antibodyHashMap;
     }
 
+
+    /**
+     * Someone with the name Andreas most have been dead drunk while writing this
+     * @param ais should not be necessary
+     * @return way to many antibodies
+     */
+    @Deprecated
     public ArrayList<Antibody> sendAllRandom(AIS ais){
         ArrayList<Antibody>  antibodyList = new ArrayList<Antibody>();
         Set<String> labels = ais.getAntibodyMap().keySet();
@@ -111,8 +118,27 @@ public class Island {
         for (int i = 0; i <this.numberOfMigrants; i++){
             int someRandomInteger = random.nextInt((ais.getAntibodies().length - 1) + 1);
             antibodyList.add(ais.getAntibodies()[someRandomInteger]);
+//            antibodyList.add(ais.getAntibodies()[someRandomInteger]);
         }
+        System.out.println("What is this size? " + antibodyList.size() + "compared to numberOfMigrants: " + numberOfMigrants);
         return antibodyList;
+    }
+
+    public ArrayList<Antibody> sendAllRandomNew(){
+        ArrayList<Antibody> allAntibodies = new ArrayList<>();
+        ArrayList<Antibody> selectedForMigration = new ArrayList<>();
+
+        for (String label : this.ais.getAntibodyMap().keySet()){
+            allAntibodies.addAll(this.ais.getAntibodyMap().get(label));
+        }
+
+        for (int i = 0; i < this.numberOfMigrants; i++) {
+            int randomIndex = random.nextInt(allAntibodies.size());
+            selectedForMigration.add(allAntibodies.get(randomIndex));
+        }
+        // Remove them before they are migrated
+        removeRandomAntibodies(selectedForMigration);
+        return selectedForMigration;
     }
 
 
@@ -167,6 +193,18 @@ public class Island {
             var antibodyToRemove = allAntibodies.get(randomIndex);
             this.ais.getAntibodyMap().get(antibodyToRemove.getLabel()).remove(antibodyToRemove);
         }
+
+    }
+
+    public void removeRandomAntibodies(ArrayList<Antibody> randomAntibodies) {
+        var allAntibodies = new ArrayList<Antibody>();
+        for(String label : this.ais.getAntibodyMap().keySet()){
+            allAntibodies.addAll(this.ais.getAntibodyMap().get(label));
+        }
+
+        for (Antibody antibody : randomAntibodies) {
+            allAntibodies.remove(antibody);
+        }
     }
 
     /**
@@ -193,9 +231,10 @@ public class Island {
 
     public void receiveRandom(Island sendingIsland) {
 //        removeAntibodiesBasedOnMigrationRate(this.getAis());
-        removeRandomAntibodies();
+//        removeRandomAntibodies();
 
-        ArrayList<Antibody> receivingAntibodies = sendingIsland.sendAllRandom(sendingIsland.getAis());
+//        ArrayList<Antibody> receivingAntibodies = sendingIsland.sendAllRandom(sendingIsland.getAis());
+        ArrayList<Antibody> receivingAntibodies = sendingIsland.sendAllRandomNew();
         for (Antibody antibody : receivingAntibodies){
             var newAntibody = new Antibody(antibody.getFeatures(), antibody.getRadius(), antibody.getLabel(), antibody.getAntigens(), this.getAis());
             newAntibody.setAccuracy(antibody.getAccuracy());
