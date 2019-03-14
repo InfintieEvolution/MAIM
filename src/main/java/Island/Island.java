@@ -26,7 +26,7 @@ public class Island {
         this.migrationFrequency = migrationFrequency;
         this.islandConnections = new ArrayList<>();
         this.islandId = islandId;
-        this.localMigrationRate = ((double) migrationRate/1000) * ais.getPopulationSize();
+        this.localMigrationRate = (migrationRate/1000) * ais.getPopulationSize();
         this.numberOfMigrants = (int) (migrationRate * ais.getPopulationSize());
 
         migrationSelectionComparator = (o1, o2) -> {
@@ -151,8 +151,21 @@ public class Island {
             }else{
                 ArrayList<Antibody> selectedForRemoval = new ArrayList<Antibody>(antibodies.subList((antibodies.size()-((int) migrationRate*ais.getPopulationSize())), antibodies.size())); // Create new list with mRate worst antibodies
                 ais.getAntibodyMap().get(label).removeAll(selectedForRemoval); // remove from original list
-
             }
+        }
+    }
+
+    public void removeRandomAntibodies() {
+        ArrayList<Antibody> allAntibodies = new ArrayList<>();
+
+        for (String label : this.ais.getAntibodyMap().keySet()){
+            allAntibodies.addAll(this.ais.getAntibodyMap().get(label));
+        }
+
+        for(int i = 0; i < this.numberOfMigrants; i++){
+            int randomIndex = random.nextInt(allAntibodies.size());
+            var antibodyToRemove = allAntibodies.get(randomIndex);
+            this.ais.getAntibodyMap().get(antibodyToRemove.getLabel()).remove(antibodyToRemove);
         }
     }
 
@@ -179,7 +192,8 @@ public class Island {
     }
 
     public void receiveRandom(Island sendingIsland) {
-        removeAntibodiesBasedOnMigrationRate(this.getAis());
+//        removeAntibodiesBasedOnMigrationRate(this.getAis());
+        removeRandomAntibodies();
 
         ArrayList<Antibody> receivingAntibodies = sendingIsland.sendAllRandom(sendingIsland.getAis());
         for (Antibody antibody : receivingAntibodies){
