@@ -41,7 +41,7 @@ public class LegendaryOctoSniffle extends Application {
         gui.iterationTextField.setDisable(true);
         gui.stopButton.setDisable(false);
 
-        DataSet dataSet = new DataSet("./DataSets/" + dataSetName, trainingTestSplit, labelIndex);
+        DataSet dataSet = new DataSet("./DataSets/" + dataSetName, trainingTestSplit,0.1, labelIndex);
 
         IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland);
         iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations);
@@ -57,9 +57,8 @@ public class LegendaryOctoSniffle extends Application {
         this.allAIS = iga.getAllAIS();
         gui.createStatisticGraph(iterations);
 
-        HashMap<String, ArrayList<Antigen>> testSetMap = Antigen.createAntigenMap(dataSet.testSet);
-        ArrayList<HashMap<String, ArrayList<Antibody>>> antibodyGenerations = new ArrayList<>();
-        ArrayList<Double> antibodyGenerationAccuracies = new ArrayList<>();
+        ArrayList<HashMap<String, ArrayList<Antibody>>> antibodyGenerations = new ArrayList<>(); //contains the antibody population for each iteration.
+        ArrayList<Double> antibodyGenerationAccuracies = new ArrayList<>(); //contains the population accuracies over each iteration.
 
             Thread aisThread = new Thread(() -> {
             for (int i = 0; i < iterations; i++) {
@@ -103,10 +102,10 @@ public class LegendaryOctoSniffle extends Application {
                 gui.startButton.requestFocus();
                 gui.iterationTextField.setDisable(false);
                 gui.stopButton.setDisable(true);
-                this.gui.setAntibodyGenerations(antibodyGenerations, ais.getAntigenMap(), testSetMap,
+                this.gui.setAntibodyGenerations(antibodyGenerations, ais.getAntigenMap(), dataSet.testAntigenMap,
                         antibodyGenerations.get(ais.getBestItreation()),antibodyGenerationAccuracies);
                 this.gui.createSolutionGraph(ais.getFeatureMap(), ais.getAntibodyMap());
-                gui.drawSolution(testSetMap, antibodyGenerations.get(ais.getBestItreation()),0.0);
+                gui.drawSolution(dataSet.testAntigenMap, antibodyGenerations.get(ais.getBestItreation()),0.0);
                 gui.setBestAccuracyIteration(ais.getBestAccuracy(), ais.getBestItreation());
             });
         });
@@ -124,7 +123,7 @@ public class LegendaryOctoSniffle extends Application {
         gui.stopButton.setDisable(false);
 
         double[] accuracies = new double[k];
-        DataSet dataSet = new DataSet("./DataSets/" + dataSetName, 0.0, labelIndex);
+        DataSet dataSet = new DataSet("./DataSets/" + dataSetName, 0.0,0.0, labelIndex);
         HashMap<String,ArrayList<Antigen>>[] dataSetSplits = DataSet.splitDataSet(k,dataSet.antigenMap);
         gui.createStatisticGraph(k-1);
 
@@ -137,9 +136,12 @@ public class LegendaryOctoSniffle extends Application {
                 }
             HashMap<String,ArrayList<Antigen>> testSetMap = dataSetSplits[j];
             HashMap<String,ArrayList<Antigen>> trainingSetMap = new HashMap<>();
+            HashMap<String,ArrayList<Antigen>> validationSetMap = new HashMap<>();
+
             ArrayList<Antigen> antigenArrayList = new ArrayList<>();
             for(String label: dataSet.labels){
                 trainingSetMap.put(label,new ArrayList<>());
+                validationSetMap.put(label,new ArrayList<>());
             }
 
             for(int n=0; n<dataSetSplits.length;n++){
@@ -147,8 +149,15 @@ public class LegendaryOctoSniffle extends Application {
                     continue;
                 }
                 for(String label: dataSetSplits[n].keySet()){
-                    trainingSetMap.get(label).addAll(dataSetSplits[n].get(label));
-                    antigenArrayList.addAll(dataSetSplits[n].get(label));
+                    for(Antigen antigen: dataSetSplits[n].get(label)){
+                        double p = Math.random();
+                        if(p < 0.1){
+                            validationSetMap.get(label).add(antigen);
+                        }else{
+                            trainingSetMap.get(label).add(antigen);
+                            antigenArrayList.add(antigen);
+                        }
+                    }
                 }
             }
             Antigen[] antigens = new Antigen[antigenArrayList.size()];
@@ -156,6 +165,7 @@ public class LegendaryOctoSniffle extends Application {
 
             dataSet.setTrainingSet(antigens);
             dataSet.setAntigenMap(trainingSetMap);
+            dataSet.setValidationAntigenMap(validationSetMap);
 
             IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland);
             iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations);

@@ -95,6 +95,7 @@ public class GUI extends BorderPane {
         menuWrapper.setPadding(new Insets(5,0,5,0));
         dataSetBox.setValue("iris.data");
         dataSetBox.setPrefWidth(150);
+        checkBox.setSelected(true);
         menu = new HBox(5);
         //menu.setPadding(new Insets(5,0,10,0));
         menu.setAlignment(Pos.CENTER);

@@ -15,16 +15,22 @@ public class DataSet {
     ArrayList<Antigen> antigenList;
     public Antigen[] testSet;
     public Antigen[] trainingSet;
+    public Antigen[] validationSet;
     public double trainingTestSplit;
+    public double validationSplit;
     public HashMap<String,double[][]> featureMap;
     private Random random;
     public double[] featureSums;
     public double[][] totalFeatureMinMax;
     public ArrayList<String> labels;
     public HashMap<String, ArrayList<Antigen>> antigenMap;
+    public HashMap<String, ArrayList<Antigen>> testAntigenMap;
+    public HashMap<String, ArrayList<Antigen>> validationAntigenMap;
+
     public int labelColumn;
-    public DataSet(String path, double trainingTestSplit, int labelColumn){
+    public DataSet(String path, double trainingTestSplit, double validationSplit, int labelColumn){
         this.trainingTestSplit = trainingTestSplit;
+        this.validationSplit = validationSplit;
         this.random = new Random();
         this.featureMap = new HashMap<>();
         this.labels = new ArrayList<>();
@@ -43,23 +49,25 @@ public class DataSet {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //createFeatureMap(antigenList);
 
         normalizeFeatures(antigenList);
-        /*for (String label: featureMap.keySet()){
-            for(int i=0; i<featureMap.get(label).length;i++){
-                System.out.println(label + ", featureNR: "+i+", minvalue: "+featureMap.get(label)[i][0]+", maxvalue: "+featureMap.get(label)[i][1]);
-
-            }
-        }*/
         this.testSet = new Antigen[(int)(antigenList.size()*trainingTestSplit)];
-        this.trainingSet = new Antigen[antigenList.size() - testSet.length];
-        for(int i=0; i< trainingSet.length;i++){
+        this.validationSet = new Antigen[(int)((antigenList.size() - testSet.length)*validationSplit)];
+        this.trainingSet = new Antigen[antigenList.size() - testSet.length - validationSet.length];
+
+        for(int i=0; i< trainingSet.length;i++) {
             trainingSet[i] = antigenList.remove(random.nextInt(antigenList.size()));
         }
+        for(int i=0; i< validationSet.length;i++){
+            validationSet[i] = antigenList.remove(random.nextInt(antigenList.size()));
+        }
+
         this.testSet = antigenList.toArray(testSet);
 
         this.antigenMap = Antigen.createAntigenMap(trainingSet);
+        this.validationAntigenMap = Antigen.createAntigenMap(validationSet);
+        this.testAntigenMap = Antigen.createAntigenMap(testSet);
+
     }
 
     private void processLine(String line){
@@ -102,31 +110,13 @@ public class DataSet {
                 totalFeatureMinMax[i][1] = attributes[i];
             }
         }
-        /*if(!featureMap.containsKey(label)){
-            featureMap.put(label,new double[attributes.length][2]);
-            for(double[] featureBound:featureMap.get(label)){
-                featureBound[0] = Double.MAX_VALUE;
-                featureBound[1] = Double.MIN_VALUE;
-            }
-        }*/
 
         antigenList.add(antigen);
-        /*for(int i=0; i< attributes.length;i++){
-            if(featureMap.get(antigen.getLabel())[i][0] > attributes[i]){
-                featureMap.get(antigen.getLabel())[i][0] = attributes[i];
-            }
-            else if(featureMap.get(antigen.getLabel())[i][1] < attributes[i]){
-                featureMap.get(antigen.getLabel())[i][1] = attributes[i];
-            }
-        }*/
     }
 
     public void normalizeFeatures(ArrayList<Antigen> antigens){
-        int numberOfAntigen = antigens.size();
-        int labelCount = 0;
+
         for (Antigen antigen:antigens){
-            //String label = antigen.getLabel();
-            //double[] attributes = antigen.getAttributes();
 
             if(!featureMap.containsKey(antigen.getLabel())){
                 labels.add(antigen.getLabel());
@@ -138,7 +128,6 @@ public class DataSet {
             }
 
             for(int i=0; i<antigen.getAttributes().length;i++){
-                //attributes[i] = (attributes[i] - (featureSums[i]/numberOfAntigen))/(totalFeatureMinMax[i][1] - totalFeatureMinMax[i][0]);
                 antigen.getAttributes()[i] = (antigen.getAttributes()[i] - totalFeatureMinMax[i][0])/(totalFeatureMinMax[i][1] - totalFeatureMinMax[i][0]);
                 if(featureMap.get(antigen.getLabel())[i][0] > antigen.getAttributes()[i]){
                     featureMap.get(antigen.getLabel())[i][0] = antigen.getAttributes()[i];
@@ -204,5 +193,13 @@ public class DataSet {
 
     public void setAntigenMap(HashMap<String, ArrayList<Antigen>> antigenMap) {
         this.antigenMap = antigenMap;
+    }
+
+    public HashMap<String, ArrayList<Antigen>> getValidationAntigenMap() {
+        return validationAntigenMap;
+    }
+
+    public void setValidationAntigenMap(HashMap<String, ArrayList<Antigen>> validationAntigenMap) {
+        this.validationAntigenMap = validationAntigenMap;
     }
 }

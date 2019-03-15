@@ -3,7 +3,9 @@ package Island;
 import AIS.AIS;
 import AIS.Antibody;
 import AIS.Antigen;
+import Algorithm.DataSet;
 
+import javax.xml.crypto.Data;
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -77,12 +79,19 @@ public class MasterIsland {
     }
 
     public void select(int islandIntegrationCount){
+        this.ais.setIteration(this.ais.getIteration()+1);
         ArrayList<Antibody> subPopulationList = new ArrayList<>();
 
         for(String label: this.ais.getAntibodyMap().keySet()){
             subPopulationList.addAll(this.ais.getAntibodyMap().get(label));
         }
-        final Antibody[] survivors = new Antibody[(subPopulationList.size()*((allIslands.size()-islandIntegrationCount)/allIslands.size()))];
+        double integrationModifier = 1.25*((double)this.ais.getIteration()/this.ais.getMaxIterations())*islandIntegrationCount;
+
+        islandIntegrationCount += (int)integrationModifier;
+        if(islandIntegrationCount > allIslands.size()){
+            islandIntegrationCount = allIslands.size(); //make sure integration count is no too large
+        }
+        final Antibody[] survivors = new Antibody[subPopulationList.size()*((allIslands.size()-islandIntegrationCount)/allIslands.size())];
 
         subPopulationList.sort(migrationSelectionComparator);
 
@@ -99,7 +108,10 @@ public class MasterIsland {
                 subPopulation.put(label,new ArrayList<>());
             }
             for(Antibody antibody: survivors){
-                subPopulation.get(antibody.getLabel()).add(antibody);
+                Antibody antibody1 = new Antibody(antibody.getFeatures(),antibody.getRadius(),antibody.getLabel(),this.getAis().getAntigens(),this.getAis());
+                subPopulation.get(antibody1.getLabel()).add(antibody1);
+
+                //subPopulation.get(antibody.getLabel()).add(antibody);
             }
 
         }
@@ -115,22 +127,60 @@ public class MasterIsland {
                 subPopulations[islandCount].get(label).addAll(allIslands.get(i).getAis().getAntibodyMap().get(label));
             }
 
-
+            //add islands to population, but only add islands that have not been added before
+            HashSet<Integer> islandIndexes = new HashSet<>();
+            islandIndexes.add(i);
             while (integratedIslands < islandIntegrationCount){
                 int islandIndex = random.nextInt(allIslands.size());
-                while (islandIndex == i){
+                while (islandIndexes.contains(islandIndex)){
                     islandIndex = random.nextInt(allIslands.size());
                 }
+
                 Island island = allIslands.get(islandIndex);
                 for(String label: island.getAis().getAntibodyMap().keySet()){
-                    subPopulations[islandCount].get(label).addAll(island.getAis().getAntibodyMap().get(label));
+                    for(Antibody antibody: island.getAis().getAntibodyMap().get(label)){
+                        Antibody antibody1 = new Antibody(antibody.getFeatures(),antibody.getRadius(),antibody.getLabel(),this.getAis().getAntigens(),this.getAis());
+                        subPopulations[islandCount].get(label).add(antibody1);
+                    }
+                    //subPopulations[islandCount].get(label).addAll(island.getAis().getAntibodyMap().get(label));
                 }
+                islandIndexes.add(islandIndex);
                 integratedIslands++;
             }
 
+            for(Antigen antigen:this.getAis().getAntigens()){
+                antigen.setConnectedAntibodies(new ArrayList<>());
+                antigen.setTotalInteraction(0.0);
+                antigen.getInteractionMap().put(getAis(),0.0);
+            }
 
+            for(String label: subPopulation.keySet()){
+                for(Antibody antibody:subPopulation.get(label)){
+                    antibody.setConnectedAntigens();
+                }
+            }
+            //calculate fitness after connections has been set
+            for(String label: subPopulation.keySet()) {
+                for(Antibody antibody:subPopulation.get(label)) {
+                    antibody.calculateFitness();
+                }
+            }
+            /*HashMap<String,ArrayList<Antigen>>[] antigenList = DataSet.splitDataSet(3,this.ais.getAntigenMap());
 
-            double accuracy = AIS.vote(this.ais.getAntigenMap(),subPopulation);
+            double accuracySum = 0.0;
+            for(HashMap<String,ArrayList<Antigen>> antigens: antigenList){
+                accuracySum += AIS.vote(antigens,subPopulation);
+
+            }*/
+            //double accuracy = accuracySum/antigenList.length;
+            double accuracyTest = AIS.vote(this.ais.getAntigenMap(),subPopulation);
+            double accuracyValidation = AIS.vote(this.ais.getAntigenValidationMap(),subPopulation);
+            double accuracy;
+            if(accuracyValidation > 0.0){
+                accuracy = (accuracyTest + accuracyValidation)/2;
+            }else{
+                accuracy = accuracyTest;
+            }
             if(accuracy > bestIslandAccuracy){
                 bestIslandIndex = islandCount;
                 bestIslandAccuracy = accuracy;

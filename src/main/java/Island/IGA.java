@@ -1,5 +1,6 @@
 package Island;
 import AIS.AIS;
+import AIS.Antigen;
 import Algorithm.DataSet;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,9 +43,25 @@ public class IGA {
 
     public void initialize(DataSet dataSet, double mutationRate, int numberOfTournaments, int iterations){
 
+        HashMap<String,ArrayList<Antigen>>[] antigenSets = DataSet.splitDataSet(numberOfIslands,dataSet.antigenMap);
+        ArrayList<Antigen>[] antigenLists = new ArrayList[antigenSets.length];
+
+        for(int i=0; i<antigenSets.length;i++){
+            HashMap<String,ArrayList<Antigen>> antigens = antigenSets[i];
+            antigenLists[i] = new ArrayList<>();
+
+            for(String label: antigens.keySet()){
+                antigenLists[i].addAll(antigens.get(label));
+            }
+        }
+
         // create islands
         for(int i=0; i < numberOfIslands; i++){
-            AIS ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations);
+            Antigen[] antigens = new Antigen[antigenLists[i].size()];
+            antigens = antigenLists[i].toArray(antigens);
+
+            //AIS ais = new AIS(antigens,dataSet.featureMap,dataSet.labels,antigenSets[i],dataSet.validationAntigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations);
+            AIS ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,dataSet.validationAntigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations);
             this.islands.add(new Island(ais, migrationRate, migrationFrequency, i));
         }
         if(islands.size() > 1){
@@ -71,7 +88,7 @@ public class IGA {
 
         if(this.MASTERISLAND) {
              this.masterIsland = new MasterIsland(
-                    new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap, this.populationSize, mutationRate, numberOfTournaments, iterations),
+                    new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,dataSet.validationAntigenMap, this.populationSize, mutationRate, numberOfTournaments, iterations),
                     migrationRate,
                     migrationFrequency,
                     this.islands
