@@ -107,12 +107,29 @@ public class MasterIsland {
         int islandCount = 0;
         int bestIslandIndex = 0;
         double bestIslandAccuracy = 0.0;
-        for(Island island: allIslands){
+        for(int i=0; i<allIslands.size();i++){
+            int integratedIslands = 1;
             HashMap<String,ArrayList<Antibody>> subPopulation = subPopulations[islandCount];
 
-            for(String label: island.getAis().getAntibodyMap().keySet()){
-                subPopulations[islandCount].get(label).addAll(island.getAis().getAntibodyMap().get(label));
+            for(String label: allIslands.get(i).getAis().getAntibodyMap().keySet()){
+                subPopulations[islandCount].get(label).addAll(allIslands.get(i).getAis().getAntibodyMap().get(label));
             }
+
+
+            while (integratedIslands < islandIntegrationCount){
+                int islandIndex = random.nextInt(allIslands.size());
+                while (islandIndex == i){
+                    islandIndex = random.nextInt(allIslands.size());
+                }
+                Island island = allIslands.get(islandIndex);
+                for(String label: island.getAis().getAntibodyMap().keySet()){
+                    subPopulations[islandCount].get(label).addAll(island.getAis().getAntibodyMap().get(label));
+                }
+                integratedIslands++;
+            }
+
+
+
             double accuracy = AIS.vote(this.ais.getAntigenMap(),subPopulation);
             if(accuracy > bestIslandAccuracy){
                 bestIslandIndex = islandCount;
