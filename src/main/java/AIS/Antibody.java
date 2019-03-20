@@ -23,6 +23,7 @@ public class Antibody {
     private double accuracy;
     private AIS ais;
     private double weightedAccuracy;
+    private int featureSubSet;
 
     public Antibody(double[] features, double radius, String label, Antigen[] antigens, AIS ais){
         this.features = features;
@@ -39,6 +40,7 @@ public class Antibody {
         this.accuracy = 0.0;
         this.correctInteraction = 0.0;
         this.connectedAntigenOfLabel = new HashMap<>();
+        featureSubSet = features.length-1;
     }
 
     public void setConnectedAntigens(){
@@ -143,14 +145,16 @@ public class Antibody {
                 totalClassifications ++;
             }
         }
-        return (double)correctClassifications/totalClassifications;
+        double accuracy = (double)correctClassifications/totalClassifications;
+        this.accuracy = accuracy;
+        return accuracy;
     }
 
     public double eucledeanDistance(double[] featureSet1, double[] featureSet2){
 
         double eucledeanDistance = 0.0;
         for (int i=0;i<featureSet1.length;i++){
-            if(featureSet1[i] == -1.0 || featureSet2[i] == -1.0){
+            if(featureSet1[i] < 0.0 || featureSet2[i] < 0.0){
                 continue;
             }
             eucledeanDistance += Math.pow(featureSet1[i] - featureSet2[i],2);
@@ -245,6 +249,14 @@ public class Antibody {
     }
     public void setConnectedAntigensSet(boolean connectedAntigensSet) {
         this.connectedAntigensSet = connectedAntigensSet;
+    }
+
+    public int getFeatureSubSet() {
+        return featureSubSet;
+    }
+
+    public void setFeatureSubSet(int featureSubSet) {
+        this.featureSubSet = featureSubSet;
     }
 
     @Override

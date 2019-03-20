@@ -77,6 +77,7 @@ public class GUI extends BorderPane {
     private ChoiceBox<String> iterationBox;
 
     public GUI(Stage primaryStage, LegendaryOctoSniffle LOS){
+
         super();
         this.antibodyGenerations = null;
         this.primaryStage = primaryStage;
