@@ -62,6 +62,7 @@ public class GUI extends BorderPane {
     private final TextField inputMigrationRate = new TextField("0.1");
     private final TextField islandIntegrationCount = new TextField("1");
     private final TextField inputK = new TextField("0");
+    private final TextField inputSomeNum = new TextField("0.1");
 
     private final int sceneWidth = 1200;
     private final int sceneHeight = 850;
@@ -117,7 +118,8 @@ public class GUI extends BorderPane {
                 new Text("Elitist island integration:"), islandIntegrationCount,
                 new Text("Name of dataset:"),dataSetBox,
                 new Text("Dataset split:"),inputDataSetSplit,
-                new Text("k-fold cross validation:"),inputK);
+                new Text("k-fold cross validation:"),inputK,
+                new Text("Radius multiplier:"),inputSomeNum);
         setLeft(options);
 
         startButton.setOnAction((e) -> {
@@ -133,7 +135,8 @@ public class GUI extends BorderPane {
                     Double.valueOf(inputMigrationRate.getText()),
                     checkBox.isSelected(),
                     Integer.valueOf(inputK.getText()),
-                    Integer.valueOf(islandIntegrationCount.getText()));
+                    Integer.valueOf(islandIntegrationCount.getText()),
+                    Double.valueOf(inputSomeNum.getText()));
         });
         stopButton.setOnAction(event -> LOS.stopRunning());
 
