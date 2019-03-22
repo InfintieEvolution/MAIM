@@ -7,11 +7,14 @@ import net.sf.javaml.distance.PearsonCorrelationCoefficient;
 import net.sf.javaml.featureselection.subset.GreedyForwardSelection;
 import net.sf.javaml.filter.normalize.NormalizeMidrange;
 import net.sf.javaml.tools.data.FileHandler;
-
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
+import smile.projection.PCA;
+
 
 public class DataSet {
+
 
     ArrayList<Antigen> antigenList;
     public Antigen[] testSet;
@@ -29,6 +32,8 @@ public class DataSet {
     public HashMap<String, ArrayList<Antigen>> validationAntigenMap;
     public Set<Integer>[] featureSubsets;
     public int labelColumn;
+
+
     public DataSet(String path, double trainingTestSplit, double validationSplit, int labelColumn){
         this.trainingTestSplit = trainingTestSplit;
         this.validationSplit = validationSplit;
@@ -86,6 +91,7 @@ public class DataSet {
         this.validationSet = new Antigen[(int)((antigenList.size() - testSet.length)*validationSplit)];
         this.trainingSet = new Antigen[antigenList.size() - testSet.length - validationSet.length];
 
+
         for(int i=0; i< trainingSet.length;i++) {
             trainingSet[i] = antigenList.remove(random.nextInt(antigenList.size()));
         }
@@ -99,6 +105,10 @@ public class DataSet {
         this.validationAntigenMap = Antigen.createAntigenMap(validationSet);
         this.testAntigenMap = Antigen.createAntigenMap(testSet);
 
+        double[][] ts = new double[this.testSet.length][this.testSet[0].getAttributes().length];
+        for(int i = 0; i < testSet.length; i++){
+            ts[i] = testSet[i].getAttributes();
+        }
     }
 
     private void processInstance(Instance instance){
