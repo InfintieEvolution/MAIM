@@ -1,16 +1,20 @@
 package Algorithm;
 
-import AIS.Antibody;
 import AIS.Antigen;
-
-import java.io.*;
-import java.lang.reflect.Array;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import net.sf.javaml.core.Dataset;
+import net.sf.javaml.core.Instance;
+import net.sf.javaml.distance.PearsonCorrelationCoefficient;
+import net.sf.javaml.featureselection.subset.GreedyForwardSelection;
+import net.sf.javaml.filter.normalize.NormalizeMidrange;
+import net.sf.javaml.tools.data.FileHandler;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
-import java.util.stream.Stream;
+import smile.projection.PCA;
+
 
 public class DataSet {
+
 
     ArrayList<Antigen> antigenList;
     public Antigen[] testSet;
@@ -26,8 +30,10 @@ public class DataSet {
     public HashMap<String, ArrayList<Antigen>> antigenMap;
     public HashMap<String, ArrayList<Antigen>> testAntigenMap;
     public HashMap<String, ArrayList<Antigen>> validationAntigenMap;
-
+    public Set<Integer>[] featureSubsets;
     public int labelColumn;
+
+
     public DataSet(String path, double trainingTestSplit, double validationSplit, int labelColumn){
         this.trainingTestSplit = trainingTestSplit;
         this.validationSplit = validationSplit;
@@ -40,20 +46,51 @@ public class DataSet {
 
     private void readFile(String path) {
         antigenList = new ArrayList<>();
+        Dataset data = null;
+        try {
+            data = FileHandler.loadDataset(new File(path), labelColumn, ",");
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        NormalizeMidrange nmr=new NormalizeMidrange(0.5,1);
+        nmr.build(data);
+        nmr.filter(data);
+        //System.out.println(data);
+        //System.out.println(data);
+        for (Instance instance: data){
+            processInstance(instance);
+        }
+        createFeatureMap();
+        //System.out.println(data);
 
-        try (
-                Stream<String> stream = Files.lines(Paths.get(path))) {
+        this.featureSubsets = new Set[data.noAttributes()];
+        for(int i = 0; i< featureSubsets.length; i++){
+            GreedyForwardSelection ga = new GreedyForwardSelection(i+1, new PearsonCorrelationCoefficient());
+            ga.build(data);
+            featureSubsets[i] = ga.selectedAttributes();
+        }
+
+        /*for(int i=0; i<featureSubsets.length;i++){
+            System.out.println("Subset "+(i+1)+": "+featureSubsets[i]);
+        }*/
+        /*try (
+
+        Stream<String> stream = Files.lines(Paths.get(path))) {
             stream.forEach(this::processLine);
 
             //iterate over all the lines in the dataset
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
-        normalizeFeatures(antigenList);
+        //normalizeFeatures(antigenList);
+        /*for(Antigen antigen: antigenList){
+            System.out.println(antigen);
+        }*/
         this.testSet = new Antigen[(int)(antigenList.size()*trainingTestSplit)];
         this.validationSet = new Antigen[(int)((antigenList.size() - testSet.length)*validationSplit)];
         this.trainingSet = new Antigen[antigenList.size() - testSet.length - validationSet.length];
+
 
         for(int i=0; i< trainingSet.length;i++) {
             trainingSet[i] = antigenList.remove(random.nextInt(antigenList.size()));
@@ -68,8 +105,43 @@ public class DataSet {
         this.validationAntigenMap = Antigen.createAntigenMap(validationSet);
         this.testAntigenMap = Antigen.createAntigenMap(testSet);
 
+        double[][] ts = new double[this.testSet.length][this.testSet[0].getAttributes().length];
+        for(int i = 0; i < testSet.length; i++){
+            ts[i] = testSet[i].getAttributes();
+        }
     }
 
+    private void processInstance(Instance instance){
+        double[] attributes = new double[instance.values().size()];
+        for(int i=0; i<attributes.length;i++){
+            attributes[i] = instance.value(i);
+        }
+        Antigen antigen = new Antigen(attributes,instance.classValue().toString());
+
+        if(this.featureSums == null){
+            this.featureSums = new double[attributes.length];
+        }
+        if(this.totalFeatureMinMax == null){
+            this.totalFeatureMinMax = new double[attributes.length][2];
+            for(double[] featureBound:totalFeatureMinMax){
+                featureBound[0] = Double.MAX_VALUE;
+                featureBound[1] = Double.MIN_VALUE;
+            }
+        }
+
+        for(int i=0; i< attributes.length;i++){
+            featureSums[i] += attributes[i];
+            if(totalFeatureMinMax[i][0] > attributes[i]){
+                totalFeatureMinMax[i][0] = attributes[i];
+            }
+            else if(totalFeatureMinMax[i][1] < attributes[i]){
+                totalFeatureMinMax[i][1] = attributes[i];
+            }
+        }
+
+        antigenList.add(antigen);
+
+    }
     private void processLine(String line){
 
         var list = Arrays.asList(line.split(","));
@@ -114,6 +186,28 @@ public class DataSet {
         antigenList.add(antigen);
     }
 
+    public void createFeatureMap(){
+        for(Antigen antigen: antigenList){
+            if(!featureMap.containsKey(antigen.getLabel())){
+                labels.add(antigen.getLabel());
+                featureMap.put(antigen.getLabel(),new double[antigen.getAttributes().length][2]);
+                for(double[] featureBound:featureMap.get(antigen.getLabel())){
+                    featureBound[0] = Double.MAX_VALUE;
+                    featureBound[1] = Double.MIN_VALUE;
+                }
+            }
+
+            for(int i=0; i<antigen.getAttributes().length;i++){
+                //antigen.getAttributes()[i] = (antigen.getAttributes()[i] - totalFeatureMinMax[i][0])/(totalFeatureMinMax[i][1] - totalFeatureMinMax[i][0]);
+                if(featureMap.get(antigen.getLabel())[i][0] > antigen.getAttributes()[i]){
+                    featureMap.get(antigen.getLabel())[i][0] = antigen.getAttributes()[i];
+                }
+                else if(featureMap.get(antigen.getLabel())[i][1] < antigen.getAttributes()[i]){
+                    featureMap.get(antigen.getLabel())[i][1] = antigen.getAttributes()[i];
+                }
+            }
+        }
+    }
     public void normalizeFeatures(ArrayList<Antigen> antigens){
 
         for (Antigen antigen:antigens){

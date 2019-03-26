@@ -21,7 +21,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.w3c.dom.events.Event;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -78,6 +77,7 @@ public class GUI extends BorderPane {
     private ChoiceBox<String> iterationBox;
 
     public GUI(Stage primaryStage, LegendaryOctoSniffle LOS){
+
         super();
         this.antibodyGenerations = null;
         this.primaryStage = primaryStage;
@@ -139,7 +139,6 @@ public class GUI extends BorderPane {
                     Double.valueOf(inputSomeNum.getText()));
         });
         stopButton.setOnAction(event -> LOS.stopRunning());
-
         stopButton.setDisable(true);
         primaryStage.show();
     }
