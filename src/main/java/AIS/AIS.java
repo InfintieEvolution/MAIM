@@ -83,11 +83,11 @@ public class AIS {
                 if(antibodyMap.get(randomLabel).size() > numberOfTournaments){
                     parent1 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
                     if(parent1.getTotalInteraction() == 0.0){ //if the antibody is not able to recognize anything correctly, do not allow it to reproduce
-                        parent1 = createAntibody(randomLabel,false);
+                        parent1 = createAntibody(randomLabel,true);
                     }
                     parent2 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
                     if(parent2.getTotalInteraction() == 0.0){
-                        parent2 = createAntibody(randomLabel,false);
+                        parent2 = createAntibody(randomLabel,true);
                     }
                 }
                 else{

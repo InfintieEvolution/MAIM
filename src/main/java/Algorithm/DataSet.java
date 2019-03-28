@@ -90,7 +90,7 @@ public class DataSet {
                 }
                 count ++;
             }
-            PCA pca = new PCA(data2);
+            PCA pca = new PCA(data2,true);
             pca.setProjection(2);
             double[][] X = pca.project(data2);
 
