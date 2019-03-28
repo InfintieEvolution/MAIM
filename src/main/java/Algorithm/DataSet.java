@@ -105,10 +105,7 @@ public class DataSet {
         this.validationAntigenMap = Antigen.createAntigenMap(validationSet);
         this.testAntigenMap = Antigen.createAntigenMap(testSet);
 
-        double[][] ts = new double[this.testSet.length][this.testSet[0].getAttributes().length];
-        for(int i = 0; i < testSet.length; i++){
-            ts[i] = testSet[i].getAttributes();
-        }
+
     }
 
     private void processInstance(Instance instance){
