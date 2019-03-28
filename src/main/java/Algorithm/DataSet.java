@@ -82,17 +82,17 @@ public class DataSet {
         //normalizeFeatures(antigenList);
 
         if(pca){
-            double[][] dataData = new double[antigenList.size()][antigenList.get(0).getAttributes().length];
+            double[][] data2 = new double[antigenList.size()][antigenList.get(0).getAttributes().length];
             int count =0;
             for(Antigen antigen:antigenList){
                 for(int i=0; i<antigen.getAttributes().length;i++){
-                    dataData[count][i] = antigen.getAttributes()[i];
+                    data2[count][i] = antigen.getAttributes()[i];
                 }
                 count ++;
             }
-            PCA pca = new PCA(dataData);
+            PCA pca = new PCA(data2);
             pca.setProjection(2);
-            double[][] X = pca.project(dataData);
+            double[][] X = pca.project(data2);
 
             for(int i=0; i<X.length;i++){
                 antigenList.get(i).setAttributes(X[i]);

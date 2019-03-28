@@ -4,9 +4,6 @@ import AIS.Antibody;
 import AIS.Antigen;
 import AIS.AIS;
 import javafx.application.Platform;
-import javafx.geometry.Pos;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -23,7 +20,7 @@ import java.util.Random;
 
 public class SolutionGraph extends Pane {
 
-    private final Pane antigenPane, antibodyPane, routePane;
+    private final Pane antigenPane, antibodyPane, connectionPane;
     private double minX, minY, maxX, maxY;
     private double height, factorX, factorY;
 
@@ -41,10 +38,10 @@ public class SolutionGraph extends Pane {
         super();
         antigenPane = new Pane();
         antibodyPane = new Pane();
-        routePane = new Pane();
+        connectionPane = new Pane();
         super.setMinSize(width, height);
         super.setMaxSize(width, height);
-        super.getChildren().addAll(routePane, antigenPane, antibodyPane);
+        super.getChildren().addAll(connectionPane, antibodyPane, antigenPane);
         this.featureMap = featureMap;
         this.colorMap = new HashMap<>();
         this.antibodyMap = antibodyMap;
@@ -71,13 +68,19 @@ public class SolutionGraph extends Pane {
         this.factorY = height / Math.abs(this.maxY - this.minY);
         this.accuracy = accuracy;
         //plot antigens
-        this.setAntigens(antigenMap);
         //plot antibodies
         this.setAntibodies(antibodyMap,radiusPlot);
+        this.setAntigens(antigenMap);
+
         if(!radiusPlot){
             this.setConnections();
         }
 
+        if(accuracy > 0.0){
+            setAccuracy(this.accuracy);
+        }else{
+            setAccuracy(AIS.vote(this.antigenMap,this.antibodyMap));
+        }
     }
     public void setAntigens(HashMap<String, ArrayList<Antigen>> antigenMap) {
         this.antigenMap = antigenMap;
@@ -108,30 +111,26 @@ public class SolutionGraph extends Pane {
                     Circle antibodyCircle = new Circle(antibody.getRadius()*factorX);
                     antibodyCircle.setTranslateX(mapXToGraph(antibody.getFeatures()[0]));
                     antibodyCircle.setTranslateY(mapYToGraph(antibody.getFeatures()[1]));
-                    antibodyCircle.setFill(Paint.valueOf("transparent"));
-                    antibodyCircle.setStroke(Paint.valueOf(color));
+                    antibodyCircle.setFill(Paint.valueOf(color));
+                    antibodyCircle.setOpacity(0.1);
+                    antibodyCircle.setStroke(Color.BLACK);
                     antibodyPane.getChildren().add(antibodyCircle);
-                    if(accuracy > 0.0){
-                        setAccuracy(this.accuracy);
-                    }else{
-                        setAccuracy(AIS.vote(this.antigenMap,this.antibodyMap));
-                    }
-                }
+
+                }else{
                     Circle antibodyCircle = new Circle(5);
                     antibodyCircle.setTranslateX(mapXToGraph(antibody.getFeatures()[0]));
                     antibodyCircle.setTranslateY(mapYToGraph(antibody.getFeatures()[1]));
                     antibodyCircle.setFill(Paint.valueOf(color));
                     antibodyCircle.setStroke(Color.BLACK);
                     antibodyPane.getChildren().add(antibodyCircle);
-
-
+                }
             }
         }
     }
 
 
     public void setConnections(){
-        routePane.getChildren().clear();
+        connectionPane.getChildren().clear();
         for (String antibodyLabel : antibodyMap.keySet()) {
             String color = this.colorMap.get(antibodyLabel);
             for(Antibody antibody: antibodyMap.get(antibodyLabel)){
@@ -146,16 +145,11 @@ public class SolutionGraph extends Pane {
                             connection.setEndX(mapXToGraph(antigen.getAttributes()[0]));
                             connection.setEndY(mapYToGraph(antigen.getAttributes()[1]));
                             connection.setOpacity(0.1);
-                            routePane.getChildren().add(connection);
+                            connectionPane.getChildren().add(connection);
                         }
                     }
                 }
             }
-        }
-        if(accuracy > 0.0){
-            setAccuracy(this.accuracy);
-        }else{
-            setAccuracy(AIS.vote(this.antigenMap,this.antibodyMap));
         }
     }
 
