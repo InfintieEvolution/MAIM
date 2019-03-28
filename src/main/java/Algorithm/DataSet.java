@@ -40,17 +40,17 @@ public class DataSet {
     public HashMap<String, ArrayList<Antigen>> testAntigenMap;
     public HashMap<String, ArrayList<Antigen>> validationAntigenMap;
     public int labelColumn;
-    public boolean pca;
+    public int pcaDimensions;
 
 
-    public DataSet(String path, double trainingTestSplit, double validationSplit, int labelColumn, boolean pca){
+    public DataSet(String path, double trainingTestSplit, double validationSplit, int labelColumn, int pcaDimensions){
         this.trainingTestSplit = trainingTestSplit;
         this.validationSplit = validationSplit;
         this.random = new Random();
         this.featureMap = new HashMap<>();
         this.labels = new ArrayList<>();
         this.labelColumn = labelColumn;
-        this.pca = pca;
+        this.pcaDimensions = pcaDimensions;
         readFile(path);
     }
 
@@ -81,18 +81,19 @@ public class DataSet {
 
         //normalizeFeatures(antigenList);
 
-        if(pca){
-            double[][] data2 = new double[antigenList.size()][antigenList.get(0).getAttributes().length];
+        //principle component analysis
+        if(pcaDimensions > 0){
+            double[][] pcaData = new double[antigenList.size()][antigenList.get(0).getAttributes().length];
             int count =0;
             for(Antigen antigen:antigenList){
                 for(int i=0; i<antigen.getAttributes().length;i++){
-                    data2[count][i] = antigen.getAttributes()[i];
+                    pcaData[count][i] = antigen.getAttributes()[i];
                 }
                 count ++;
             }
-            PCA pca = new PCA(data2,true);
+            PCA pca = new PCA(pcaData,true);
             pca.setProjection(2);
-            double[][] X = pca.project(data2);
+            double[][] X = pca.project(pcaData);
 
             for(int i=0; i<X.length;i++){
                 antigenList.get(i).setAttributes(X[i]);

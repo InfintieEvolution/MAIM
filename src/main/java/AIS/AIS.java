@@ -24,11 +24,11 @@ public class AIS {
     private int iteration;
     private int maxIterations;
     private double averageFitness;
-    private double someNum;
+    private double radiusMultiplier;
 
-//    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations,Set<Integer>[] featureSubsets, double someNum){
+//    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations,Set<Integer>[] featureSubsets, double radiusMultiplier){
 
-    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations, double someNum){
+    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations, double radiusMultiplier){
         this.antigens = antigens;
         this.antigenMap = antigenMap;
         this.featureMap = new HashMap<>();
@@ -46,7 +46,7 @@ public class AIS {
         this.labels = labels;
         this.maxIterations = maxIterations;
         this.antigenValidationMap = antigenValidationMap;
-        this.someNum = someNum;
+        this.radiusMultiplier = radiusMultiplier;
 
         selectionComparator = (o1, o2) -> {
             if (o1.getFitness() > o2.getFitness()) {
@@ -330,7 +330,7 @@ public class AIS {
 
 
             //TODO: Make initial radius better
-            double radius = (minAverage + (maxAverage - minAverage) * random.nextDouble()) + (featureMap.get(label).length * someNum);
+            double radius = (minAverage + (maxAverage - minAverage) * random.nextDouble()) + (featureMap.get(label).length * radiusMultiplier);
 
 
             Antibody antibody = new Antibody(attributes, radius, label, this.antigens,this);
