@@ -26,12 +26,9 @@ public class AIS {
     private double averageFitness;
     private double someNum;
 
-    private boolean shouldBeConnected = true;
-    private boolean featureSelection = false;
-    private int featureSelectionTorunamentSize = 0;
-    public Set<Integer>[] featureSubsets;
+//    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations,Set<Integer>[] featureSubsets, double someNum){
 
-    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations,Set<Integer>[] featureSubsets, double someNum){
+    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations, double someNum){
         this.antigens = antigens;
         this.antigenMap = antigenMap;
         this.featureMap = new HashMap<>();
@@ -41,7 +38,6 @@ public class AIS {
         this.numberOfTournaments = numberOfTorunaments;
         this.mutationRate = mutationRate;
         this.iteration = 0;
-        this.averageFitness = 0;
         this.bestAccuracy = 0.0;
         this.bestItreation = 0;
         this.bestAccuracyTestSet = 0.0;
@@ -51,7 +47,7 @@ public class AIS {
         this.maxIterations = maxIterations;
         this.antigenValidationMap = antigenValidationMap;
         this.someNum = someNum;
-        this.featureSubsets = featureSubsets;
+
         selectionComparator = (o1, o2) -> {
             if (o1.getFitness() > o2.getFitness()) {
                 return -1;
@@ -73,7 +69,7 @@ public class AIS {
             return 0;
         };
 
-        initialisePopulation(this.populationSize,shouldBeConnected,featureSelection,featureSelectionTorunamentSize);
+        initialisePopulation(this.populationSize,false);
     }
 
     public void iterate(){
@@ -93,16 +89,16 @@ public class AIS {
                 if(antibodyMap.get(randomLabel).size() > numberOfTournaments){
                     parent1 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
                     if(parent1.getTotalInteraction() == 0.0){ //if the antibody is not able to recognize anything correctly, do not allow it to reproduce
-                        parent1 = createAntibody(randomLabel,shouldBeConnected,featureSelection,featureSelectionTorunamentSize);
+                        parent1 = createAntibody(randomLabel,true);
                     }
                     parent2 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
                     if(parent2.getTotalInteraction() == 0.0){
-                        parent2 = createAntibody(randomLabel,shouldBeConnected,featureSelection,featureSelectionTorunamentSize);
+                        parent2 = createAntibody(randomLabel,true);
                     }
                 }
                 else{
-                    parent1 = createAntibody(randomLabel,shouldBeConnected,featureSelection,featureSelectionTorunamentSize);
-                    parent2 = createAntibody(randomLabel,shouldBeConnected,featureSelection,featureSelectionTorunamentSize);
+                    parent1 = createAntibody(randomLabel,false);
+                    parent2 = createAntibody(randomLabel,false);
                 }
 
                 Antibody child = crossover(parent1,parent2);
@@ -132,18 +128,6 @@ public class AIS {
         }
         this.select();
 
-    }
-
-    private void mutate2(Antibody antibody) {
-        double mutationProbability = 1.0/(1.0+antibody.getFeatures().length);
-
-        for(int i=0;i<antibody.getFeatures().length;i++){
-            double p = Math.random();
-            if(p <= mutationProbability){
-                antibody.getFeatures()[i] *= (Math.random()+Math.random());
-            }
-        }
-        antibody.setRadius(antibody.getRadius()*Math.random()+Math.random());
     }
 
     private void mutate(Antibody antibody){
@@ -194,42 +178,6 @@ public class AIS {
         }
 
         return new Antibody(features,this.calculateNewRadius(parent1,parent2),parent1.getLabel(),this.antigens,this);
-    }
-
-    private Antibody crossover2(Antibody parent1, Antibody parent2){
-        double[] features = new double[parent1.getFeatures().length];
-        double p = Math.random();
-        int featureSubSetIndex = features.length - 1;
-        if(p < 0.5 ){
-            featureSubSetIndex = parent1.getFeatureSubSet();
-        }else{
-            featureSubSetIndex = parent2.getFeatureSubSet();
-        }
-        Set<Integer> featureSubSet = featureSubsets[featureSubSetIndex];
-
-        for(int i=0;i<features.length;i++) {
-            if(featureSubSet.contains(i)){
-                double rand = Math.random();
-                if(rand < 0.5){
-                    if(parent1.getFeatures()[i] != -1){
-                        features[i] = parent1.getFeatures()[i];
-                    }else{
-                        features[i] = parent2.getFeatures()[i];
-                    }
-                }else{
-                    if(parent2.getFeatures()[i] != -1){
-                        features[i] = parent2.getFeatures()[i];
-                    }else{
-                        features[i] = parent1.getFeatures()[i];
-                    }
-                }
-            }else{
-                features[i] = -1;
-            }
-        }
-        Antibody antibody = new Antibody(features,this.calculateNewRadius(parent1,parent2),parent1.getLabel(),this.antigens,this);
-        antibody.setFeatureSubSet(featureSubSetIndex);
-        return antibody;
     }
 
     private double calculateNewRadius(Antibody parent1, Antibody parent2){
@@ -318,7 +266,7 @@ public class AIS {
         this.antibodyMap = newAntibodyHashmap;
     }
 
-    public void initialisePopulation(int populationSize, boolean shouldBeConnected, boolean featureSelection, int tournamentSize){
+    public void initialisePopulation(int populationSize, boolean shouldBeConnected){
         for(String label: labels){
             this.antibodyMap.put(label,new ArrayList<>());
         }
@@ -331,7 +279,7 @@ public class AIS {
             int labelCount = (int)(((double)this.antigenMap.get(label).size()/antigens.length)*populationSize);
 
             for (int i=0;i<labelCount;i++){
-                Antibody antibody = createAntibody(label,shouldBeConnected,featureSelection,tournamentSize);
+                Antibody antibody = createAntibody(label,shouldBeConnected);
                 this.antibodyMap.get(label).add(antibody);
                 antibodies[antibodyCount ++] = antibody;
             }
@@ -341,7 +289,7 @@ public class AIS {
             Antigen radnomAntigen = antigens[random.nextInt(antigens.length)];
             String label = radnomAntigen.getLabel();
 
-            Antibody antibody = createAntibody(label,shouldBeConnected,featureSelection,tournamentSize);
+            Antibody antibody = createAntibody(label,shouldBeConnected);
             antibodyMap.get(label).add(antibody);
             antibodies[antibodyCount] = antibody;
             antibodyCount++;
@@ -357,29 +305,16 @@ public class AIS {
         }
     }
 
-    public Antibody createAntibody(String label, boolean shouldBeConnected, boolean featureSelection, int torunamentSize){
-        PriorityQueue<Antibody> priorityQueue = new PriorityQueue<>(accuracyComparator);
+    public Antibody createAntibody(String label, boolean shouldBeConnected){
 
-        int count = 0;
         while (true){
-            if(torunamentSize > 1 && priorityQueue.size() == torunamentSize){
-                return priorityQueue.poll();
-            }
             double[][] featureList = featureMap.get(label);
             double[] attributes = new double[featureList.length];
 
             double maxAverage = 0;
             double minAverage = 0;
-            int feauteSubSetIndex = random.nextInt(featureSubsets.length);
-            Set<Integer> featureSubset = featureSubsets[feauteSubSetIndex];
-            boolean featureSubSet = false;
 
             for(int i=0; i<featureMap.get(label).length;i++){
-                if(featureSelection && priorityQueue.size() > 0 && !featureSubset.contains(i)){
-                    attributes[i] = -1;
-                    featureSubSet = true;
-                }
-
                 double[] featureBounds = featureMap.get(label)[i];
                 double maxValue = featureBounds[1]*1.1;
                 double minValue = featureBounds[0]*0.9;
@@ -399,25 +334,14 @@ public class AIS {
 
 
             Antibody antibody = new Antibody(attributes, radius, label, this.antigens,this);
-            if(featureSubSet){
-                antibody.setFeatureSubSet(feauteSubSetIndex);
-            }
-
-            if(!shouldBeConnected && torunamentSize == 0){
+            if(!shouldBeConnected){
                 return antibody;
             }
-            else if(!shouldBeConnected  && priorityQueue.size() < torunamentSize){
-                antibody.setConnectedAntigens();
-                priorityQueue.add(antibody);
+            else{
+                if(antibody.isConnected()){
+                    return antibody;
+                }
             }
-            else if(shouldBeConnected && antibody.isConnected() && priorityQueue.size() < torunamentSize){
-                antibody.setConnectedAntigens();
-                priorityQueue.add(antibody);
-            }
-            else if(shouldBeConnected && antibody.isConnected() && torunamentSize == 0){
-                return antibody;
-            }
-            count ++;
         }
     }
 

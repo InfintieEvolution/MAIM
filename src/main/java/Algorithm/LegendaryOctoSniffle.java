@@ -21,6 +21,7 @@ public class LegendaryOctoSniffle extends Application {
     private GUI gui;
     private AIS ais;
     private ArrayList<AIS> allAIS;
+    private boolean radiusPlot = true;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -41,7 +42,7 @@ public class LegendaryOctoSniffle extends Application {
         gui.iterationTextField.setDisable(true);
         gui.stopButton.setDisable(false);
 
-        DataSet dataSet = new DataSet("./DataSets/" + dataSetName, trainingTestSplit,0.1, labelIndex);
+        DataSet dataSet = new DataSet("./DataSets/" + dataSetName, trainingTestSplit,0.1, labelIndex,radiusPlot);
 
         IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland);
         iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations, someNum);
@@ -103,9 +104,9 @@ public class LegendaryOctoSniffle extends Application {
                 gui.iterationTextField.setDisable(false);
                 gui.stopButton.setDisable(true);
                 this.gui.setAntibodyGenerations(antibodyGenerations, ais.getAntigenMap(), dataSet.testAntigenMap,
-                        antibodyGenerations.get(ais.getBestItreation()),antibodyGenerationAccuracies);
+                        antibodyGenerations.get(ais.getBestItreation()),antibodyGenerationAccuracies,radiusPlot);
                 this.gui.createSolutionGraph(ais.getFeatureMap(), ais.getAntibodyMap());
-                gui.drawSolution(dataSet.testAntigenMap, antibodyGenerations.get(ais.getBestItreation()),0.0);
+                gui.drawSolution(dataSet.testAntigenMap, antibodyGenerations.get(ais.getBestItreation()),0.0,radiusPlot);
                 gui.setBestAccuracyIteration(ais.getBestAccuracy(), ais.getBestItreation());
             });
         });
@@ -123,7 +124,7 @@ public class LegendaryOctoSniffle extends Application {
         gui.stopButton.setDisable(false);
 
         double[] accuracies = new double[k];
-        DataSet dataSet = new DataSet("./DataSets/" + dataSetName, 0.0,0.0, labelIndex);
+        DataSet dataSet = new DataSet("./DataSets/" + dataSetName, 0.0,0.0, labelIndex,radiusPlot);
         HashMap<String,ArrayList<Antigen>>[] dataSetSplits = DataSet.splitDataSet(k,dataSet.antigenMap);
         gui.createStatisticGraph(k-1);
 

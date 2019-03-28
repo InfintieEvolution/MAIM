@@ -61,7 +61,7 @@ public class IGA {
             antigens = antigenLists[i].toArray(antigens);
 
             //AIS ais = new AIS(antigens,dataSet.featureMap,dataSet.labels,antigenSets[i],dataSet.validationAntigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations);
-            AIS ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,dataSet.validationAntigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations,dataSet.featureSubsets, someNum);
+            AIS ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,dataSet.validationAntigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations, someNum);
             this.islands.add(new Island(ais, migrationRate, migrationFrequency, i));
         }
         if(islands.size() > 1){
@@ -88,7 +88,7 @@ public class IGA {
 
         if(this.MASTERISLAND) {
              this.masterIsland = new MasterIsland(
-                    new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,dataSet.validationAntigenMap, this.populationSize, mutationRate, numberOfTournaments, iterations,dataSet.featureSubsets, someNum),
+                    new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,dataSet.validationAntigenMap, this.populationSize, mutationRate, numberOfTournaments, iterations, someNum),
                     migrationRate,
                     migrationFrequency,
                     this.islands
