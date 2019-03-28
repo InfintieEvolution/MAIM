@@ -56,25 +56,9 @@ public class MasterIsland {
     }
 
     public void receive(Island fromIsland) {
-//        this.removeRandomAntibodies();
         var receivingAntibodies = fromIsland.sendMigrants();
         for (Antibody antibody: receivingAntibodies) {
             this.ais.getAntibodyMap().get(antibody.getLabel()).add(antibody);
-        }
-    }
-
-    public void receive2(Island fromIsland){
-        var receivingAntibodies = fromIsland.sendMigrants();
-        for(String label: this.ais.getLabels()){
-            recievedAntibodyMap.put(label,new ArrayList<>());
-        }
-
-        for (Antibody antibody: receivingAntibodies) {
-
-            //Create a new antibody
-            Antibody newAntibody = new Antibody(antibody.getFeatures(),antibody.getRadius(),antibody.getLabel(),antibody.getAntigens(),this.ais);
-            newAntibody.setAccuracy(antibody.getAccuracy());
-            recievedAntibodyMap.get(antibody.getLabel()).add(newAntibody);
         }
     }
 
@@ -108,10 +92,10 @@ public class MasterIsland {
                 subPopulation.put(label,new ArrayList<>());
             }
             for(Antibody antibody: survivors){
-                Antibody antibody1 = new Antibody(antibody.getFeatures(),antibody.getRadius(),antibody.getLabel(),this.getAis().getAntigens(),this.getAis());
-                subPopulation.get(antibody1.getLabel()).add(antibody1);
+                /*Antibody antibody1 = new Antibody(antibody.getFeatures(),antibody.getRadius(),antibody.getLabel(),this.getAis().getAntigens(),this.getAis());
+                subPopulation.get(antibody1.getLabel()).add(antibody1);*/
 
-                //subPopulation.get(antibody.getLabel()).add(antibody);
+                subPopulation.get(antibody.getLabel()).add(antibody);
             }
 
         }
@@ -138,17 +122,17 @@ public class MasterIsland {
 
                 Island island = allIslands.get(islandIndex);
                 for(String label: island.getAis().getAntibodyMap().keySet()){
-                    for(Antibody antibody: island.getAis().getAntibodyMap().get(label)){
+                    /*for(Antibody antibody: island.getAis().getAntibodyMap().get(label)){
                         Antibody antibody1 = new Antibody(antibody.getFeatures(),antibody.getRadius(),antibody.getLabel(),this.getAis().getAntigens(),this.getAis());
                         subPopulations[islandCount].get(label).add(antibody1);
-                    }
-                    //subPopulations[islandCount].get(label).addAll(island.getAis().getAntibodyMap().get(label));
+                    }*/
+                    subPopulations[islandCount].get(label).addAll(island.getAis().getAntibodyMap().get(label));
                 }
                 islandIndexes.add(islandIndex);
                 integratedIslands++;
             }
 
-            for(Antigen antigen:this.getAis().getAntigens()){
+            /*for(Antigen antigen:this.getAis().getAntigens()){
                 antigen.setConnectedAntibodies(new ArrayList<>());
                 antigen.setTotalInteraction(0.0);
                 antigen.getInteractionMap().put(getAis(),0.0);
@@ -164,7 +148,7 @@ public class MasterIsland {
                 for(Antibody antibody:subPopulation.get(label)) {
                     antibody.calculateFitness();
                 }
-            }
+            }*/
             /*HashMap<String,ArrayList<Antigen>>[] antigenList = DataSet.splitDataSet(3,this.ais.getAntigenMap());
 
             double accuracySum = 0.0;
