@@ -30,9 +30,11 @@ public class GUI extends BorderPane {
         dataSetLabelIndexes.put("crabs.data", 0);
         dataSetLabelIndexes.put("sonar.all-data.txt", 60);
         dataSetLabelIndexes.put("diabetes.csv",8);
+        dataSetLabelIndexes.put("spirals.txt",2);
+
 
     }
-    private final ChoiceBox<String> dataSetBox = new ChoiceBox<>(FXCollections.observableArrayList("iris.data", "wine.data", "ionosphere.data", "glass.data", "crabs.csv", "abalone.data","sonar.all-data.txt","diabetes.csv"));
+    private final ChoiceBox<String> dataSetBox = new ChoiceBox<>(FXCollections.observableArrayList("iris.data", "wine.data", "ionosphere.data", "glass.data", "crabs.csv", "abalone.data","sonar.all-data.txt","diabetes.csv","spirals.txt"));
     private int labelIndex;
 
     private final Stage primaryStage;
@@ -48,6 +50,7 @@ public class GUI extends BorderPane {
     private final TextField inputMutationRate = new TextField("0.8");
     private final TextField inputNumberOfTournaments = new TextField("5");
     private final TextField inputDataSetSplit = new TextField("0.1");
+    private final TextField inputValidationSplit = new TextField("0.1");
     public final TextField iterationTextField = new TextField();
     private final TextField inputMigrationFrequency = new TextField("0.1");
     private final TextField inputNumberOfIslands = new TextField("4");
@@ -116,6 +119,7 @@ public class GUI extends BorderPane {
                 new Text("Elitist island integration:"), islandIntegrationCount,
                 new Text("Name of dataset:"),dataSetBox,
                 new Text("Dataset split:"),inputDataSetSplit,
+                new Text("Validation split:"),inputValidationSplit,
                 new Text("k-fold cross validation:"),inputK,
                 new Text("PCA projection"),pca,
                 radiusCheckBox);
@@ -136,7 +140,8 @@ public class GUI extends BorderPane {
                     Integer.valueOf(inputK.getText()),
                     Integer.valueOf(islandIntegrationCount.getText()),
                     Integer.valueOf(pca.getText()),
-                    radiusCheckBox.isSelected());
+                    radiusCheckBox.isSelected(),
+                    Double.valueOf(inputValidationSplit.getText()));
         });
         stopButton.setOnAction(event -> LOS.stopRunning());
 

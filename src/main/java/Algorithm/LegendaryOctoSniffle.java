@@ -28,21 +28,45 @@ public class LegendaryOctoSniffle extends Application {
         gui = new GUI(primaryStage, this);
     }
 
-    public void run(int iterations, int populationSize, double mutationRate, int numberOfTournaments,
-            String dataSetName, int labelIndex, double trainingTestSplit, double migrationFrequency,
-            int numberOfIslands, double migrationRate, boolean masterIsland,int k, int islandIntegrationCount, int pcaDimensions, boolean radiusPlot) {
+    public void run(int iterations,
+                    int populationSize,
+                    double mutationRate,
+                    int numberOfTournaments,
+                    String dataSetName,
+                    int labelIndex,
+                    double trainingTestSplit,
+                    double migrationFrequency,
+                    int numberOfIslands,
+                    double migrationRate,
+                    boolean masterIsland,
+                    int k,
+                    int islandIntegrationCount,
+                    int pcaDimensions,
+                    boolean radiusPlot,
+                    double validationSplit) {
 
         if(k > 1){
-            this.validateAccuracies(k, iterations, populationSize, mutationRate, numberOfTournaments,
-                    dataSetName, labelIndex, migrationFrequency,
-                    numberOfIslands, migrationRate, masterIsland, islandIntegrationCount, pcaDimensions, radiusPlot);
+            this.validateAccuracies(k,
+                    iterations,
+                    populationSize,
+                    mutationRate,
+                    numberOfTournaments,
+                    dataSetName,
+                    labelIndex,
+                    migrationFrequency,
+                    numberOfIslands,
+                    migrationRate,
+                    masterIsland,
+                    islandIntegrationCount,
+                    pcaDimensions,
+                    validationSplit);
         }else{
         this.running = true;
         gui.startButton.setDisable(true);
         gui.iterationTextField.setDisable(true);
         gui.stopButton.setDisable(false);
 
-        DataSet dataSet = new DataSet("./DataSets/" + dataSetName, trainingTestSplit,0.1, labelIndex,pcaDimensions);
+        DataSet dataSet = new DataSet("./DataSets/" + dataSetName, trainingTestSplit,validationSplit, labelIndex,pcaDimensions);
 
         IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland);
         iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations);
@@ -116,7 +140,7 @@ public class LegendaryOctoSniffle extends Application {
 
     public void validateAccuracies(int k, int iterations, int populationSize, double mutationRate, int numberOfTournaments,
                                    String dataSetName, int labelIndex, double migrationFrequency,
-                                   int numberOfIslands, double migrationRate, boolean masterIsland, int islandIntegrationCount, int pcaDimensions, boolean radiusPlot){
+                                   int numberOfIslands, double migrationRate, boolean masterIsland, int islandIntegrationCount, int pcaDimensions, double validationSplit){
 
         this.running = true;
         gui.startButton.setDisable(true);
@@ -152,7 +176,7 @@ public class LegendaryOctoSniffle extends Application {
                 for(String label: dataSetSplits[n].keySet()){
                     for(Antigen antigen: dataSetSplits[n].get(label)){
                         double p = Math.random();
-                        if(p < 0.1){
+                        if(p < validationSplit){
                             validationSetMap.get(label).add(antigen);
                         }else{
                             trainingSetMap.get(label).add(antigen);
