@@ -374,7 +374,13 @@ public class AIS {
                         highestVoteLabel = label;
                     }
                 }
-                antigenClassification.put(antigen, highestVoteLabel);
+
+                //no classification was given, calculate nearest knn
+                if(highestVoteLabel == null){
+                    antigenClassification.put(antigen, knn(antigen,antibodyMap));
+                }else{
+                    antigenClassification.put(antigen, highestVoteLabel);
+                }
             }
         }
         int correctClassification = 0;
@@ -390,6 +396,11 @@ public class AIS {
         double accuracy = (double)correctClassification/antigenCount;
 
         return accuracy;
+    }
+
+    public static String knn(Antigen antigen,HashMap<String,ArrayList<Antibody>> antibodyMap){
+
+        return "";
     }
 
     public double randomOffspringSize(int populationSize,int iteration, int maxIterations){
