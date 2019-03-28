@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -63,6 +64,10 @@ public class GUI extends BorderPane {
     private CheckBox masterIslandCheckBox = new CheckBox("MasterIsland");
     private CheckBox radiusCheckBox = new CheckBox("Plot radius");
 
+    private final FlowPane graphPane = new FlowPane();
+    private final ScrollPane scrollPane = new ScrollPane();
+
+    public ArrayList<StatisticGraph> graphs = new ArrayList<>();
 
     private final int sceneWidth = 1600;
     private final int sceneHeight = 1050;
@@ -89,7 +94,7 @@ public class GUI extends BorderPane {
 
         //make sure when selecting the data sets, the index of the label on each row is also set
         dataSetBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, number2) -> {
-            labelIndex = dataSetLabelIndexes.getOrDefault(dataSetBox.getItems().get((int) number2), 0);;
+            labelIndex = dataSetLabelIndexes.getOrDefault(dataSetBox.getItems().get((int) number2), 0);
         });
 
         iterationTextField.setPrefWidth(40);
@@ -108,7 +113,7 @@ public class GUI extends BorderPane {
         radiusCheckBox.setMinWidth(100);
         VBox options = new VBox(10);
         options.setPadding(new Insets(5, 5, 5, 10));
-        options.setAlignment(Pos.CENTER);
+        options.setAlignment(Pos.TOP_LEFT);
         options.getChildren().addAll(new Text("Iterations:"), inputIterations,
                 new Text("Population size:"), inputPopulationSize,
                 new Text("Mutation rate:"), inputMutationRate,
@@ -225,18 +230,47 @@ public class GUI extends BorderPane {
         solutionGraph.setAccuracy(accuracy);
     }
 
-    public void createStatisticGraph(int iterations) {
-        statisticGraph = new StatisticGraph(statisticGraphWidth, statisticGraphHeight, iterations);
+    public void createStatisticGraph(int iterations,int graphCount) {
+        graphs = new ArrayList<>();
+        graphPane.setAlignment(Pos.TOP_CENTER);
+        graphPane.setVgap(30);
+        graphPane.setHgap(50);
+        graphPane.setPrefWrapLength(1200);
+        //setCenter(graphPane);
+        if(graphCount ==1){
+            graphs.add(new StatisticGraph(statisticGraphWidth, statisticGraphHeight, iterations,true));
+        }else{
+            for(int i=0;i <graphCount;i++){
+                StatisticGraph graph = new StatisticGraph(550, 300, iterations,false);
+                //graph.setPadding(new Insets(100, 0, 100, 100));
+
+                graphs.add(graph);
+            }
+        }
+        //StatisticGraph statisticGraph2 = new StatisticGraph(statisticGraphWidth, statisticGraphHeight, iterations);
         //primaryStage.setHeight(700);
-        setCenter(statisticGraph);
+        graphPane.getChildren().clear();
+        graphPane.getChildren().addAll(graphs);
+        graphPane.setPadding(new Insets(100, 0, 100, 100));
+        //graphPane.setMinWidth(1100);
+        scrollPane.setContent(graphPane);
+        //scrollPane.setPadding(new Insets(100, 100, 200, 200));
+        setCenter(scrollPane);
+        //scrollPane.setMinWidth(1100);
+
+        /*scrollPane.setContent(graphPane);
+        setCenter(scrollPane);
+        scrollPane.setPadding(new Insets(100, 100, 100, 100));*/
+        //setCenter(statisticGraph);
     }
 
-    public void addIteration(double fitness, boolean migration) {
-        statisticGraph.addIteration(fitness, migration);
+    public void addIteration(double fitness, boolean migration, int graphIndex) {
+        graphs.get(graphIndex).addIteration(fitness,migration);
+        //statisticGraph.addIteration(fitness, migration);
     }
 
-    public void setBestAccuracy(double accuracy) {
-        statisticGraph.setBestAccuracy(accuracy);
+    public void setBestAccuracy(double accuracy,int graphIndex) {
+        graphs.get(graphIndex).setBestAccuracy(accuracy);
     }
     public void setAverageAccuracy(double accuracy) {
         statisticGraph.setAverageAccuracy(accuracy);

@@ -21,7 +21,7 @@ class StatisticGraph extends Pane {
     private Text bestAccuracyText = new Text();
     private Text averageAccuracyText = new Text();
 
-    StatisticGraph(double width, double height, int iterations) {
+    StatisticGraph(double width, double height, int iterations, boolean showZeroLine) {
         super();
         super.setMouseTransparent(true);
         //super.setTranslateY(-height);
@@ -77,7 +77,7 @@ class StatisticGraph extends Pane {
         line4Text.setY(line4.getEndY());
         line4Text.setX(-32);
 
-        bestAccuracyText.setY(height+50);
+        bestAccuracyText.setY(height+20);
         bestAccuracyText.setX((width/2)*0.7);
         BorderPane.setAlignment(bestAccuracyText, Pos.CENTER);
 
@@ -85,10 +85,15 @@ class StatisticGraph extends Pane {
         averageAccuracyText.setX((width/2)*0.7);
         BorderPane.setAlignment(averageAccuracyText, Pos.CENTER);
 
-        super.getChildren().addAll(line1, line2, line3, line4, line1Text, line2Text, line3Text, line4Text, bestAccuracyText,averageAccuracyText);
+
+        if(showZeroLine){
+            super.getChildren().addAll(line1, line2, line3, line4, line1Text, line2Text, line3Text, line4Text, bestAccuracyText,averageAccuracyText);
+        }else{
+            super.getChildren().addAll(line2, line3, line4, line2Text, line3Text, line4Text, bestAccuracyText,averageAccuracyText);
+        }
     }
 
-    void addIteration(double fitness, boolean migration) {
+    public void addIteration(double fitness, boolean migration) {
         final Line line = new Line();
         if(migration){
             line.setStroke(Color.RED);

@@ -400,7 +400,7 @@ public class AIS {
 
     public static String knn(Antigen antigen,HashMap<String,ArrayList<Antibody>> antibodyMap){
         //TODO: write knn method that looks at the k nearest antibodies of the antigen and returns the most popular label
-        
+
         return "";
     }
 

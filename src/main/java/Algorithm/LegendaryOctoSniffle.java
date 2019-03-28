@@ -83,7 +83,13 @@ public class LegendaryOctoSniffle extends Application {
                                               // AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,populationSize,
                                               // mutationRate,numberOfTournaments,iterations);
         this.allAIS = iga.getAllAIS();
-        gui.createStatisticGraph(iterations);
+        int islandCount;
+        if(masterIsland){
+            islandCount = numberOfIslands +1;
+        }else{
+            islandCount = numberOfIslands;
+        }
+        gui.createStatisticGraph(iterations,islandCount);
 
         ArrayList<HashMap<String, ArrayList<Antibody>>> antibodyGenerations = new ArrayList<>(); //contains the antibody population for each iteration.
         ArrayList<Double> antibodyGenerationAccuracies = new ArrayList<>(); //contains the population accuracies over each iteration.
@@ -109,12 +115,25 @@ public class LegendaryOctoSniffle extends Application {
                 }
                 antibodyGenerationAccuracies.add(accuracy);
 
-                gui.addIteration(accuracy, migrate);
+                for (int j = 0; j < allAIS.size(); j++) {
+                    AIS someAIS = allAIS.get(j);
+                    accuracy = AIS.vote(someAIS.getAntigenMap(), someAIS.getAntibodyMap());
+                    gui.addIteration(accuracy, migrate,j);
 
-                if (accuracy > ais.getBestAccuracy()) {
-                    gui.setBestAccuracy(accuracy);
-                    ais.setBestAccuracy(accuracy);
-                    ais.setBestItreation(i);
+                    if (accuracy > someAIS.getBestAccuracy()) {
+                        gui.setBestAccuracy(accuracy,j);
+                        someAIS.setBestAccuracy(accuracy);
+                        someAIS.setBestItreation(i);
+                    }
+                }
+                if(iga.hasMaster()){
+                    accuracy = iga.getMasterIsland().getCurrentAccuracy();
+                    gui.addIteration(accuracy, migrate,numberOfIslands);
+                    if (accuracy > ais.getBestAccuracy()) {
+                        gui.setBestAccuracy(accuracy,numberOfIslands);
+                        ais.setBestAccuracy(accuracy);
+                        ais.setBestItreation(i);
+                    }
                 }
 
                 for (int j = 0; j < allAIS.size(); j++) {
@@ -166,7 +185,7 @@ public class LegendaryOctoSniffle extends Application {
         double[] accuracies = new double[k];
         DataSet dataSet = new DataSet("./DataSets/" + dataSetName, 0.0,0.0, labelIndex,pcaDimensions);
         HashMap<String,ArrayList<Antigen>>[] dataSetSplits = DataSet.splitDataSet(k,dataSet.antigenMap);
-        gui.createStatisticGraph(k-1);
+        gui.createStatisticGraph(k-1,1);
 
         Thread aisThread = new Thread(() -> {
 
@@ -253,12 +272,12 @@ public class LegendaryOctoSniffle extends Application {
             HashMap<String, ArrayList<Antibody>> bestGeneration =  antibodyGenerations.get(ais.getBestItreation());
 
             double accuracy =AIS.vote(testSetMap,bestGeneration);
-            gui.addIteration(accuracy, false);
+            gui.addIteration(accuracy, false,0);
             accuracies[j] = accuracy;
 
             if(accuracy > totalBestAccuracy){
                 totalBestAccuracy = accuracy;
-                gui.setBestAccuracy(accuracy);
+                gui.setBestAccuracy(accuracy,0);
             }
 
         }
