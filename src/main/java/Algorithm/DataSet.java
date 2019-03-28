@@ -9,7 +9,16 @@ import net.sf.javaml.filter.normalize.NormalizeMidrange;
 import net.sf.javaml.tools.data.FileHandler;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.*;
+import java.util.stream.Stream;
+
+import smile.data.AttributeDataset;
+import smile.data.SparseDataset;
+import smile.data.parser.ArffParser;
+import smile.data.parser.LibsvmParser;
 import smile.projection.PCA;
 
 
@@ -30,17 +39,18 @@ public class DataSet {
     public HashMap<String, ArrayList<Antigen>> antigenMap;
     public HashMap<String, ArrayList<Antigen>> testAntigenMap;
     public HashMap<String, ArrayList<Antigen>> validationAntigenMap;
-    public Set<Integer>[] featureSubsets;
     public int labelColumn;
+    public boolean pca;
 
 
-    public DataSet(String path, double trainingTestSplit, double validationSplit, int labelColumn){
+    public DataSet(String path, double trainingTestSplit, double validationSplit, int labelColumn, boolean pca){
         this.trainingTestSplit = trainingTestSplit;
         this.validationSplit = validationSplit;
         this.random = new Random();
         this.featureMap = new HashMap<>();
         this.labels = new ArrayList<>();
         this.labelColumn = labelColumn;
+        this.pca = pca;
         readFile(path);
     }
 
@@ -55,27 +65,13 @@ public class DataSet {
         NormalizeMidrange nmr=new NormalizeMidrange(0.5,1);
         nmr.build(data);
         nmr.filter(data);
-        //System.out.println(data);
-        //System.out.println(data);
+
         for (Instance instance: data){
             processInstance(instance);
         }
-        createFeatureMap();
-        //System.out.println(data);
 
-        this.featureSubsets = new Set[data.noAttributes()];
-        for(int i = 0; i< featureSubsets.length; i++){
-            GreedyForwardSelection ga = new GreedyForwardSelection(i+1, new PearsonCorrelationCoefficient());
-            ga.build(data);
-            featureSubsets[i] = ga.selectedAttributes();
-        }
-
-        /*for(int i=0; i<featureSubsets.length;i++){
-            System.out.println("Subset "+(i+1)+": "+featureSubsets[i]);
-        }*/
         /*try (
-
-        Stream<String> stream = Files.lines(Paths.get(path))) {
+                Stream<String> stream = Files.lines(Paths.get(path))) {
             stream.forEach(this::processLine);
 
             //iterate over all the lines in the dataset
@@ -84,9 +80,26 @@ public class DataSet {
         }*/
 
         //normalizeFeatures(antigenList);
-        /*for(Antigen antigen: antigenList){
-            System.out.println(antigen);
-        }*/
+
+        if(pca){
+            double[][] dataData = new double[antigenList.size()][antigenList.get(0).getAttributes().length];
+            int count =0;
+            for(Antigen antigen:antigenList){
+                for(int i=0; i<antigen.getAttributes().length;i++){
+                    dataData[count][i] = antigen.getAttributes()[i];
+                }
+                count ++;
+            }
+            PCA pca = new PCA(dataData);
+            pca.setProjection(2);
+            double[][] X = pca.project(dataData);
+
+            for(int i=0; i<X.length;i++){
+                antigenList.get(i).setAttributes(X[i]);
+            }
+        }
+        createFeatureMap();
+
         this.testSet = new Antigen[(int)(antigenList.size()*trainingTestSplit)];
         this.validationSet = new Antigen[(int)((antigenList.size() - testSet.length)*validationSplit)];
         this.trainingSet = new Antigen[antigenList.size() - testSet.length - validationSet.length];
@@ -105,10 +118,10 @@ public class DataSet {
         this.validationAntigenMap = Antigen.createAntigenMap(validationSet);
         this.testAntigenMap = Antigen.createAntigenMap(testSet);
 
-        double[][] ts = new double[this.testSet.length][this.testSet[0].getAttributes().length];
+        /*double[][] ts = new double[this.testSet.length][this.testSet[0].getAttributes().length];
         for(int i = 0; i < testSet.length; i++){
             ts[i] = testSet[i].getAttributes();
-        }
+        }*/
     }
 
     private void processInstance(Instance instance){
@@ -125,7 +138,7 @@ public class DataSet {
             this.totalFeatureMinMax = new double[attributes.length][2];
             for(double[] featureBound:totalFeatureMinMax){
                 featureBound[0] = Double.MAX_VALUE;
-                featureBound[1] = Double.MIN_VALUE;
+                featureBound[1] = Double.NEGATIVE_INFINITY;
             }
         }
 
@@ -193,7 +206,7 @@ public class DataSet {
                 featureMap.put(antigen.getLabel(),new double[antigen.getAttributes().length][2]);
                 for(double[] featureBound:featureMap.get(antigen.getLabel())){
                     featureBound[0] = Double.MAX_VALUE;
-                    featureBound[1] = Double.MIN_VALUE;
+                    featureBound[1] = Double.NEGATIVE_INFINITY;
                 }
             }
 
@@ -209,7 +222,7 @@ public class DataSet {
         }
     }
     public void normalizeFeatures(ArrayList<Antigen> antigens){
-
+        this.featureMap = new HashMap<>();
         for (Antigen antigen:antigens){
 
             if(!featureMap.containsKey(antigen.getLabel())){

@@ -33,7 +33,6 @@ public class Antibody {
         this.antigens = antigens;
         this.connectedAntigen = new HashMap<>();
         this.boundAntigensCount = 0;
-        //this.totalInteraction = 0.0;
         this.correctClassificationCount = 0;
         this.connectedAntigensSet = false;
         this.ais = ais;
@@ -96,14 +95,11 @@ public class Antibody {
             double sharingFactor = 0.0;
             for(Antigen antigen: connectedAntigen.keySet()){
                 double weight = connectedAntigen.get(antigen);
-                //double totalInteractionAntigen = antigen.getTotalInteraction();
-                //double totalAntibodyWeight = 0.0;
+
 
                 sharingFactor += Math.pow(weight,2)/antigen.getInteractionMap().get(this.getAis()); //part of the antigen that belongs to the antibody
-                //sharingFactor += Math.pow(weight,2)/antigen.getTotalInteraction();
 
             }
-
             double sum = 0.0;
 
             for(String label: ais.getAntibodyMap().keySet()){
@@ -111,11 +107,7 @@ public class Antibody {
             }
             double representation = ais.getAntibodyMap().get(this.label).size()/sum;
 
-            //double weightedAccuracy = correctInteraction / totalInteraction;
-            //this. fitness = (sharingFactor*weightedAccuracy)/representation;
-
             this.fitness = (sharingFactor*weightedAccuracy)/ totalInteraction;
-            //this.fitness = (accuracy * (totalInteraction/boundAntigensCount));
         }
     }
 
@@ -154,9 +146,6 @@ public class Antibody {
 
         double eucledeanDistance = 0.0;
         for (int i=0;i<featureSet1.length;i++){
-            if(featureSet1[i] < 0.0 || featureSet2[i] < 0.0){
-                continue;
-            }
             eucledeanDistance += Math.pow(featureSet1[i] - featureSet2[i],2);
         }
 
