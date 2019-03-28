@@ -1,26 +1,19 @@
 package GUI;
 
-import AIS.AIS;
 import AIS.Antigen;
 import AIS.Antibody;
 import Algorithm.LegendaryOctoSniffle;
 import javafx.collections.FXCollections;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import org.w3c.dom.events.Event;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +33,6 @@ public class GUI extends BorderPane {
 
     }
     private final ChoiceBox<String> dataSetBox = new ChoiceBox<>(FXCollections.observableArrayList("iris.data", "wine.data", "ionosphere.data", "glass.data", "crabs.csv", "abalone.data","sonar.all-data.txt","diabetes.csv"));
-    private CheckBox checkBox = new CheckBox("MasterIsland");
     private int labelIndex;
 
     private final Stage primaryStage;
@@ -62,13 +54,18 @@ public class GUI extends BorderPane {
     private final TextField inputMigrationRate = new TextField("0.1");
     private final TextField islandIntegrationCount = new TextField("1");
     private final TextField inputK = new TextField("0");
+    private final TextField pca = new TextField("0");
 
-    private final int sceneWidth = 1200;
-    private final int sceneHeight = 850;
-    private final int solutionGraphWidth = 600;
-    private final int solutionGraphHeight = 600;
-    private final int statisticGraphWidth = 800;
-    private final int statisticGraphHeight = 500;
+    private CheckBox masterIslandCheckBox = new CheckBox("MasterIsland");
+    private CheckBox radiusCheckBox = new CheckBox("Plot radius");
+
+
+    private final int sceneWidth = 1600;
+    private final int sceneHeight = 1050;
+    private final int solutionGraphWidth = 800;
+    private final int solutionGraphHeight = 800;
+    private final int statisticGraphWidth = 1100;
+    private final int statisticGraphHeight = 800;
 
     private HBox menu;
     private VBox menuWrapper;
@@ -96,14 +93,15 @@ public class GUI extends BorderPane {
         menuWrapper.setPadding(new Insets(5,0,5,0));
         dataSetBox.setValue("iris.data");
         dataSetBox.setPrefWidth(150);
-        checkBox.setSelected(true);
+        masterIslandCheckBox.setSelected(true);
         menu = new HBox(5);
         //menu.setPadding(new Insets(5,0,10,0));
         menu.setAlignment(Pos.CENTER);
         menu.getChildren().addAll(startButton, stopButton);
         menuWrapper.getChildren().addAll(menu);
         setTop(menuWrapper);
-
+        masterIslandCheckBox.setMinWidth(100);
+        radiusCheckBox.setMinWidth(100);
         VBox options = new VBox(10);
         options.setPadding(new Insets(5, 5, 5, 10));
         options.setAlignment(Pos.CENTER);
@@ -111,14 +109,16 @@ public class GUI extends BorderPane {
                 new Text("Population size:"), inputPopulationSize,
                 new Text("Mutation rate:"), inputMutationRate,
                 new Text("Number of tournaments:"),inputNumberOfTournaments,
-                new Text(""), checkBox,
+                masterIslandCheckBox,
                 new Text("Number of islands:"), inputNumberOfIslands,
                 new Text("Migration frequency:"), inputMigrationFrequency,
                 new Text("Migration rate:"), inputMigrationRate,
                 new Text("Elitist island integration:"), islandIntegrationCount,
                 new Text("Name of dataset:"),dataSetBox,
                 new Text("Dataset split:"),inputDataSetSplit,
-                new Text("k-fold cross validation:"),inputK);
+                new Text("k-fold cross validation:"),inputK,
+                new Text("PCA projection"),pca,
+                radiusCheckBox);
         setLeft(options);
 
         startButton.setOnAction((e) -> {
@@ -132,9 +132,11 @@ public class GUI extends BorderPane {
                     Double.valueOf(inputMigrationFrequency.getText()),
                     Integer.valueOf(inputNumberOfIslands.getText()),
                     Double.valueOf(inputMigrationRate.getText()),
-                    checkBox.isSelected(),
+                    masterIslandCheckBox.isSelected(),
                     Integer.valueOf(inputK.getText()),
-                    Integer.valueOf(islandIntegrationCount.getText()));
+                    Integer.valueOf(islandIntegrationCount.getText()),
+                    Integer.valueOf(pca.getText()),
+                    radiusCheckBox.isSelected());
         });
         stopButton.setOnAction(event -> LOS.stopRunning());
 

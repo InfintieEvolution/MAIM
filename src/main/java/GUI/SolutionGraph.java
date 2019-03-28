@@ -53,11 +53,11 @@ public class SolutionGraph extends Pane {
         this.factorX = width / Math.abs(this.maxX - this.minX);
         this.factorY = height / Math.abs(this.maxY - this.minY);
 
-        accuracyText.setY(height+50);
-        //accuracyText.setX((width/2)*0.5);
+        accuracyText.setY(height+40);
+        accuracyText.setX(((width/2)*0.5)+100);
 
-        bestAccuracyText.setY(height+70);
-        //bestAccuracyText.setX((width/2)*0.5);
+        bestAccuracyText.setY(height+60);
+        bestAccuracyText.setX((width/2)*0.5);
 
         super.getChildren().addAll(accuracyText, bestAccuracyText);
     }
@@ -217,6 +217,18 @@ public class SolutionGraph extends Pane {
         this.minY = lowestValuedFeatureY;
         this.maxX = highestValuedFeatureX;
         this.maxY = highestValuedFeatureY;
+
+        if(minX < minY){
+            minY = minX;
+        }else{
+            minX = minY;
+        }
+
+        if(maxX > maxY){
+            maxY = maxX;
+        }else{
+            maxX = maxY;
+        }
     }
 
     void setAccuracy(double accuracy) {
