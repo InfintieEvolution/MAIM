@@ -57,6 +57,7 @@ public class GUI extends BorderPane {
     private final TextField inputMigrationRate = new TextField("0.1");
     private final TextField islandIntegrationCount = new TextField("1");
     private final TextField inputK = new TextField("0");
+    private final TextField radiusMultiplier = new TextField("0.1");
     private final TextField pca = new TextField("0");
 
     private CheckBox masterIslandCheckBox = new CheckBox("MasterIsland");
@@ -121,6 +122,7 @@ public class GUI extends BorderPane {
                 new Text("Dataset split:"),inputDataSetSplit,
                 new Text("Validation split:"),inputValidationSplit,
                 new Text("k-fold cross validation:"),inputK,
+                new Text("Radius multiplier:"), radiusMultiplier,
                 new Text("PCA projection"),pca,
                 radiusCheckBox);
         setLeft(options);
@@ -141,10 +143,10 @@ public class GUI extends BorderPane {
                     Integer.valueOf(islandIntegrationCount.getText()),
                     Integer.valueOf(pca.getText()),
                     radiusCheckBox.isSelected(),
-                    Double.valueOf(inputValidationSplit.getText()));
+                    Double.valueOf(inputValidationSplit.getText()),
+                    Double.valueOf(radiusMultiplier.getText()));
         });
         stopButton.setOnAction(event -> LOS.stopRunning());
-
         stopButton.setDisable(true);
         primaryStage.show();
     }

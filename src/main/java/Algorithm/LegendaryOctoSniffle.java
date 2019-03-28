@@ -43,7 +43,8 @@ public class LegendaryOctoSniffle extends Application {
                     int islandIntegrationCount,
                     int pcaDimensions,
                     boolean radiusPlot,
-                    double validationSplit) {
+                    double validationSplit,
+                    double radiusMultiplier) {
 
         if(k > 1){
             this.validateAccuracies(k,
@@ -59,7 +60,9 @@ public class LegendaryOctoSniffle extends Application {
                     masterIsland,
                     islandIntegrationCount,
                     pcaDimensions,
-                    validationSplit);
+                    validationSplit,
+                    radiusMultiplier);
+
         }else{
         this.running = true;
         gui.startButton.setDisable(true);
@@ -69,7 +72,7 @@ public class LegendaryOctoSniffle extends Application {
         DataSet dataSet = new DataSet("./DataSets/" + dataSetName, trainingTestSplit,validationSplit, labelIndex,pcaDimensions);
 
         IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland);
-        iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations);
+        iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations, radiusMultiplier);
 
         if(iga.hasMaster()){
             this.ais = iga.getMasterIsland().getAis();
@@ -138,9 +141,22 @@ public class LegendaryOctoSniffle extends Application {
         }
     }
 
-    public void validateAccuracies(int k, int iterations, int populationSize, double mutationRate, int numberOfTournaments,
-                                   String dataSetName, int labelIndex, double migrationFrequency,
-                                   int numberOfIslands, double migrationRate, boolean masterIsland, int islandIntegrationCount, int pcaDimensions, double validationSplit){
+    public void validateAccuracies(int k,
+                                   int iterations,
+                                   int populationSize,
+                                   double mutationRate,
+                                   int numberOfTournaments,
+                                   String dataSetName,
+                                   int labelIndex,
+                                   double migrationFrequency,
+                                   int numberOfIslands,
+                                   double migrationRate,
+                                   boolean masterIsland,
+                                   int islandIntegrationCount,
+                                   int pcaDimensions,
+                                   double validationSplit,
+                                   double radiusMultiplier){
+
 
         this.running = true;
         gui.startButton.setDisable(true);
@@ -193,7 +209,7 @@ public class LegendaryOctoSniffle extends Application {
             dataSet.setValidationAntigenMap(validationSetMap);
 
             IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland);
-            iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations);
+            iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations, radiusMultiplier);
 
             if(iga.hasMaster()){
                 this.ais = iga.getMasterIsland().getAis();

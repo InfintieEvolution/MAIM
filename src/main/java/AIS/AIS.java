@@ -23,8 +23,12 @@ public class AIS {
     private ArrayList<String> labels;
     private int iteration;
     private int maxIterations;
+    private double averageFitness;
+    private double radiusMultiplier;
 
-    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations){
+//    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations,Set<Integer>[] featureSubsets, double radiusMultiplier){
+
+    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations, double radiusMultiplier){
         this.antigens = antigens;
         this.antigenMap = antigenMap;
         this.featureMap = new HashMap<>();
@@ -42,6 +46,8 @@ public class AIS {
         this.labels = labels;
         this.maxIterations = maxIterations;
         this.antigenValidationMap = antigenValidationMap;
+        this.radiusMultiplier = radiusMultiplier;
+
         selectionComparator = (o1, o2) -> {
             if (o1.getFitness() > o2.getFitness()) {
                 return -1;
@@ -322,8 +328,10 @@ public class AIS {
             minAverage = minAverage/featureMap.get(label).length;
             maxAverage = maxAverage/featureMap.get(label).length;
 
+
             //TODO: Make initial radius better
-            double radius = (minAverage + (maxAverage - minAverage) * random.nextDouble());
+            double radius = (minAverage + (maxAverage - minAverage) * random.nextDouble()) + (featureMap.get(label).length * radiusMultiplier);
+
 
             Antibody antibody = new Antibody(attributes, radius, label, this.antigens,this);
             if(!shouldBeConnected){
