@@ -21,7 +21,7 @@ public class LegendaryOctoSniffle extends Application {
     private GUI gui;
     private AIS ais;
     private ArrayList<AIS> allAIS;
-    private boolean radiusPlot = true;
+    private boolean radiusPlot = false;
 
     @Override
     public void start(Stage primaryStage) throws Exception {

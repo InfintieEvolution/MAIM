@@ -105,7 +105,7 @@ public class SolutionGraph extends Pane {
             var al = antibodyMap.get(label);
             for (Antibody antibody : al){
                 if(radiusPlot){
-                    Circle antibodyCircle = new Circle(mapYToGraph(antibody.getRadius()));
+                    Circle antibodyCircle = new Circle(antibody.getRadius()*factorX);
                     antibodyCircle.setTranslateX(mapXToGraph(antibody.getFeatures()[0]));
                     antibodyCircle.setTranslateY(mapYToGraph(antibody.getFeatures()[1]));
                     antibodyCircle.setFill(Paint.valueOf("transparent"));
