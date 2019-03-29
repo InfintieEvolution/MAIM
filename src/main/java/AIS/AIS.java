@@ -401,7 +401,7 @@ public class AIS {
         return accuracy;
     }
 
-    public static String knn(Antigen antigen, HashMap<String,ArrayList<Antibody>> antibodyMap, int k){
+    private static String knn(Antigen antigen, HashMap<String,ArrayList<Antibody>> antibodyMap, int k){
         ArrayList<Antibody>  antibodyList = new ArrayList<Antibody>();
 
         // Comparator sorting smallest first
@@ -440,8 +440,8 @@ public class AIS {
                 counterNearest.put(distanceTuple.getAntibody().getLabel(), 1);
             }
         }
-        var label = Collections.max(counterNearest.entrySet(), Map.Entry.comparingByValue()).getKey();
-        return label;
+        return Collections.max(counterNearest.entrySet(), Map.Entry.comparingByValue()).getKey();
+
     }
 
 
