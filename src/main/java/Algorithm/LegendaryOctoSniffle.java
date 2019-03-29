@@ -290,7 +290,7 @@ public class LegendaryOctoSniffle extends Application {
                 accuracyCount++;
             }
         }
-        gui.setAverageAccuracy(accuracySum/accuracyCount);
+        gui.setAverageAccuracy(accuracySum/accuracyCount,0);
 
         Platform.runLater(() -> {
             gui.startButton.setDisable(false);

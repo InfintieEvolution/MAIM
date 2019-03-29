@@ -81,7 +81,7 @@ class StatisticGraph extends Pane {
         bestAccuracyText.setX((width/2)*0.7);
         BorderPane.setAlignment(bestAccuracyText, Pos.CENTER);
 
-        averageAccuracyText.setY(height+70);
+        averageAccuracyText.setY(height+40);
         averageAccuracyText.setX((width/2)*0.7);
         BorderPane.setAlignment(averageAccuracyText, Pos.CENTER);
 

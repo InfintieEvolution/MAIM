@@ -272,8 +272,8 @@ public class GUI extends BorderPane {
     public void setBestAccuracy(double accuracy,int graphIndex) {
         graphs.get(graphIndex).setBestAccuracy(accuracy);
     }
-    public void setAverageAccuracy(double accuracy) {
-        statisticGraph.setAverageAccuracy(accuracy);
+    public void setAverageAccuracy(double accuracy,int graphIndex) {
+        graphs.get(graphIndex).setAverageAccuracy(accuracy);
     }
 
     public void setBestAccuracyIteration(double accuracy, int iteration) {
