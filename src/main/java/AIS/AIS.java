@@ -1,9 +1,6 @@
 package AIS;
 
 import java.util.*;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class AIS {
 
@@ -20,7 +17,7 @@ public class AIS {
     private final Comparator<Antibody> selectionComparator;
     private final Comparator<Antibody> accuracyComparator;
     private double bestAccuracy;
-    private int bestItreation;
+    private int bestIteration;
     private double bestAccuracyTestSet;
     private int bestIterationTestSet;
     private ArrayList<String> labels;
@@ -42,7 +39,7 @@ public class AIS {
         this.mutationRate = mutationRate;
         this.iteration = 0;
         this.bestAccuracy = 0.0;
-        this.bestItreation = 0;
+        this.bestIteration = 0;
         this.bestAccuracyTestSet = 0.0;
         this.bestIterationTestSet = 0;
         this.featureMap = featureMap;
@@ -490,12 +487,12 @@ public class AIS {
         this.bestAccuracy = bestAccuracy;
     }
 
-    public int getBestItreation() {
-        return bestItreation;
+    public int getBestIteration() {
+        return bestIteration;
     }
 
-    public void setBestItreation(int bestItreation) {
-        this.bestItreation = bestItreation;
+    public void setBestIteration(int bestIteration) {
+        this.bestIteration = bestIteration;
     }
 
     public double getBestAccuracyTestSet() {

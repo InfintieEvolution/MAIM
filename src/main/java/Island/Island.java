@@ -284,7 +284,7 @@ public class Island {
                 "islandId=" + islandId +
 //                ", AIS best accuracy= " + this.getAis().getBestAccuracy() +
 //                ", AIS best accuracy test= " + this.getAis().getBestAccuracyTestSet()+
-//                ", AIS best iteration= " + this.getAis().getBestItreation() +
+//                ", AIS best iteration= " + this.getAis().getBestIteration() +
                 '}';
     }
 }
