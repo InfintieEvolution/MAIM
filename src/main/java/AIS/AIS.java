@@ -17,7 +17,7 @@ public class AIS {
     private final Comparator<Antibody> selectionComparator;
     private final Comparator<Antibody> accuracyComparator;
     private double bestAccuracy;
-    private int bestItreation;
+    private int bestIteration;
     private double bestAccuracyTestSet;
     private int bestIterationTestSet;
     private ArrayList<String> labels;
@@ -39,7 +39,7 @@ public class AIS {
         this.mutationRate = mutationRate;
         this.iteration = 0;
         this.bestAccuracy = 0.0;
-        this.bestItreation = 0;
+        this.bestIteration = 0;
         this.bestAccuracyTestSet = 0.0;
         this.bestIterationTestSet = 0;
         this.featureMap = featureMap;
@@ -377,7 +377,7 @@ public class AIS {
 
                 //no classification was given, calculate nearest knn
                 if(highestVoteLabel == null){
-                    antigenClassification.put(antigen, knn(antigen,antibodyMap));
+                    antigenClassification.put(antigen, knn(antigen,antibodyMap, 5));
                 }else{
                     antigenClassification.put(antigen, highestVoteLabel);
                 }
@@ -398,11 +398,49 @@ public class AIS {
         return accuracy;
     }
 
-    public static String knn(Antigen antigen,HashMap<String,ArrayList<Antibody>> antibodyMap){
-        //TODO: write knn method that looks at the k nearest antibodies of the antigen and returns the most popular label
+    private static String knn(Antigen antigen, HashMap<String,ArrayList<Antibody>> antibodyMap, int k){
+        ArrayList<Antibody>  antibodyList = new ArrayList<Antibody>();
 
-        return "";
+        // Comparator sorting smallest first
+        final Comparator<DistanceTuple> distanceComparator = (o1, o2) -> {
+            double distance1 = o1.getDistance();
+            double distance2 = o2.getDistance();
+            if (distance1 > distance2) {
+                return 1;
+            }
+            else if (distance1 < distance2) {
+                return -1;
+            }
+            return 0;
+        };
+
+
+        for (String label: antibodyMap.keySet()){
+            antibodyList.addAll(antibodyMap.get(label));
+        }
+        PriorityQueue<DistanceTuple> distances = new PriorityQueue<>(k,distanceComparator);
+
+        for (Antibody antibody : antibodyList){
+            double distance = antibody.eucledeanDistance(antibody.getFeatures(), antigen.getAttributes());
+            distances.add(new DistanceTuple(distance, antibody));
+        }
+
+        HashMap<String, Integer> counterNearest = new HashMap<>();
+
+        for(int i = 0; i < k; i++){
+            var distanceTuple = distances.remove();
+            var label = distanceTuple.getAntibody().getLabel();
+
+            if(counterNearest.containsKey(label)){
+                counterNearest.put(label, counterNearest.get(label) + 1);
+            }else{
+                counterNearest.put(distanceTuple.getAntibody().getLabel(), 1);
+            }
+        }
+        return Collections.max(counterNearest.entrySet(), Map.Entry.comparingByValue()).getKey();
+
     }
+
 
     public double randomOffspringSize(int populationSize,int iteration, int maxIterations){
         return 0.5 * Math.pow((double)2/populationSize,(double)iteration/maxIterations);
@@ -449,12 +487,12 @@ public class AIS {
         this.bestAccuracy = bestAccuracy;
     }
 
-    public int getBestItreation() {
-        return bestItreation;
+    public int getBestIteration() {
+        return bestIteration;
     }
 
-    public void setBestItreation(int bestItreation) {
-        this.bestItreation = bestItreation;
+    public void setBestIteration(int bestIteration) {
+        this.bestIteration = bestIteration;
     }
 
     public double getBestAccuracyTestSet() {

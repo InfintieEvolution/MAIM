@@ -4,13 +4,11 @@ import AIS.AIS;
 import AIS.Antigen;
 import AIS.Antibody;
 import GUI.GUI;
-import GUI.SolutionGraph;
 import Island.IGA;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -123,7 +121,7 @@ public class LegendaryOctoSniffle extends Application {
                     if (accuracy > someAIS.getBestAccuracy()) {
                         gui.setBestAccuracy(accuracy,j);
                         someAIS.setBestAccuracy(accuracy);
-                        someAIS.setBestItreation(i);
+                        someAIS.setBestIteration(i);
                     }
                 }
                 if(iga.hasMaster()){
@@ -132,7 +130,7 @@ public class LegendaryOctoSniffle extends Application {
                     if (accuracy > ais.getBestAccuracy()) {
                         gui.setBestAccuracy(accuracy,numberOfIslands);
                         ais.setBestAccuracy(accuracy);
-                        ais.setBestItreation(i);
+                        ais.setBestIteration(i);
                     }
                 }
 
@@ -150,10 +148,10 @@ public class LegendaryOctoSniffle extends Application {
                 gui.iterationTextField.setDisable(false);
                 gui.stopButton.setDisable(true);
                 this.gui.setAntibodyGenerations(antibodyGenerations, ais.getAntigenMap(), dataSet.testAntigenMap,
-                        antibodyGenerations.get(ais.getBestItreation()),antibodyGenerationAccuracies,radiusPlot);
+                        antibodyGenerations.get(ais.getBestIteration()),antibodyGenerationAccuracies,radiusPlot);
                 this.gui.createSolutionGraph(ais.getFeatureMap(), ais.getAntibodyMap());
-                gui.drawSolution(dataSet.testAntigenMap, antibodyGenerations.get(ais.getBestItreation()),0.0,radiusPlot);
-                gui.setBestAccuracyIteration(ais.getBestAccuracy(), ais.getBestItreation());
+                gui.drawSolution(dataSet.testAntigenMap, antibodyGenerations.get(ais.getBestIteration()),0.0,radiusPlot);
+                gui.setBestAccuracyIteration(ais.getBestAccuracy(), ais.getBestIteration());
             });
         });
         aisThread.start();
@@ -263,13 +261,13 @@ public class LegendaryOctoSniffle extends Application {
 
                     if (accuracy > ais.getBestAccuracy()) {
                         ais.setBestAccuracy(accuracy);
-                        ais.setBestItreation(i);
+                        ais.setBestIteration(i);
                     }
                 }
 
             antibodyGenerations.add(ais.getAntibodyMap());
 
-            HashMap<String, ArrayList<Antibody>> bestGeneration =  antibodyGenerations.get(ais.getBestItreation());
+            HashMap<String, ArrayList<Antibody>> bestGeneration =  antibodyGenerations.get(ais.getBestIteration());
 
             double accuracy =AIS.vote(testSetMap,bestGeneration);
             gui.addIteration(accuracy, false,0);
