@@ -107,7 +107,7 @@ public class Antibody {
             }
             double representation = ais.getAntibodyMap().get(this.label).size()/sum;
 
-            this.fitness = (sharingFactor*weightedAccuracy)/ totalInteraction;
+            this.fitness = (sharingFactor*weightedAccuracy)/totalInteraction;
         }
     }
 

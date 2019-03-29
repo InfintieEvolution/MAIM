@@ -421,7 +421,10 @@ public class AIS {
         PriorityQueue<DistanceTuple> distances = new PriorityQueue<>(k,distanceComparator);
 
         for (Antibody antibody : antibodyList){
-            double distance = antibody.eucledeanDistance(antibody.getFeatures(), antigen.getAttributes());
+            double distance = antibody.eucledeanDistance(antibody.getFeatures(), antigen.getAttributes()) - antibody.getRadius();
+            if (distance < 0){
+                distance = 0;
+            }
             distances.add(new DistanceTuple(distance, antibody));
         }
 

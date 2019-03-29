@@ -60,7 +60,7 @@ public class IGA {
             Antigen[] antigens = new Antigen[antigenLists[i].size()];
             antigens = antigenLists[i].toArray(antigens);
 
-            //AIS ais = new AIS(antigens,dataSet.featureMap,dataSet.labels,antigenSets[i],dataSet.validationAntigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations);
+            //AIS ais = new AIS(antigens,dataSet.featureMap,dataSet.labels,antigenSets[i],dataSet.validationAntigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations,someNum);
             AIS ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,dataSet.validationAntigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations, someNum);
             this.islands.add(new Island(ais, migrationRate, migrationFrequency, i));
         }
