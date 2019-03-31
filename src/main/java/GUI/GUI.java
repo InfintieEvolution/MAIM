@@ -2,7 +2,7 @@ package GUI;
 
 import AIS.Antigen;
 import AIS.Antibody;
-import Algorithm.LegendaryOctoSniffle;
+import Algorithm.AISIGA;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -39,7 +39,7 @@ public class GUI extends BorderPane {
     private int labelIndex;
 
     private final Stage primaryStage;
-    private final LegendaryOctoSniffle LOS;
+    private final AISIGA AISIGA;
     private StatisticGraph statisticGraph;
 
     private SolutionGraph solutionGraph;
@@ -82,12 +82,12 @@ public class GUI extends BorderPane {
 
     private ChoiceBox<String> iterationBox;
 
-    public GUI(Stage primaryStage, LegendaryOctoSniffle LOS){
+    public GUI(Stage primaryStage, AISIGA AISIGA){
 
         super();
         this.antibodyGenerations = null;
         this.primaryStage = primaryStage;
-        this.LOS = LOS;
+        this.AISIGA = AISIGA;
         final Scene scene = new Scene(this, sceneWidth, sceneHeight);
         primaryStage.setScene(scene);
         primaryStage.setTitle("legendary-octo-sniffle");
@@ -133,7 +133,7 @@ public class GUI extends BorderPane {
         setLeft(options);
 
         startButton.setOnAction((e) -> {
-            LOS.run(Integer.valueOf(inputIterations.getText()),
+            AISIGA.run(Integer.valueOf(inputIterations.getText()),
                     Integer.valueOf(inputPopulationSize.getText()),
                     Double.valueOf(inputMutationRate.getText()),
                     Integer.valueOf(inputNumberOfTournaments.getText()),
@@ -151,7 +151,7 @@ public class GUI extends BorderPane {
                     Double.valueOf(inputValidationSplit.getText()),
                     Double.valueOf(radiusMultiplier.getText()));
         });
-        stopButton.setOnAction(event -> LOS.stopRunning());
+        stopButton.setOnAction(event -> AISIGA.stopRunning());
         stopButton.setDisable(true);
         primaryStage.show();
     }

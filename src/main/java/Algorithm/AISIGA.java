@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class LegendaryOctoSniffle extends Application {
+public class AISIGA extends Application {
 
     // private TextField populationSizeInput = new TextField();
     private boolean running = false;
