@@ -1,4 +1,4 @@
-#AISIGA
+# AISIGA
 An evolutionary classification algorithm based on a combination two bio-inspired techinques: Artificial immune systems (AIS) and island genetic algorithm (IGA).
 
 Code for the master project of Andreas Norstein and Eirik Baug
