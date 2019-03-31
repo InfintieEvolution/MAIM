@@ -13,7 +13,7 @@ Antibodies are the circles, while the antigen (training cases) are the squared. 
 ## Artificialy generated spirals dataset.
 
 ### Iteration 0 (initial generation)
-![Screenshot](Images/Spirals/circles - iteration 0.PNG)
+![Alt text](Images/Spirals/circles - iteration 0.PNG?raw=true "Title")
 
 
 # Using SMILE 
