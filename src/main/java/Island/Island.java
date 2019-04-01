@@ -232,7 +232,7 @@ public class Island {
 
     public void receiveRandom(Island sendingIsland) {
 //        removeAntibodiesBasedOnMigrationRate(this.getAis());
-//        removeRandomAntibodies();
+        //removeRandomAntibodies();
 
 //        ArrayList<Antibody> receivingAntibodies = sendingIsland.sendAllRandom(sendingIsland.getAis());
         for(Antigen antigen:getAis().getAntigens()){

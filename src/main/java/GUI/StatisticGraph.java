@@ -2,6 +2,7 @@ package GUI;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -14,14 +15,15 @@ class StatisticGraph extends Pane {
 
     private final double width, height;
     private final int iterations;
-
+    private final int index;
     private int currentIteration = 0;
     private double previousX, previousY;
-
+    private final boolean slave;
     private Text bestAccuracyText = new Text();
     private Text averageAccuracyText = new Text();
+    private Text labelText = new Text();
 
-    StatisticGraph(double width, double height, int iterations, boolean showZeroLine) {
+    StatisticGraph(double width, double height, int iterations,boolean kfold, boolean slave, int index) {
         super();
         super.setMouseTransparent(true);
         //super.setTranslateY(-height);
@@ -32,6 +34,8 @@ class StatisticGraph extends Pane {
         this.width = width;
         this.height = height;
         this.iterations = iterations;
+        this.index = index;
+        this.slave = slave;
 
         final Line line1 = new Line();
         line1.setStroke(Color.RED);
@@ -62,7 +66,7 @@ class StatisticGraph extends Pane {
         line4.setEndY(height);
 
         Text line1Text = new Text("0%");
-        line1Text.setY(line1.getEndY());
+        line1Text.setY(5);
         line1Text.setX(-20);
 
         Text line2Text = new Text("50%");
@@ -77,20 +81,34 @@ class StatisticGraph extends Pane {
         line4Text.setY(line4.getEndY());
         line4Text.setX(-32);
 
+        if(!kfold){
+            labelText.setY(-5);
+            BorderPane.setAlignment(labelText, Pos.CENTER);
+            labelText.setStyle("-fx-font-weight: bold");
+            if(slave){
+                labelText.setX((width/2)*0.9);
+                labelText.setText("Slave "+(index+1));
+            }else{
+                labelText.setX((width/2)*0.85);
+                labelText.setText("Master island");
+            }
+            bestAccuracyText.setX((width/2)*0.7);
+        }else{
+            bestAccuracyText.setX((width/2)*0.8);
+        }
+
+        this.setStyle("-fx-border-color: black");
+
         bestAccuracyText.setY(height+20);
-        bestAccuracyText.setX((width/2)*0.7);
         BorderPane.setAlignment(bestAccuracyText, Pos.CENTER);
 
         averageAccuracyText.setY(height+40);
-        averageAccuracyText.setX((width/2)*0.7);
+        averageAccuracyText.setX((width/2)*0.8);
         BorderPane.setAlignment(averageAccuracyText, Pos.CENTER);
 
 
-        if(showZeroLine){
-            super.getChildren().addAll(line1, line2, line3, line4, line1Text, line2Text, line3Text, line4Text, bestAccuracyText,averageAccuracyText);
-        }else{
-            super.getChildren().addAll(line2, line3, line4, line2Text, line3Text, line4Text, bestAccuracyText,averageAccuracyText);
-        }
+
+        super.getChildren().addAll(line1,line2, line3, line4, line1Text,line2Text, line3Text, line4Text, bestAccuracyText,averageAccuracyText,labelText);
     }
 
     public void addIteration(double fitness, boolean migration) {

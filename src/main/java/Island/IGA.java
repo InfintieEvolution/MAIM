@@ -43,7 +43,7 @@ public class IGA {
 
     public void initialize(DataSet dataSet, double mutationRate, int numberOfTournaments, int iterations, double someNum){
 
-        HashMap<String,ArrayList<Antigen>>[] antigenSets = DataSet.splitDataSet(numberOfIslands,dataSet.antigenMap);
+        /*HashMap<String,ArrayList<Antigen>>[] antigenSets = DataSet.splitDataSet(numberOfIslands,dataSet.antigenMap);
         ArrayList<Antigen>[] antigenLists = new ArrayList[antigenSets.length];
 
         for(int i=0; i<antigenSets.length;i++){
@@ -53,12 +53,12 @@ public class IGA {
             for(String label: antigens.keySet()){
                 antigenLists[i].addAll(antigens.get(label));
             }
-        }
+        }*/
 
         // create islands
         for(int i=0; i < numberOfIslands; i++){
-            Antigen[] antigens = new Antigen[antigenLists[i].size()];
-            antigens = antigenLists[i].toArray(antigens);
+            //Antigen[] antigens = new Antigen[antigenLists[i].size()];
+            //antigens = antigenLists[i].toArray(antigens);
 
             //AIS ais = new AIS(antigens,dataSet.featureMap,dataSet.labels,antigenSets[i],dataSet.validationAntigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations,someNum);
             AIS ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,dataSet.validationAntigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations, someNum);
@@ -110,21 +110,10 @@ public class IGA {
         return false;
     }
 
-    public void migrateMasterOld(){
-        if (this.MASTERISLAND){
-            if(random.nextDouble() > 0.5){
-                this.masterIsland.removeRandomAntibodies();
-            }else{
-                this.masterIsland.removeWorstAntibodies();
-            }
-            for(Island island : this.islands) {
-                this.masterIsland.receive(island);
-            }
-        }
-    }
-
     public void migrateMaster(int islandIntegrationCount){
+        //this.masterIsland.select(islandIntegrationCount);
         this.masterIsland.select(islandIntegrationCount);
+
     }
 
     public int getNumberOfIslands() {

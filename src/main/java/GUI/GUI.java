@@ -8,6 +8,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
@@ -46,8 +47,8 @@ public class GUI extends BorderPane {
     public final Button startButton = new Button("Start");
     public final Button stopButton = new Button("Stop");
 
-    private final TextField inputIterations = new TextField("10");
-    private final TextField inputPopulationSize = new TextField("100");
+    private final TextField inputIterations = new TextField("1000");
+    private final TextField inputPopulationSize = new TextField("1000");
     private final TextField inputMutationRate = new TextField("0.8");
     private final TextField inputNumberOfTournaments = new TextField("5");
     private final TextField inputDataSetSplit = new TextField("0.1");
@@ -58,18 +59,19 @@ public class GUI extends BorderPane {
     private final TextField inputMigrationRate = new TextField("0.1");
     private final TextField islandIntegrationCount = new TextField("1");
     private final TextField inputK = new TextField("0");
-    private final TextField radiusMultiplier = new TextField("0.1");
+    private final TextField radiusMultiplier = new TextField("0.0");
     private final TextField pca = new TextField("0");
 
     private CheckBox masterIslandCheckBox = new CheckBox("MasterIsland");
     private CheckBox radiusCheckBox = new CheckBox("Plot radius");
+    private CheckBox plotSolutionCheckBox = new CheckBox("Plot solution");
 
     private final FlowPane graphPane = new FlowPane();
     private final ScrollPane scrollPane = new ScrollPane();
 
     public ArrayList<StatisticGraph> graphs = new ArrayList<>();
 
-    private final int sceneWidth = 1600;
+    private final int sceneWidth = 1550;
     private final int sceneHeight = 1050;
     private final int solutionGraphWidth = 800;
     private final int solutionGraphHeight = 800;
@@ -90,7 +92,8 @@ public class GUI extends BorderPane {
         this.AISIGA = AISIGA;
         final Scene scene = new Scene(this, sceneWidth, sceneHeight);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("legendary-octo-sniffle");
+        primaryStage.setTitle("AISIGA");
+        primaryStage.getIcons().add(new Image("file:Images/icon2.PNG"));
 
         //make sure when selecting the data sets, the index of the label on each row is also set
         dataSetBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, number2) -> {
@@ -103,6 +106,7 @@ public class GUI extends BorderPane {
         dataSetBox.setValue("iris.data");
         dataSetBox.setPrefWidth(150);
         masterIslandCheckBox.setSelected(true);
+        plotSolutionCheckBox.setSelected(true);
         menu = new HBox(5);
         //menu.setPadding(new Insets(5,0,10,0));
         menu.setAlignment(Pos.CENTER);
@@ -111,6 +115,7 @@ public class GUI extends BorderPane {
         setTop(menuWrapper);
         masterIslandCheckBox.setMinWidth(100);
         radiusCheckBox.setMinWidth(100);
+        plotSolutionCheckBox.setMinWidth(100);
         VBox options = new VBox(10);
         options.setPadding(new Insets(5, 5, 5, 10));
         options.setAlignment(Pos.TOP_LEFT);
@@ -129,7 +134,8 @@ public class GUI extends BorderPane {
                 new Text("k-fold cross validation:"),inputK,
                 new Text("Radius multiplier:"), radiusMultiplier,
                 new Text("PCA projection"),pca,
-                radiusCheckBox);
+                radiusCheckBox,
+                plotSolutionCheckBox);
         setLeft(options);
 
         startButton.setOnAction((e) -> {
@@ -149,7 +155,8 @@ public class GUI extends BorderPane {
                     Integer.valueOf(pca.getText()),
                     radiusCheckBox.isSelected(),
                     Double.valueOf(inputValidationSplit.getText()),
-                    Double.valueOf(radiusMultiplier.getText()));
+                    Double.valueOf(radiusMultiplier.getText()),
+                    plotSolutionCheckBox.isSelected());
         });
         stopButton.setOnAction(event -> AISIGA.stopRunning());
         stopButton.setDisable(true);
@@ -230,20 +237,24 @@ public class GUI extends BorderPane {
         solutionGraph.setAccuracy(accuracy);
     }
 
-    public void createStatisticGraph(int iterations,int graphCount) {
+    public void createStatisticGraph(int iterations,int graphCount, boolean master) {
         graphs = new ArrayList<>();
         graphPane.setAlignment(Pos.TOP_CENTER);
-        graphPane.setVgap(30);
+        graphPane.setVgap(50);
         graphPane.setHgap(50);
         graphPane.setPrefWrapLength(1200);
         //setCenter(graphPane);
         if(graphCount ==1){
-            graphs.add(new StatisticGraph(statisticGraphWidth, statisticGraphHeight, iterations,true));
+            graphs.add(new StatisticGraph(statisticGraphWidth, statisticGraphHeight, iterations,true,true,0));
         }else{
             for(int i=0;i <graphCount;i++){
-                StatisticGraph graph = new StatisticGraph(550, 300, iterations,false);
+                StatisticGraph graph;
+                if(master && i == graphCount-1){
+                    graph = new StatisticGraph(550, 300, iterations,false,false,i);
+                }else{
+                    graph = new StatisticGraph(550, 300, iterations,false,true,i);
+                }
                 //graph.setPadding(new Insets(100, 0, 100, 100));
-
                 graphs.add(graph);
             }
         }
