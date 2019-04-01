@@ -283,10 +283,18 @@ public class AISIGA extends Application {
                 totalBestAccuracy = accuracy;
                 gui.setBestAccuracy(accuracy,0);
             }
-
+            double accuracySum = 0.0;
+            int accuracyCount = 0;
+            for(double ac: accuracies){
+                if(ac != 0.0){
+                    accuracySum += ac;
+                    accuracyCount++;
+                }
+            }
+            gui.setAverageAccuracy(accuracySum/accuracyCount,0);
         }
 
-        double accuracySum = 0.0;
+        /*double accuracySum = 0.0;
             int accuracyCount = 0;
         for(double accuracy: accuracies){
             if(accuracy != 0.0){
@@ -294,7 +302,7 @@ public class AISIGA extends Application {
                 accuracyCount++;
             }
         }
-        gui.setAverageAccuracy(accuracySum/accuracyCount,0);
+        gui.setAverageAccuracy(accuracySum/accuracyCount,0);*/
 
         Platform.runLater(() -> {
             gui.startButton.setDisable(false);
