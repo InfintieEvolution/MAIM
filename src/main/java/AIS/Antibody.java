@@ -23,7 +23,7 @@ public class Antibody {
     private double accuracy;
     private AIS ais;
     private double weightedAccuracy;
-    private int featureSubSet;
+    private boolean[] featureSubSet;
 
     public Antibody(double[] features, double radius, String label, Antigen[] antigens, AIS ais){
         this.features = features;
@@ -39,7 +39,8 @@ public class Antibody {
         this.accuracy = 0.0;
         this.correctInteraction = 0.0;
         this.connectedAntigenOfLabel = new HashMap<>();
-        featureSubSet = features.length-1;
+        featureSubSet = new boolean[features.length];
+        Arrays.fill(featureSubSet, Boolean.TRUE);
     }
 
     public void setConnectedAntigens(){
@@ -240,11 +241,11 @@ public class Antibody {
         this.connectedAntigensSet = connectedAntigensSet;
     }
 
-    public int getFeatureSubSet() {
+    public boolean[] getFeatureSubSet() {
         return featureSubSet;
     }
 
-    public void setFeatureSubSet(int featureSubSet) {
+    public void setFeatureSubSet(boolean[] featureSubSet) {
         this.featureSubSet = featureSubSet;
     }
 

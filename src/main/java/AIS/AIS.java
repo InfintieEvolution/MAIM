@@ -110,7 +110,7 @@ public class AIS {
                 //child.setConnectedAntigens();
                 double p = Math.random();
                 if(p <= this.mutationRate){
-                    this.mutate(child);
+                    this.mutate2(child);
                 }
                 //children[childrenCount ++] = child;
                 newAntibodiesOfLabel.add(child);
@@ -148,28 +148,35 @@ public class AIS {
     }else {
         double rand = Math.random();
         int randomIndex = random.nextInt(antibody.getFeatures().length);
-        if(antibody.getFeatures()[randomIndex] == -1){
-            if(rand > 0.5){
-                antibody.setRadius(antibody.getRadius()*1.1);
-            }else{
-                antibody.setRadius(antibody.getRadius()*0.9);
-            }
-            return;
-        }
         if(rand > 0.5){
             antibody.getFeatures()[randomIndex] *= 1.1;
         }else{
             antibody.getFeatures()[randomIndex] *= 0.9;
         }
     }
-
-    /*p = Math.random();
-    if(p < 0.1){
-        antibody.getFeatures()[random.nextInt(antibody.getFeatures().length)] = -1.0;
-    }else{
-        antibody.getFeatures()[random.nextInt(antibody.getFeatures().length)] = p;
-    }*/
 }
+
+    private void mutate2(Antibody antibody){
+        double p = Math.random();
+        if(p > 0.5){
+            double rand = Math.random();
+            if(rand > 0.5){
+                antibody.setRadius(antibody.getRadius()*1.1);
+            }else{
+                antibody.setRadius(antibody.getRadius()*0.9);
+            }
+        }else {
+            double probability = (double)1/antibody.getFeatures().length;
+            for(int i=0;i<antibody.getFeatures().length;i++){
+                double rand = Math.random();
+                if(rand >= probability){
+                    antibody.getFeatures()[i] *= 1.1;
+                }else{
+                    antibody.getFeatures()[i] *= 0.9;
+                }
+            }
+        }
+    }
 
     private Antibody crossover(Antibody parent1, Antibody parent2){
 
