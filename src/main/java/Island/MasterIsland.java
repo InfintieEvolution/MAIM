@@ -20,6 +20,8 @@ public class MasterIsland {
     Random random = new Random();
     private HashMap<String,ArrayList<Antibody>> recievedAntibodyMap;
     private double currentAccuracy;
+    private HashMap<String, ArrayList<Antigen>> combinedAntigenMap;
+    private boolean populationChanged = false;
 
     public MasterIsland(AIS ais, double migrationRate, double migrationFrequency, ArrayList<Island> allIslands) {
         this.ais = ais;
@@ -28,6 +30,15 @@ public class MasterIsland {
         this.numberOfMigrants = (int) (migrationRate * ais.getPopulationSize());
         this.allIslands = allIslands;
         this.currentAccuracy = 0.0;
+        combinedAntigenMap = new HashMap<>();
+        for(String label: ais.getLabels()){
+            combinedAntigenMap.put(label,new ArrayList<>());
+            if(this.ais.getAntigenMap().containsKey(label)) {
+                combinedAntigenMap.get(label).addAll(this.ais.getAntigenMap().get(label));
+            }if(this.ais.getAntigenValidationMap().containsKey(label)){
+                combinedAntigenMap.get(label).addAll(this.ais.getAntigenValidationMap().get(label));
+            }
+        }
 
         this.migrationSelectionComparator = (o1, o2) -> {
             if (o1.getFitness() > o2.getFitness()) {
@@ -69,13 +80,14 @@ public class MasterIsland {
         for(String label: this.ais.getAntibodyMap().keySet()){
             subPopulationList.addAll(this.ais.getAntibodyMap().get(label));
         }
+
         double integrationModifier = 1.25*((double)this.ais.getIteration()/this.ais.getMaxIterations())*islandIntegrationCount;
 
         islandIntegrationCount += (int)integrationModifier;
         if(islandIntegrationCount > allIslands.size()){
             islandIntegrationCount = allIslands.size(); //make sure integration count is no too large
         }
-        final Antibody[] survivors = new Antibody[subPopulationList.size()*((allIslands.size()-islandIntegrationCount)/allIslands.size())];
+        final Antibody[] survivors = new Antibody[(int)(subPopulationList.size()*((double)(allIslands.size()-islandIntegrationCount)/allIslands.size()))];
 
         subPopulationList.sort(migrationSelectionComparator);
 
@@ -108,7 +120,7 @@ public class MasterIsland {
             HashMap<String,ArrayList<Antibody>> subPopulation = subPopulations[islandCount];
 
             for(String label: allIslands.get(i).getAis().getAntibodyMap().keySet()){
-                subPopulations[islandCount].get(label).addAll(allIslands.get(i).getAis().getAntibodyMap().get(label));
+                subPopulation.get(label).addAll(allIslands.get(i).getAis().getAntibodyMap().get(label));
             }
 
             //add islands to population, but only add islands that have not been added before
@@ -157,14 +169,16 @@ public class MasterIsland {
 
             }*/
             //double accuracy = accuracySum/antigenList.length;
-            double accuracyTest = AIS.vote(this.ais.getAntigenMap(),subPopulation);
+
+            /*double accuracyTest = AIS.vote(this.ais.getAntigenMap(),subPopulation);
             double accuracyValidation = AIS.vote(this.ais.getAntigenValidationMap(),subPopulation);
             double accuracy;
             if(accuracyValidation > 0.0){
                 accuracy = (accuracyTest + accuracyValidation)/2;
             }else{
                 accuracy = accuracyTest;
-            }
+            }*/
+            double accuracy = AIS.vote(combinedAntigenMap,subPopulation);
             if(accuracy > bestIslandAccuracy){
                 bestIslandIndex = islandCount;
                 bestIslandAccuracy = accuracy;
@@ -172,9 +186,12 @@ public class MasterIsland {
             islandCount++;
         }
 
-        if(bestIslandAccuracy > currentAccuracy){
+        if(bestIslandAccuracy >= currentAccuracy){
             this.ais.setAntibodyMap(subPopulations[bestIslandIndex]);
             currentAccuracy = bestIslandAccuracy;
+            populationChanged = true;
+        }else{
+            populationChanged = false;
         }
     }
 
@@ -285,5 +302,13 @@ public class MasterIsland {
 
     public void setRecievedAntibodyMap(HashMap<String, ArrayList<Antibody>> recievedAntibodyMap) {
         this.recievedAntibodyMap = recievedAntibodyMap;
+    }
+
+    public boolean isPopulationChanged() {
+        return populationChanged;
+    }
+
+    public void setPopulationChanged(boolean populationChanged) {
+        this.populationChanged = populationChanged;
     }
 }

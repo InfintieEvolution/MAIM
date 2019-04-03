@@ -27,8 +27,6 @@ public class AIS {
     private double averageFitness;
     private double radiusMultiplier;
     private int offspringSize;
-//    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations,Set<Integer>[] featureSubsets, double radiusMultiplier){
-
     public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations, double radiusMultiplier){
         this.antigens = antigens;
         this.antigenMap = antigenMap;
@@ -71,7 +69,7 @@ public class AIS {
             return 0;
         };
 
-        initialisePopulation(this.populationSize,false);
+        initialisePopulation(this.populationSize,true);
     }
 
     public void iterate(){
@@ -110,7 +108,7 @@ public class AIS {
                 //child.setConnectedAntigens();
                 double p = Math.random();
                 if(p <= this.mutationRate){
-                    this.mutate2(child);
+                    this.mutate(child);
                 }
                 //children[childrenCount ++] = child;
                 newAntibodiesOfLabel.add(child);
@@ -136,27 +134,8 @@ public class AIS {
 
     }
 
-    private void mutate(Antibody antibody){
-    double p = Math.random();
-    if(p > 0.5){
-        double rand = Math.random();
-        if(rand > 0.5){
-            antibody.setRadius(antibody.getRadius()*1.1);
-        }else{
-            antibody.setRadius(antibody.getRadius()*0.9);
-        }
-    }else {
-        double rand = Math.random();
-        int randomIndex = random.nextInt(antibody.getFeatures().length);
-        if(rand > 0.5){
-            antibody.getFeatures()[randomIndex] *= 1.1;
-        }else{
-            antibody.getFeatures()[randomIndex] *= 0.9;
-        }
-    }
-}
 
-    private void mutate2(Antibody antibody){
+    private void mutate(Antibody antibody){
         double p = Math.random();
         if(p > 0.5){
             double rand = Math.random();
@@ -176,6 +155,8 @@ public class AIS {
                 }
             }
         }
+        //int randomIndex = random.nextInt(antibody.getFeatures().length);
+        //antibody.getInactiveFeatures()[randomIndex] = !antibody.getInactiveFeatures()[randomIndex];
     }
 
     private Antibody crossover(Antibody parent1, Antibody parent2){
@@ -189,16 +170,22 @@ public class AIS {
                 features[i] = parent2.getFeatures()[i];
             }
         }
-
-        return new Antibody(features,this.calculateNewRadius(parent1,parent2),parent1.getLabel(),this.antigens,this);
+        Antibody antibody = new Antibody(features,this.calculateNewRadius(parent1,parent2),parent1.getLabel(),this.antigens,this);
+        /*double rand = Math.random();
+        if(rand < 0.5){
+            antibody.setInactiveFeatures(parent1.getInactiveFeatures());
+        }else{
+            antibody.setInactiveFeatures(parent2.getInactiveFeatures());
+        }*/
+        return antibody;
     }
 
     private double calculateNewRadius(Antibody parent1, Antibody parent2){
         double radius;
         if(parent1.getFitness() > parent2.getFitness()){
-            radius = parent1.getFitness();
+            radius = parent1.getRadius();
         }else{
-            radius = parent2.getFitness();
+            radius = parent2.getRadius();
         }
 
         double rand = Math.random();
@@ -392,10 +379,20 @@ public class AIS {
             double maxAverage = 0;
             double minAverage = 0;
 
+            double overallMax = Double.NEGATIVE_INFINITY;
+            double overallMin = Double.MAX_VALUE;
+
             for(int i=0; i<featureMap.get(label).length;i++){
                 double[] featureBounds = featureMap.get(label)[i];
                 double maxValue = featureBounds[1]*1.1;
                 double minValue = featureBounds[0]*0.9;
+
+                /*if(minValue < overallMin){
+                    overallMin = minValue;
+                }
+                if(maxValue > overallMax){
+                    overallMax  = maxValue;
+                }*/
 
                 maxAverage += maxValue;
                 minAverage += minValue;
@@ -409,7 +406,7 @@ public class AIS {
 
             //TODO: Make initial radius better
             double radius = (minAverage + (maxAverage - minAverage) * random.nextDouble()) + (featureMap.get(label).length * radiusMultiplier);
-
+            //double radius = (overallMin + (overallMax - overallMin) * random.nextDouble()) + (featureMap.get(label).length * radiusMultiplier);
 
             Antibody antibody = new Antibody(attributes, radius, label, this.antigens,this);
             if(!shouldBeConnected){

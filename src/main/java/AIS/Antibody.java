@@ -23,7 +23,7 @@ public class Antibody {
     private double accuracy;
     private AIS ais;
     private double weightedAccuracy;
-    private boolean[] featureSubSet;
+    private boolean[] inactiveFeatures;
 
     public Antibody(double[] features, double radius, String label, Antigen[] antigens, AIS ais){
         this.features = features;
@@ -39,8 +39,7 @@ public class Antibody {
         this.accuracy = 0.0;
         this.correctInteraction = 0.0;
         this.connectedAntigenOfLabel = new HashMap<>();
-        featureSubSet = new boolean[features.length];
-        Arrays.fill(featureSubSet, Boolean.TRUE);
+        //this.inactiveFeatures = new boolean[features.length];
     }
 
     public void setConnectedAntigens(){
@@ -108,7 +107,9 @@ public class Antibody {
             }
             double representation = ais.getAntibodyMap().get(this.label).size()/sum;
 
-            this.fitness = (sharingFactor*weightedAccuracy)/totalInteraction;
+            //this.fitness = (sharingFactor*weightedAccuracy)/totalInteraction;
+            //this.fitness = sharingFactor + weightedAccuracy + (totalInteraction/100);
+            this.fitness = ((sharingFactor*weightedAccuracy)/(totalInteraction));
         }
     }
 
@@ -147,6 +148,9 @@ public class Antibody {
 
         double eucledeanDistance = 0.0;
         for (int i=0;i<featureSet1.length;i++){
+            /*if(inactiveFeatures[i]){
+                continue;
+            }*/
             eucledeanDistance += Math.pow(featureSet1[i] - featureSet2[i],2);
         }
 
@@ -240,15 +244,13 @@ public class Antibody {
     public void setConnectedAntigensSet(boolean connectedAntigensSet) {
         this.connectedAntigensSet = connectedAntigensSet;
     }
-
-    public boolean[] getFeatureSubSet() {
-        return featureSubSet;
+    public boolean[] getInactiveFeatures() {
+        return inactiveFeatures;
     }
 
-    public void setFeatureSubSet(boolean[] featureSubSet) {
-        this.featureSubSet = featureSubSet;
+    public void setInactiveFeatures(boolean[] inactiveFeatures) {
+        this.inactiveFeatures = inactiveFeatures;
     }
-
     @Override
     public String toString() {
         return

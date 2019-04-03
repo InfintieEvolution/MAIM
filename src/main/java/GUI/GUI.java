@@ -80,14 +80,11 @@ public class GUI extends BorderPane {
 
     private HBox menu;
     private VBox menuWrapper;
-    private ArrayList<HashMap<String,ArrayList<Antibody>>> antibodyGenerations;
-
-    private ChoiceBox<String> iterationBox;
+    public ChoiceBox<String> setBox = new ChoiceBox<>();
 
     public GUI(Stage primaryStage, AISIGA AISIGA){
 
         super();
-        this.antibodyGenerations = null;
         this.primaryStage = primaryStage;
         this.AISIGA = AISIGA;
         final Scene scene = new Scene(this, sceneWidth, sceneHeight);
@@ -107,6 +104,7 @@ public class GUI extends BorderPane {
         dataSetBox.setPrefWidth(150);
         masterIslandCheckBox.setSelected(true);
         plotSolutionCheckBox.setSelected(true);
+        radiusCheckBox.setSelected(true);
         menu = new HBox(5);
         //menu.setPadding(new Insets(5,0,10,0));
         menu.setAlignment(Pos.CENTER);
@@ -163,60 +161,91 @@ public class GUI extends BorderPane {
         primaryStage.show();
     }
 
-    public void setAntibodyGenerations(ArrayList<HashMap<String,ArrayList<Antibody>>> antibodyGenerations, HashMap<String,ArrayList<Antigen>> antigenMap, HashMap<String,ArrayList<Antigen>> antigenTestMap, HashMap<String,ArrayList<Antibody>> antibodyTestMap,ArrayList<Double> antibodyGenerationAccuracies, boolean radiusPlot){
-        this.antibodyGenerations = antibodyGenerations;
+    public void setAntibodyGenerations(ArrayList<HashMap<String,ArrayList<Antibody>>> antibodyGenerations[], int[] bestIterations, ArrayList<Double> antibodyGenerationAccuracies[],HashMap<String,ArrayList<Antigen>> antigenMap, HashMap<String,ArrayList<Antigen>> antigenTestMap, boolean radiusPlot){
+        //this.antibodyGenerations = antibodyGenerations;
 
+        setBox = new ChoiceBox<>();
+        setBox.getItems().setAll(islandList(antibodyGenerations.length));
         HBox menu2 = new HBox(5);
         menu2.setAlignment(Pos.CENTER);
-        menu2.getChildren().setAll(new Text("View iteration 0-"+(antibodyGenerations.size()-1)+":"),iterationTextField);
+        menu2.getChildren().setAll(new Text("View iteration 0-"+(antibodyGenerations[antibodyGenerations.length-1].size()-1)+":"),iterationTextField,new Text("at island:"),setBox);
         menuWrapper.getChildren().setAll(menu,menu2);
+        setBox.getSelectionModel().selectLast();
 
+        setBox.setOnAction((e) -> {
+            setBestAccuracyIteration(antibodyGenerationAccuracies[Integer.parseInt(setBox.getValue())-1].get(bestIterations[Integer.parseInt(setBox.getValue())-1]), bestIterations[Integer.parseInt(setBox.getValue())-1]);
+            boolean isInteger = tryParseInt(iterationTextField.getText());
+            if(!isInteger){
+                this.drawSolution(antigenTestMap,antibodyGenerations[Integer.parseInt(setBox.getValue())-1].get(bestIterations[Integer.parseInt(setBox.getValue())-1]),0.0,radiusPlot);
+            }else{
+                int iteration = Integer.valueOf(iterationTextField.getText());
+                int islandNumber = Integer.parseInt(setBox.getValue())-1;
+                if(iteration >= 0 && iteration <antibodyGenerations[islandNumber].size()){
+                    HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations[islandNumber].get(iteration);
+                    double accuracy = antibodyGenerationAccuracies[islandNumber].get(iteration);
+                    this.drawSolution(antigenMap,antibodyMap,accuracy,radiusPlot);
+                }
+            }
+        });
+
+        //setBestAccuracyIteration(ais.getBestAccuracy(), ais.getBestIteration());
         iterationTextField.setText("Test");
         iterationTextField.setOnKeyPressed((e) ->{
             boolean isInteger = tryParseInt(iterationTextField.getText());
             if(e.getCode() == KeyCode.ENTER){
                 if(!isInteger){
-                    this.drawSolution(antigenTestMap,antibodyTestMap,0.0,radiusPlot);
+                    this.drawSolution(antigenTestMap,antibodyGenerations[Integer.parseInt(setBox.getValue())-1].get(bestIterations[Integer.parseInt(setBox.getValue())-1]),0.0,radiusPlot);
                 }else{
                     int iteration = Integer.valueOf(iterationTextField.getText());
-                    if(iteration >= 0 && iteration <antibodyGenerations.size()){
-                        HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations.get(iteration);
-                        double accuracy = antibodyGenerationAccuracies.get(iteration);
+                    int islandNumber = Integer.parseInt(setBox.getValue())-1;
+                    if(iteration >= 0 && iteration <antibodyGenerations[islandNumber].size()){
+                        HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations[islandNumber].get(iteration);
+                        double accuracy = antibodyGenerationAccuracies[islandNumber].get(iteration);
                         this.drawSolution(antigenMap,antibodyMap,accuracy,radiusPlot);
                     }
                 }
             }
             else if(e.getCode() == KeyCode.DOWN && isInteger){
                 int iteration = Integer.valueOf(iterationTextField.getText())-1;
-                if(iteration >= 0 && iteration <antibodyGenerations.size()){
-                    HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations.get(iteration);
-                    double accuracy = antibodyGenerationAccuracies.get(iteration);
+                int islandNumber = Integer.parseInt(setBox.getValue())-1;
+                if(iteration >= 0 && iteration <antibodyGenerations[islandNumber].size()){
+                    HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations[islandNumber].get(iteration);
+                    double accuracy = antibodyGenerationAccuracies[islandNumber].get(iteration);
                     this.drawSolution(antigenMap,antibodyMap,accuracy,radiusPlot);
                     iterationTextField.setText(Integer.toString(iteration));
                 }
             }else if(e.getCode() == KeyCode.DOWN){
-                int iteration = antibodyGenerations.size()-1;
-                HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations.get(iteration);
-                double accuracy = antibodyGenerationAccuracies.get(iteration);
+                int islandNumber = Integer.parseInt(setBox.getValue())-1;
+                int iteration = antibodyGenerations[islandNumber].size()-1;
+                HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations[islandNumber].get(iteration);
+                double accuracy = antibodyGenerationAccuracies[islandNumber].get(iteration);
                 this.drawSolution(antigenMap,antibodyMap,accuracy,radiusPlot);
                 iterationTextField.setText(Integer.toString(iteration));
             }
             else if(e.getCode() == KeyCode.UP && isInteger){
                 int iteration = Integer.valueOf(iterationTextField.getText())+1;
-                if(iteration >= 0 && iteration < antibodyGenerations.size()){
-                    HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations.get(iteration);
-                    double accuracy = antibodyGenerationAccuracies.get(iteration);
+                int islandNumber = Integer.parseInt(setBox.getValue())-1;
+                if(iteration >= 0 && iteration < antibodyGenerations[islandNumber].size()){
+                    HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations[islandNumber].get(iteration);
+                    double accuracy = antibodyGenerationAccuracies[islandNumber].get(iteration);
                     this.drawSolution(antigenMap,antibodyMap,accuracy,radiusPlot);
                     iterationTextField.setText(Integer.toString(iteration));
-                }else if(iteration == antibodyGenerations.size()){
+                }else if(iteration == antibodyGenerations[islandNumber].size()){
                     iterationTextField.setText("Test");
-                    this.drawSolution(antigenTestMap,antibodyTestMap,0.0,radiusPlot);
+                    this.drawSolution(antigenTestMap,antibodyGenerations[Integer.parseInt(setBox.getValue())-1].get(bestIterations[Integer.parseInt(setBox.getValue())-1]),0.0,radiusPlot);
                 }
             }
         });
     }
+    public String[] islandList(int islandCount) {
+        String[] islandCountArray = new String[islandCount];
+        for(int i=0;i<islandCount;i++){
+            islandCountArray[i] = i+1+"";
+        }
+        return islandCountArray;
+    }
 
-    private boolean tryParseInt(String value) {
+        private boolean tryParseInt(String value) {
         try {
             Integer.parseInt(value);
             return true;
@@ -290,4 +319,5 @@ public class GUI extends BorderPane {
     public void setBestAccuracyIteration(double accuracy, int iteration) {
         solutionGraph.setBestAccuracyIteration(accuracy, iteration);
     }
+
 }

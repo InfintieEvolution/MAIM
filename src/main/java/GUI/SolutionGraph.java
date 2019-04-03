@@ -47,11 +47,9 @@ public class SolutionGraph extends Pane {
         this.antibodyMap = antibodyMap;
         this.width = width;
         setRandomColors(this.featureMap);
-        setBounds(featureMap, antibodyMap);
+        setBounds(featureMap, antibodyMap,false);
         this.accuracy = 0.0;
         this.height = height;
-        this.factorX = width / Math.abs(this.maxX - this.minX);
-        this.factorY = height / Math.abs(this.maxY - this.minY);
 
         accuracyText.setY(height+40);
         accuracyText.setX(((width/2)*0.5)+100);
@@ -63,7 +61,7 @@ public class SolutionGraph extends Pane {
     }
 
     public void drawSolutionGraph(HashMap<String, ArrayList<Antigen>> antigenMap,HashMap<String, ArrayList<Antibody>> antibodyMap, double accuracy, boolean radiusPlot){
-        setBounds(featureMap,antibodyMap);
+        setBounds(featureMap,antibodyMap,radiusPlot);
         this.factorX = width / Math.abs(this.maxX - this.minX);
         this.factorY = height / Math.abs(this.maxY - this.minY);
         this.accuracy = accuracy;
@@ -164,7 +162,7 @@ public class SolutionGraph extends Pane {
         }
     }
 
-    private void setBounds(HashMap<String, double[][]> featureMap, HashMap<String, ArrayList<Antibody>> antibodyMap) {
+    private void setBounds(HashMap<String, double[][]> featureMap, HashMap<String, ArrayList<Antibody>> antibodyMap, boolean radiusPlot) {
         double lowestValuedFeatureX = Double.MAX_VALUE;
         double highestValuedFeatureX = Double.NEGATIVE_INFINITY;
 
@@ -193,26 +191,47 @@ public class SolutionGraph extends Pane {
             }
         }
 
-        for (String antibodyLabel : antibodyMap.keySet()){
-            for(Antibody antibody : antibodyMap.get(antibodyLabel)){
-                var features = antibody.getFeatures();
+        if(radiusPlot){
+            for (String antibodyLabel : antibodyMap.keySet()){
+                for(Antibody antibody : antibodyMap.get(antibodyLabel)){
+                    var features = antibody.getFeatures();
 
-                if (features[0] < lowestValuedFeatureX) {
-                    lowestValuedFeatureX = features[0];
-                }
-                if (features[0] > highestValuedFeatureX) {
-                    highestValuedFeatureX = features[0];
-                }
+                    if (features[0] -antibody.getRadius() < lowestValuedFeatureX) {
+                        lowestValuedFeatureX = features[0] -antibody.getRadius();
+                    }
+                    if (features[0] +antibody.getRadius() > highestValuedFeatureX) {
+                        highestValuedFeatureX = features[0] +antibody.getRadius();
+                    }
 
-                if (features[1]< lowestValuedFeatureY) {
-                    lowestValuedFeatureY = features[1];
+                    if (features[1] -antibody.getRadius() < lowestValuedFeatureY) {
+                        lowestValuedFeatureY = features[1] -antibody.getRadius();
+                    }
+                    if (features[1] + antibody.getRadius() > highestValuedFeatureY) {
+                        highestValuedFeatureY = features[1] + antibody.getRadius();
+                    }
                 }
-                if (features[1]> highestValuedFeatureY) {
-                    highestValuedFeatureY = features[1];
+            }
+        }else{
+            for (String antibodyLabel : antibodyMap.keySet()){
+                for(Antibody antibody : antibodyMap.get(antibodyLabel)){
+                    var features = antibody.getFeatures();
+
+                    if (features[0] < lowestValuedFeatureX) {
+                        lowestValuedFeatureX = features[0];
+                    }
+                    if (features[0] > highestValuedFeatureX) {
+                        highestValuedFeatureX = features[0];
+                    }
+
+                    if (features[1]< lowestValuedFeatureY) {
+                        lowestValuedFeatureY = features[1];
+                    }
+                    if (features[1]> highestValuedFeatureY) {
+                        highestValuedFeatureY = features[1];
+                    }
                 }
             }
         }
-
         this.minX = lowestValuedFeatureX;
         this.minY = lowestValuedFeatureY;
         this.maxX = highestValuedFeatureX;
@@ -229,6 +248,9 @@ public class SolutionGraph extends Pane {
         }else{
             maxX = maxY;
         }
+
+        this.factorX = width / Math.abs(this.maxX - this.minX);
+        this.factorY = height / Math.abs(this.maxY - this.minY);
     }
 
     void setAccuracy(double accuracy) {
