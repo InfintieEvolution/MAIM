@@ -113,14 +113,6 @@ public class AISIGA extends Application {
                     iga.migrateMaster(islandIntegrationCount);
                 }
 
-
-                /*double accuracy;
-                if(iga.hasMaster()){
-                    accuracy = iga.getMasterIsland().getCurrentAccuracy();
-                    antibodyGenerationAccuracies[numberOfIslands-1].add(accuracy);
-                    antibodyGenerations[numberOfIslands-1].add(AIS.copy(ais.getAntibodyMap()));
-                }*/
-
                 if(iga.hasMaster()){
                     double accuracy = iga.getMasterIsland().getCurrentAccuracy();
                     /*int sum=0;
@@ -144,7 +136,7 @@ public class AISIGA extends Application {
 
                 for (int j = 0; j < allAIS.size(); j++) {
                     AIS someAIS = allAIS.get(j);
-                    double accuracy = AIS.vote(someAIS.getAntigenMap(), someAIS.getAntibodyMap());
+                    double accuracy = AIS.vote(someAIS.getAntigenMap(), someAIS.getAntibodyMap(),someAIS);
                     if(plotSolution) {
                         antibodyGenerationAccuracies[j].add(accuracy);
                         antibodyGenerations[j].add(AIS.copy(someAIS.getAntibodyMap()));
@@ -166,7 +158,7 @@ public class AISIGA extends Application {
                 double accuracy = iga.getMasterIsland().getCurrentAccuracy();
                 if(plotSolution) {
                     antibodyGenerations[islandCount - 1].add(iga.getMasterIsland().getAis().getAntibodyMap());
-                    antibodyGenerationAccuracies[islandCount - 1].add(AIS.vote(iga.getMasterIsland().getAis().getAntigenMap(), iga.getMasterIsland().getAis().getAntibodyMap()));
+                    antibodyGenerationAccuracies[islandCount - 1].add(AIS.vote(iga.getMasterIsland().getAis().getAntigenMap(), iga.getMasterIsland().getAis().getAntibodyMap(),null));
                 }
                 gui.addIteration(accuracy, false,islandCount-1);
                 if (accuracy >= iga.getMasterIsland().getAis().getBestAccuracy() && iga.getMasterIsland().isPopulationChanged()) {
@@ -178,7 +170,7 @@ public class AISIGA extends Application {
             }
             for (int j = 0; j < allAIS.size(); j++) {
                 AIS someAIS = allAIS.get(j);
-                double accuracy = AIS.vote(someAIS.getAntigenMap(), someAIS.getAntibodyMap());
+                double accuracy = AIS.vote(someAIS.getAntigenMap(), someAIS.getAntibodyMap(),someAIS);
                 if(plotSolution) {
                     antibodyGenerationAccuracies[j].add(accuracy);
                     antibodyGenerations[j].add(AIS.copy(someAIS.getAntibodyMap()));
@@ -310,17 +302,17 @@ public class AISIGA extends Application {
                     if(iga.hasMaster()){
                         accuracy = iga.getMasterIsland().getCurrentAccuracy();
                     }else{
-                        accuracy = AIS.vote(ais.getAntigenMap(), ais.getAntibodyMap());
+                        accuracy = AIS.vote(ais.getAntigenMap(), ais.getAntibodyMap(),null);
                     }
 
-                    if (accuracy > ais.getBestAccuracy()) {
+                    if (accuracy >= ais.getBestAccuracy()) {
                         ais.setBestAccuracy(accuracy);
                         ais.setBestIteration(i);
                     }
 
                     for (int m = 0; m < allAIS.size(); m++) {
                         AIS someAIS = allAIS.get(m);
-                        accuracy = AIS.vote(someAIS.getAntigenMap(), someAIS.getAntibodyMap());
+                        accuracy = AIS.vote(someAIS.getAntigenMap(), someAIS.getAntibodyMap(),someAIS);
                         someAIS.setCurrentAccuracy(accuracy);
                         someAIS.iterate();
                     }
@@ -330,7 +322,7 @@ public class AISIGA extends Application {
 
             HashMap<String, ArrayList<Antibody>> bestGeneration =  antibodyGenerations.get(ais.getBestIteration());
 
-            double accuracy =AIS.vote(testSetMap,bestGeneration);
+            double accuracy =AIS.vote(testSetMap,bestGeneration,null);
             gui.addIteration(accuracy, false,0);
             accuracies[j] = accuracy;
 

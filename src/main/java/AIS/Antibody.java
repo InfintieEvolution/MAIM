@@ -93,22 +93,28 @@ public class Antibody {
         }else{
             this.accuracy = (double) correctClassificationCount/(boundAntigensCount);
             double sharingFactor = 0.0;
+            /*double danger = 1.0;
+            double dangerousIndividuals = 1.0;
+            int individuals = 1;*/
             for(Antigen antigen: connectedAntigen.keySet()){
                 double weight = connectedAntigen.get(antigen);
-
-
-                sharingFactor += Math.pow(weight,2)/antigen.getInteractionMap().get(this.getAis()); //part of the antigen that belongs to the antibody
-
+                /*if(antigen.getLabel().equals(this.getLabel()) && antigen.getDangerMap().containsKey(this.ais)){
+                    danger += antigen.getDangerMap().get(this.ais)/ais.getIteration();
+                    dangerousIndividuals +=1;
+                }
+                individuals += 1;*/
+                //if(antigen.getLabel().equals(this.getLabel()) && weight == antigen.getTotalInteraction()){
+                    //sharingFactor += Math.pow(weight,2)/antigen.getInteractionMap().get(this.getAis()); //part of the antigen that belongs to the antibody
+                    sharingFactor += Math.pow(weight,2)/antigen.getTotalInteraction(); //part of the antigen that belongs to the antibody
+                /*}else {
+                    sharingFactor += Math.pow(weight,1)/antigen.getInteractionMap().get(this.getAis()); //part of the antigen that belongs to the antibody
+                }*/
             }
-            double sum = 0.0;
-
-            for(String label: ais.getAntibodyMap().keySet()){
-                sum += ais.getAntibodyMap().get(label).size();
+            /*if(danger > 1.0){
+                danger = danger/individuals;
             }
-            double representation = ais.getAntibodyMap().get(this.label).size()/sum;
+            System.out.println(danger);*/
 
-            //this.fitness = (sharingFactor*weightedAccuracy)/totalInteraction;
-            //this.fitness = sharingFactor + weightedAccuracy + (totalInteraction/100);
             this.fitness = ((sharingFactor*weightedAccuracy)/(totalInteraction));
         }
     }

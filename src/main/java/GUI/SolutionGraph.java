@@ -77,7 +77,7 @@ public class SolutionGraph extends Pane {
         if(accuracy > 0.0){
             setAccuracy(this.accuracy);
         }else{
-            setAccuracy(AIS.vote(this.antigenMap,this.antibodyMap));
+            setAccuracy(AIS.vote(this.antigenMap,this.antibodyMap,null));
         }
     }
     public void setAntigens(HashMap<String, ArrayList<Antigen>> antigenMap) {

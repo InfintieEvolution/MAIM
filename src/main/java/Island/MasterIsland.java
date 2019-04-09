@@ -74,6 +74,10 @@ public class MasterIsland {
     }
 
     public void select(int islandIntegrationCount){
+        if(islandIntegrationCount == allIslands.size()){
+            incorporateAllIslands();
+            return;
+        }
         this.ais.setIteration(this.ais.getIteration()+1);
         ArrayList<Antibody> subPopulationList = new ArrayList<>();
 
@@ -178,7 +182,7 @@ public class MasterIsland {
             }else{
                 accuracy = accuracyTest;
             }*/
-            double accuracy = AIS.vote(combinedAntigenMap,subPopulation);
+            double accuracy = AIS.vote(combinedAntigenMap,subPopulation,null);
             if(accuracy > bestIslandAccuracy){
                 bestIslandIndex = islandCount;
                 bestIslandAccuracy = accuracy;
@@ -189,6 +193,28 @@ public class MasterIsland {
         if(bestIslandAccuracy >= currentAccuracy){
             this.ais.setAntibodyMap(subPopulations[bestIslandIndex]);
             currentAccuracy = bestIslandAccuracy;
+            populationChanged = true;
+        }else{
+            populationChanged = false;
+        }
+    }
+
+    public void incorporateAllIslands(){
+        HashMap<String,ArrayList<Antibody>> population = new HashMap<>();
+        for(String label: this.ais.getLabels()){
+            population.put(label,new ArrayList<>());
+        }
+
+        for(int i=0; i<allIslands.size();i++){
+            for(String label: allIslands.get(i).getAis().getAntibodyMap().keySet()){
+                population.get(label).addAll(allIslands.get(i).getAis().getAntibodyMap().get(label));
+            }
+        }
+
+        double accuracy = AIS.vote(combinedAntigenMap,population,null);
+        if(accuracy >= currentAccuracy){
+            this.ais.setAntibodyMap(population);
+            currentAccuracy = accuracy;
             populationChanged = true;
         }else{
             populationChanged = false;
@@ -213,8 +239,8 @@ public class MasterIsland {
         }
 
         for(int i=0;i<newAntibodyMaps.length;i++){
-            double accuracyTest = AIS.vote(this.ais.getAntigenMap(),newAntibodyMaps[i]);
-            double accuracyValidation = AIS.vote(this.ais.getAntigenValidationMap(),newAntibodyMaps[i]);
+            double accuracyTest = AIS.vote(this.ais.getAntigenMap(),newAntibodyMaps[i],null);
+            double accuracyValidation = AIS.vote(this.ais.getAntigenValidationMap(),newAntibodyMaps[i],null);
             double accuracy;
             if(accuracyValidation > 0.0){
                 accuracy = (accuracyTest + accuracyValidation)/2;
@@ -244,8 +270,8 @@ public class MasterIsland {
 
         newAntibodyMap = AIS.fitnessProportionateSelection(newAntibodyMap,ais.getPopulationSize(),ais.getLabels());
 
-        double accuracyTest = AIS.vote(this.ais.getAntigenMap(),newAntibodyMap);
-        double accuracyValidation = AIS.vote(this.ais.getAntigenValidationMap(),newAntibodyMap);
+        double accuracyTest = AIS.vote(this.ais.getAntigenMap(),newAntibodyMap,null);
+        double accuracyValidation = AIS.vote(this.ais.getAntigenValidationMap(),newAntibodyMap,null);
         double accuracy;
         if(accuracyValidation > 0.0){
             accuracy = (accuracyTest + accuracyValidation)/2;

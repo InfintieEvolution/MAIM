@@ -171,12 +171,8 @@ public class AIS {
             }
         }
         Antibody antibody = new Antibody(features,this.calculateNewRadius(parent1,parent2),parent1.getLabel(),this.antigens,this);
-        /*double rand = Math.random();
-        if(rand < 0.5){
-            antibody.setInactiveFeatures(parent1.getInactiveFeatures());
-        }else{
-            antibody.setInactiveFeatures(parent2.getInactiveFeatures());
-        }*/
+
+
         return antibody;
     }
 
@@ -420,7 +416,7 @@ public class AIS {
         }
     }
 
-    public static double vote(HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antibody>> antibodyMap) {
+    public static double vote(HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antibody>> antibodyMap, AIS ais) {
         HashMap<Antigen, String> antigenClassification = new HashMap<>();
         for(String antigenLabel: antigenMap.keySet()){
             for (Antigen antigen : antigenMap.get(antigenLabel)) {
@@ -464,7 +460,11 @@ public class AIS {
             for (Antigen antigen : antigenMap.get(antigenLabel)) {
                 if (antigen.getLabel().equals(antigenClassification.get(antigen))) {
                     correctClassification++;
-                }
+                }/*else{
+                    if(ais != null){
+                        antigen.addDanger(ais,1);
+                    }
+                }*/
                 antigenCount++;
             }
         }

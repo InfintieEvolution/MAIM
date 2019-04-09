@@ -12,6 +12,8 @@ public class Antigen {
     private ArrayList<Antibody> connectedAntibodies;
     private double totalInteraction;
     private HashMap<AIS,Double> interactionMap;
+    private HashMap<AIS,Double> dangerMap;
+
     public Antigen(double[] attributes, String label){
 
         this.attributes = attributes;
@@ -19,7 +21,9 @@ public class Antigen {
         this.connectedAntibodies = new ArrayList<>();
         this.totalInteraction = 0.0;
         this.interactionMap = new HashMap<>();
+        this.dangerMap = new HashMap<>();
     }
+
 
     public double getTotalInteraction() {
         return totalInteraction;
@@ -67,6 +71,14 @@ public class Antigen {
         }
 
     }
+    public void addDanger(AIS ais, double danger){
+        if(dangerMap.containsKey(ais)){
+            this.dangerMap.put(ais,this.dangerMap.get(ais) +danger);
+        }else{
+            this.dangerMap.put(ais,danger);
+        }
+    }
+
     public static HashMap<String,ArrayList<Antigen>> createAntigenMap(Antigen[] antigens){
         HashMap<String,ArrayList<Antigen>> antigenMap = new HashMap<>();
 
@@ -78,6 +90,14 @@ public class Antigen {
             }
         }
         return antigenMap;
+    }
+
+    public HashMap<AIS, Double> getDangerMap() {
+        return dangerMap;
+    }
+
+    public void setDangerMap(HashMap<AIS, Double> dangerMap) {
+        this.dangerMap = dangerMap;
     }
 
     @Override
