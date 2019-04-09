@@ -244,7 +244,7 @@ public class Island {
         ArrayList<Antibody> receivingAntibodies = sendingIsland.sendAllRandomNew();
         ArrayList<Antibody> newAntibodies = new ArrayList<>();
         for (Antibody antibody : receivingAntibodies){
-            var newAntibody = new Antibody(antibody.getFeatures(), antibody.getRadius(), antibody.getLabel(), this.getAis().getAntigens(), this.getAis());
+            var newAntibody = new Antibody(antibody.getFeatures(), antibody.getRadius(), antibody.getLabel(), this.getAis().getAntigens(), this.getAis(),antibody.getActiveFeatures());
             newAntibodies.add(newAntibody);
 
             this.getAis().getAntibodyMap().get(antibody.getLabel()).add(newAntibody);

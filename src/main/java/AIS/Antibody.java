@@ -23,9 +23,9 @@ public class Antibody {
     private double accuracy;
     private AIS ais;
     private double weightedAccuracy;
-    private boolean[] inactiveFeatures;
+    private boolean[] activeFeatures;
 
-    public Antibody(double[] features, double radius, String label, Antigen[] antigens, AIS ais){
+    public Antibody(double[] features, double radius, String label, Antigen[] antigens, AIS ais, boolean[] activeFeatures){
         this.features = features;
         this.radius = radius;
         this.label = label;
@@ -39,9 +39,22 @@ public class Antibody {
         this.accuracy = 0.0;
         this.correctInteraction = 0.0;
         this.connectedAntigenOfLabel = new HashMap<>();
-        //this.inactiveFeatures = new boolean[features.length];
+        this.activeFeatures = new boolean[features.length];
+        if(activeFeatures == null){
+            initializeFeatureSet();
+        }else{
+            this.activeFeatures = activeFeatures;
+        }
     }
 
+    public void initializeFeatureSet(){
+        for (int i=0; i<activeFeatures.length;i++){
+            double p = Math.random();
+            if(p<0.5){
+                activeFeatures[i] = !activeFeatures[i];
+            }
+        }
+    }
     public void setConnectedAntigens(){
         //Connected antigens has been calculated before, we only need to re-add the connected antigen
         if(this.connectedAntigensSet){
@@ -93,6 +106,7 @@ public class Antibody {
         }else{
             this.accuracy = (double) correctClassificationCount/(boundAntigensCount);
             double sharingFactor = 0.0;
+            int connectedIndividuals = 0;
             /*double danger = 1.0;
             double dangerousIndividuals = 1.0;
             int individuals = 1;*/
@@ -106,10 +120,12 @@ public class Antibody {
                 //if(antigen.getLabel().equals(this.getLabel()) && weight == antigen.getTotalInteraction()){
                     //sharingFactor += Math.pow(weight,2)/antigen.getInteractionMap().get(this.getAis()); //part of the antigen that belongs to the antibody
                     sharingFactor += Math.pow(weight,2)/antigen.getTotalInteraction(); //part of the antigen that belongs to the antibody
+                    //connectedIndividuals++;
                 /*}else {
                     sharingFactor += Math.pow(weight,1)/antigen.getInteractionMap().get(this.getAis()); //part of the antigen that belongs to the antibody
                 }*/
             }
+            //sharingFactor /= connectedIndividuals;
             /*if(danger > 1.0){
                 danger = danger/individuals;
             }
@@ -154,7 +170,7 @@ public class Antibody {
 
         double eucledeanDistance = 0.0;
         for (int i=0;i<featureSet1.length;i++){
-            /*if(inactiveFeatures[i]){
+            /*if(!activeFeatures[i]){
                 continue;
             }*/
             eucledeanDistance += Math.pow(featureSet1[i] - featureSet2[i],2);
@@ -250,12 +266,12 @@ public class Antibody {
     public void setConnectedAntigensSet(boolean connectedAntigensSet) {
         this.connectedAntigensSet = connectedAntigensSet;
     }
-    public boolean[] getInactiveFeatures() {
-        return inactiveFeatures;
+    public boolean[] getActiveFeatures() {
+        return activeFeatures;
     }
 
-    public void setInactiveFeatures(boolean[] inactiveFeatures) {
-        this.inactiveFeatures = inactiveFeatures;
+    public void setActiveFeatures(boolean[] inactiveFeatures) {
+        this.activeFeatures = inactiveFeatures;
     }
     @Override
     public String toString() {

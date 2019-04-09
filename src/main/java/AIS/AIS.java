@@ -160,7 +160,13 @@ public class AIS {
     }
 
     private Antibody crossover(Antibody parent1, Antibody parent2){
-
+        
+        Antibody bestParent;
+        if(parent1.getFitness() > parent2.getFitness()){
+            bestParent = parent1;
+        }else{
+            bestParent = parent2;
+        }
         double[] features = new double[parent1.getFeatures().length];
         for(int i=0;i<features.length;i++){
             double rand = Math.random();
@@ -170,19 +176,14 @@ public class AIS {
                 features[i] = parent2.getFeatures()[i];
             }
         }
-        Antibody antibody = new Antibody(features,this.calculateNewRadius(parent1,parent2),parent1.getLabel(),this.antigens,this);
+        Antibody antibody = new Antibody(features,this.calculateNewRadius(bestParent),parent1.getLabel(),this.antigens,this,bestParent.getActiveFeatures());
 
 
         return antibody;
     }
 
-    private double calculateNewRadius(Antibody parent1, Antibody parent2){
-        double radius;
-        if(parent1.getFitness() > parent2.getFitness()){
-            radius = parent1.getRadius();
-        }else{
-            radius = parent2.getRadius();
-        }
+    private double calculateNewRadius(Antibody bestParent){
+        double radius = bestParent.getRadius();
 
         double rand = Math.random();
         if(rand > 0.5){
@@ -404,7 +405,7 @@ public class AIS {
             double radius = (minAverage + (maxAverage - minAverage) * random.nextDouble()) + (featureMap.get(label).length * radiusMultiplier);
             //double radius = (overallMin + (overallMax - overallMin) * random.nextDouble()) + (featureMap.get(label).length * radiusMultiplier);
 
-            Antibody antibody = new Antibody(attributes, radius, label, this.antigens,this);
+            Antibody antibody = new Antibody(attributes, radius, label, this.antigens,this,null);
             if(!shouldBeConnected){
                 return antibody;
             }
