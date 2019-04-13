@@ -1,6 +1,7 @@
 package AIS;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class AIS {
 
@@ -27,7 +28,8 @@ public class AIS {
     private double averageFitness;
     private double radiusMultiplier;
     private int offspringSize;
-    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations, double radiusMultiplier){
+    private int islandCount;
+    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations, double radiusMultiplier, int islandCount){
         this.antigens = antigens;
         this.antigenMap = antigenMap;
         this.featureMap = new HashMap<>();
@@ -48,6 +50,7 @@ public class AIS {
         this.antigenValidationMap = antigenValidationMap;
         this.radiusMultiplier = radiusMultiplier;
         this.offspringSize = populationSize;
+        this.islandCount = islandCount;
         selectionComparator = (o1, o2) -> {
             if (o1.getFitness() > o2.getFitness()) {
                 return -1;
@@ -137,30 +140,28 @@ public class AIS {
 
     private void mutate(Antibody antibody){
         double p = Math.random();
-        if(p > 0.5){
-            double rand = Math.random();
-            if(rand > 0.5){
-                antibody.setRadius(antibody.getRadius()*1.1);
-            }else{
-                antibody.setRadius(antibody.getRadius()*0.9);
-            }
-        }else {
-            double probability = (double)1/antibody.getFeatures().length;
+        double r;
+
+        //if(p > 0.5){//mutate radius
+            r = ThreadLocalRandom.current().nextDouble(0.8, 1.1);
+            antibody.setRadius(antibody.getRadius()*r);
+        //}else {
+            double probability = (double)1/(1+antibody.getFeatures().length);
             for(int i=0;i<antibody.getFeatures().length;i++){
                 double rand = Math.random();
                 if(rand >= probability){
-                    antibody.getFeatures()[i] *= 1.1;
-                }else{
-                    antibody.getFeatures()[i] *= 0.9;
+                    r = ThreadLocalRandom.current().nextDouble(0.1, 2);
+                    antibody.getFeatures()[i] *= r;
                 }
             }
-        }
+        //}
+
         //int randomIndex = random.nextInt(antibody.getFeatures().length);
-        //antibody.getInactiveFeatures()[randomIndex] = !antibody.getInactiveFeatures()[randomIndex];
+        //antibody.getActiveFeatures()[randomIndex] = !antibody.getActiveFeatures()[randomIndex];
     }
 
     private Antibody crossover(Antibody parent1, Antibody parent2){
-        
+
         Antibody bestParent;
         if(parent1.getFitness() > parent2.getFitness()){
             bestParent = parent1;
@@ -177,6 +178,18 @@ public class AIS {
             }
         }
         Antibody antibody = new Antibody(features,this.calculateNewRadius(bestParent),parent1.getLabel(),this.antigens,this,bestParent.getActiveFeatures());
+        /*double bestAffinity = antibody.calculateAffinity();
+        for(int i=0;i<antibody.getFeatures().length;i++){
+            Antibody newAntibody = new Antibody(features,this.calculateNewRadius(bestParent),parent1.getLabel(),this.antigens,this,bestParent.getActiveFeatures());
+            int randomIndex = random.nextInt(newAntibody.getFeatures().length);
+            newAntibody.getActiveFeatures()[randomIndex] = !newAntibody.getActiveFeatures()[randomIndex];
+            double affinity = newAntibody.calculateAffinity();
+
+            if(affinity > bestAffinity){
+                bestAffinity = affinity;
+                antibody = newAntibody;
+            }
+        }*/
 
 
         return antibody;
@@ -185,12 +198,13 @@ public class AIS {
     private double calculateNewRadius(Antibody bestParent){
         double radius = bestParent.getRadius();
 
-        double rand = Math.random();
-        if(rand > 0.5){
+        //radius *= ThreadLocalRandom.current().nextDouble(0.1, 2);
+        //double rand = Math.random();
+        /*if(rand > 0.5){
             radius *= 1.1;
         }else{
             radius *= 0.9;
-        }
+        }*/
 
         return radius;
     }
@@ -402,7 +416,8 @@ public class AIS {
 
 
             //TODO: Make initial radius better
-            double radius = (minAverage + (maxAverage - minAverage) * random.nextDouble()) + (featureMap.get(label).length * radiusMultiplier);
+            double radius = ThreadLocalRandom.current().nextDouble(minAverage, maxAverage) + (featureMap.get(label).length * radiusMultiplier);
+            //double radius = (minAverage + (maxAverage - minAverage) * random.nextDouble()) + (featureMap.get(label).length * radiusMultiplier);
             //double radius = (overallMin + (overallMax - overallMin) * random.nextDouble()) + (featureMap.get(label).length * radiusMultiplier);
 
             Antibody antibody = new Antibody(attributes, radius, label, this.antigens,this,null);
@@ -461,6 +476,10 @@ public class AIS {
             for (Antigen antigen : antigenMap.get(antigenLabel)) {
                 if (antigen.getLabel().equals(antigenClassification.get(antigen))) {
                     correctClassification++;
+                    //if(ais!=null){
+                        antigen.addDanger(ais,1.0);
+                        antigen.addDanger(1.0);
+                    //}
                 }/*else{
                     if(ais != null){
                         antigen.addDanger(ais,1);
@@ -632,6 +651,14 @@ public class AIS {
 
     public void setCurrentAccuracy(double currentAccuracy) {
         this.currentAccuracy = currentAccuracy;
+    }
+
+    public int getIslandCount() {
+        return islandCount;
+    }
+
+    public void setIslandCount(int islandCount) {
+        this.islandCount = islandCount;
     }
 
     public static HashMap<String, ArrayList<Antibody>> copy(HashMap<String, ArrayList<Antibody>> original)

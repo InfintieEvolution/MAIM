@@ -49,10 +49,11 @@ public class Antibody {
 
     public void initializeFeatureSet(){
         for (int i=0; i<activeFeatures.length;i++){
-            double p = Math.random();
+            activeFeatures[i] = true;
+            /*double p = Math.random();
             if(p<0.5){
                 activeFeatures[i] = !activeFeatures[i];
-            }
+            }*/
         }
     }
     public void setConnectedAntigens(){
@@ -110,7 +111,22 @@ public class Antibody {
             /*double danger = 1.0;
             double dangerousIndividuals = 1.0;
             int individuals = 1;*/
+            double correctClassificationRate = 1.0;
+            double dangerousIndividuals = 1;
             for(Antigen antigen: connectedAntigen.keySet()){
+                //System.out.println("Wrongly classified: "+antigen.getDangerMap().get(this.ais));
+                //System.out.println("Itearation: "+ais.getIteration());
+                if(antigen.getLabel().equals(this.getLabel()) && antigen.getDangerMap().get(this.ais) != null){
+                    //correctClassificationRate = antigen.getDangerMap().get(this.ais)/ais.getIteration();
+                    //System.out.println("Iteration: "+ais.getIteration()+" correct classifications: "+antigen.getDangerMap().get(this.ais));
+                    double rate = antigen.getCorrectlyClassified()/(ais.getIteration()*ais.getIslandCount());
+                    //correctClassificationRate = antigen.getDangerMap().get(this.ais)/(ais.getIteration());
+                    if(rate < correctClassificationRate){
+                        correctClassificationRate = rate;
+                    }
+                    //dangerousIndividuals++;
+                    //System.out.println(correctClassificationRate);
+                }
                 double weight = connectedAntigen.get(antigen);
                 /*if(antigen.getLabel().equals(this.getLabel()) && antigen.getDangerMap().containsKey(this.ais)){
                     danger += antigen.getDangerMap().get(this.ais)/ais.getIteration();
@@ -125,13 +141,15 @@ public class Antibody {
                     sharingFactor += Math.pow(weight,1)/antigen.getInteractionMap().get(this.getAis()); //part of the antigen that belongs to the antibody
                 }*/
             }
+            //correctClassificationRate /= dangerousIndividuals;
+            //System.out.println(correctClassificationRate);
             //sharingFactor /= connectedIndividuals;
             /*if(danger > 1.0){
                 danger = danger/individuals;
             }
             System.out.println(danger);*/
 
-            this.fitness = ((sharingFactor*weightedAccuracy)/(totalInteraction));
+            this.fitness = ((sharingFactor*weightedAccuracy)/(totalInteraction*correctClassificationRate));
         }
     }
 
@@ -147,6 +165,17 @@ public class Antibody {
             }
         }
         return false;
+    }
+
+    public double calculateAffinity(){
+        double affinity = 0.0;
+        for (Antigen antigen:antigens){
+            double distance = eucledeanDistance(this.features,antigen.getAttributes());
+            if (distance <= this.radius) {
+                affinity += 1/distance;
+            }
+        }
+        return affinity;
     }
 
     public double checkAccuracy(){

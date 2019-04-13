@@ -52,12 +52,12 @@ public class GUI extends BorderPane {
     private final TextField inputMutationRate = new TextField("0.8");
     private final TextField inputNumberOfTournaments = new TextField("5");
     private final TextField inputDataSetSplit = new TextField("0.1");
-    private final TextField inputValidationSplit = new TextField("0.1");
+    private final TextField inputValidationSplit = new TextField("0.3");
     public final TextField iterationTextField = new TextField();
     private final TextField inputMigrationFrequency = new TextField("0.1");
     private final TextField inputNumberOfIslands = new TextField("4");
     private final TextField inputMigrationRate = new TextField("0.1");
-    private final TextField islandIntegrationCount = new TextField("1");
+    private final TextField islandIntegrationCount = new TextField("4");
     private final TextField inputK = new TextField("0");
     private final TextField radiusMultiplier = new TextField("0.0");
     private final TextField pca = new TextField("0");

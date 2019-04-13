@@ -1,6 +1,7 @@
 package GUI;
 
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -17,7 +18,7 @@ class StatisticGraph extends Pane {
     private final int iterations;
     private final int index;
     private int currentIteration = 0;
-    private double previousX, previousY;
+    private double previousX = 0, previousY = 0;
     private final boolean slave;
     private Text bestAccuracyText = new Text();
     private Text averageAccuracyText = new Text();
@@ -97,7 +98,8 @@ class StatisticGraph extends Pane {
             bestAccuracyText.setX((width/2)*0.8);
         }
 
-        this.setStyle("-fx-border-color: black");
+        this.setStyle("-fx-border-color: rgba(0,0,0,1.0)");
+        //this.setStyle("-fx-border-opacity: 0.1");
 
         bestAccuracyText.setY(height+20);
         BorderPane.setAlignment(bestAccuracyText, Pos.CENTER);

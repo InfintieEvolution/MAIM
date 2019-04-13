@@ -55,13 +55,17 @@ public class IGA {
             }
         }*/
 
+        int islandCount = numberOfIslands;
+        if(this.MASTERISLAND){
+            islandCount ++;
+        }
         // create islands
         for(int i=0; i < numberOfIslands; i++){
             //Antigen[] antigens = new Antigen[antigenLists[i].size()];
             //antigens = antigenLists[i].toArray(antigens);
 
             //AIS ais = new AIS(antigens,dataSet.featureMap,dataSet.labels,antigenSets[i],dataSet.validationAntigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations,someNum);
-            AIS ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,dataSet.validationAntigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations, someNum);
+            AIS ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,dataSet.validationAntigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations, someNum, islandCount);
             this.islands.add(new Island(ais, migrationRate, migrationFrequency, i));
         }
         if(islands.size() > 1){
@@ -88,7 +92,7 @@ public class IGA {
 
         if(this.MASTERISLAND) {
              this.masterIsland = new MasterIsland(
-                    new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,dataSet.validationAntigenMap, this.populationSize, mutationRate, numberOfTournaments, iterations, someNum),
+                    new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,dataSet.validationAntigenMap, this.populationSize, mutationRate, numberOfTournaments, iterations, someNum,islandCount),
                     migrationRate,
                     migrationFrequency,
                     this.islands

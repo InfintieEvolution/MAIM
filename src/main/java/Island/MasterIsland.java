@@ -22,6 +22,9 @@ public class MasterIsland {
     private double currentAccuracy;
     private HashMap<String, ArrayList<Antigen>> combinedAntigenMap;
     private boolean populationChanged = false;
+    private HashMap<String,ArrayList<Antibody>> combinedBestMap;
+    private HashMap<Island,Double> accuracies;
+    private HashMap<String,ArrayList<Antibody>>[] bestGenerations;
 
     public MasterIsland(AIS ais, double migrationRate, double migrationFrequency, ArrayList<Island> allIslands) {
         this.ais = ais;
@@ -31,7 +34,15 @@ public class MasterIsland {
         this.allIslands = allIslands;
         this.currentAccuracy = 0.0;
         combinedAntigenMap = new HashMap<>();
-        for(String label: ais.getLabels()){
+
+        combinedBestMap = new HashMap<>();
+        accuracies = new HashMap<>();
+        bestGenerations = new HashMap[allIslands.size()];
+
+        for(int j = 0; j < allIslands.size(); j++) {
+            accuracies.put(allIslands.get(j),0.0);
+        }
+            for(String label: ais.getLabels()){
             combinedAntigenMap.put(label,new ArrayList<>());
             if(this.ais.getAntigenMap().containsKey(label)) {
                 combinedAntigenMap.get(label).addAll(this.ais.getAntigenMap().get(label));
@@ -200,6 +211,40 @@ public class MasterIsland {
     }
 
     public void incorporateAllIslands(){
+        populationChanged = false;
+
+        /*boolean newBest = false;
+        for(int j = 0; j < allIslands.size(); j++) {
+            double currentAccuracy = allIslands.get(j).getAis().getCurrentAccuracy();
+            double currentBestAccuracy = accuracies.get(allIslands.get(j));
+            if(currentAccuracy >= currentBestAccuracy){
+                accuracies.put(allIslands.get(j),currentAccuracy);
+                bestGenerations[j] = allIslands.get(j).getAis().getAntibodyMap();
+                newBest = true;
+            }
+        }
+        if(newBest){
+            combinedBestMap = new HashMap<>();
+
+            for(String label: ais.getLabels()){
+                combinedBestMap.put(label,new ArrayList<>());
+            }
+            for(int j = 0; j < allIslands.size(); j++){
+                HashMap<String,ArrayList<Antibody>> islandBestMap = bestGenerations[j];
+                for(String label: islandBestMap.keySet()){
+                    combinedBestMap.get(label).addAll(islandBestMap.get(label));
+                }
+            }
+
+            double accuracy = AIS.vote(combinedAntigenMap,combinedBestMap,null);
+            if(accuracy >= currentAccuracy){
+                this.ais.setAntibodyMap(combinedBestMap);
+                currentAccuracy = accuracy;
+                populationChanged = true;
+            }
+        }*/
+
+
         HashMap<String,ArrayList<Antibody>> population = new HashMap<>();
         for(String label: this.ais.getLabels()){
             population.put(label,new ArrayList<>());
@@ -216,8 +261,6 @@ public class MasterIsland {
             this.ais.setAntibodyMap(population);
             currentAccuracy = accuracy;
             populationChanged = true;
-        }else{
-            populationChanged = false;
         }
     }
 
@@ -336,5 +379,21 @@ public class MasterIsland {
 
     public void setPopulationChanged(boolean populationChanged) {
         this.populationChanged = populationChanged;
+    }
+
+    public HashMap<String, ArrayList<Antibody>>[] getBestGenerations() {
+        return bestGenerations;
+    }
+
+    public void setBestGenerations(HashMap<String, ArrayList<Antibody>>[] bestGenerations) {
+        this.bestGenerations = bestGenerations;
+    }
+
+    public HashMap<String, ArrayList<Antigen>> getCombinedAntigenMap() {
+        return combinedAntigenMap;
+    }
+
+    public void setCombinedAntigenMap(HashMap<String, ArrayList<Antigen>> combinedAntigenMap) {
+        this.combinedAntigenMap = combinedAntigenMap;
     }
 }

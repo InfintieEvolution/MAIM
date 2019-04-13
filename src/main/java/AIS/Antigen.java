@@ -3,7 +3,6 @@ package AIS;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class Antigen {
 
@@ -13,7 +12,7 @@ public class Antigen {
     private double totalInteraction;
     private HashMap<AIS,Double> interactionMap;
     private HashMap<AIS,Double> dangerMap;
-
+    private double correctlyClassified;
     public Antigen(double[] attributes, String label){
 
         this.attributes = attributes;
@@ -22,6 +21,7 @@ public class Antigen {
         this.totalInteraction = 0.0;
         this.interactionMap = new HashMap<>();
         this.dangerMap = new HashMap<>();
+        this.correctlyClassified = 0;
     }
 
 
@@ -79,6 +79,10 @@ public class Antigen {
         }
     }
 
+    public void  addDanger(double danger){
+      this.correctlyClassified += danger;
+    }
+
     public static HashMap<String,ArrayList<Antigen>> createAntigenMap(Antigen[] antigens){
         HashMap<String,ArrayList<Antigen>> antigenMap = new HashMap<>();
 
@@ -98,6 +102,14 @@ public class Antigen {
 
     public void setDangerMap(HashMap<AIS, Double> dangerMap) {
         this.dangerMap = dangerMap;
+    }
+
+    public double getCorrectlyClassified() {
+        return correctlyClassified;
+    }
+
+    public void setCorrectlyClassified(double correctlyClassified) {
+        this.correctlyClassified = correctlyClassified;
     }
 
     @Override
