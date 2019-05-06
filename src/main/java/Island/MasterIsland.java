@@ -44,9 +44,9 @@ public class MasterIsland {
         }
             for(String label: ais.getLabels()){
             combinedAntigenMap.put(label,new ArrayList<>());
-            if(this.ais.getAntigenMap().containsKey(label)) {
+            /*if(this.ais.getAntigenMap().containsKey(label)) {
                 combinedAntigenMap.get(label).addAll(this.ais.getAntigenMap().get(label));
-            }if(this.ais.getAntigenValidationMap().containsKey(label)){
+            }*/if(this.ais.getAntigenValidationMap().containsKey(label)){
                 combinedAntigenMap.get(label).addAll(this.ais.getAntigenValidationMap().get(label));
             }
         }
