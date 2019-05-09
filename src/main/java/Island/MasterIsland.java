@@ -21,6 +21,8 @@ public class MasterIsland {
     private HashMap<String,ArrayList<Antibody>> recievedAntibodyMap;
     private double currentAccuracy;
     private HashMap<String, ArrayList<Antigen>> combinedAntigenMap;
+    private HashMap<String, ArrayList<Antigen>> validationAntigenMap;
+    private HashMap<String, ArrayList<Antigen>> trainingAntigenMap;
     private boolean populationChanged = false;
     private HashMap<String,ArrayList<Antibody>> combinedBestMap;
     private HashMap<Island,Double> accuracies;
@@ -34,6 +36,8 @@ public class MasterIsland {
         this.allIslands = allIslands;
         this.currentAccuracy = 0.0;
         combinedAntigenMap = new HashMap<>();
+        validationAntigenMap = new HashMap<>();
+        trainingAntigenMap = new HashMap<>();
 
         combinedBestMap = new HashMap<>();
         accuracies = new HashMap<>();
@@ -44,10 +48,14 @@ public class MasterIsland {
         }
             for(String label: ais.getLabels()){
             combinedAntigenMap.put(label,new ArrayList<>());
-            /*if(this.ais.getAntigenMap().containsKey(label)) {
-                combinedAntigenMap.get(label).addAll(this.ais.getAntigenMap().get(label));
-            }*/if(this.ais.getAntigenValidationMap().containsKey(label)){
+            validationAntigenMap.put(label,new ArrayList<>());
+            trainingAntigenMap.put(label,new ArrayList<>());
+            if(this.ais.getAntigenMap().containsKey(label)) {
+            combinedAntigenMap.get(label).addAll(this.ais.getAntigenMap().get(label));
+            trainingAntigenMap.get(label).addAll(this.ais.getAntigenMap().get(label));
+            }if(this.ais.getAntigenValidationMap().containsKey(label)){
                 combinedAntigenMap.get(label).addAll(this.ais.getAntigenValidationMap().get(label));
+                validationAntigenMap.get(label).addAll(this.ais.getAntigenValidationMap().get(label));
             }
         }
 
@@ -256,74 +264,15 @@ public class MasterIsland {
             }
         }
 
-        double accuracy = AIS.vote(combinedAntigenMap,population,null);
+        //double accuracy1 = AIS.vote(trainingAntigenMap,population,null);
+        //double accuracy2 = AIS.vote(validationAntigenMap,population,null);
+
+        double accuracy = AIS.vote(validationAntigenMap,population,null);
+        //double accuracy = (accuracy1 + accuracy2)/2;
         if(accuracy >= currentAccuracy){
             this.ais.setAntibodyMap(population);
             currentAccuracy = accuracy;
             populationChanged = true;
-        }
-    }
-
-    public void select2(){
-        HashMap<String,ArrayList<Antibody>>[] newAntibodyMaps = new HashMap[allIslands.size()];
-
-        for(int i=0;i<allIslands.size();i++){
-            HashMap<String,ArrayList<Antibody>> newAntibodyMap = new HashMap<>();
-
-            for(String label: ais.getLabels()){
-                newAntibodyMap.put(label,new ArrayList<>());
-                newAntibodyMap.get(label).addAll(ais.getAntibodyMap().get(label));
-            }
-
-            for(String label: allIslands.get(i).getAis().getAntibodyMap().keySet()){
-                newAntibodyMap.get(label).addAll(allIslands.get(i).getAis().getAntibodyMap().get(label));
-            }
-            newAntibodyMaps[i] = AIS.fitnessProportionateSelection(newAntibodyMap,ais.getPopulationSize(),ais.getLabels());
-        }
-
-        for(int i=0;i<newAntibodyMaps.length;i++){
-            double accuracyTest = AIS.vote(this.ais.getAntigenMap(),newAntibodyMaps[i],null);
-            double accuracyValidation = AIS.vote(this.ais.getAntigenValidationMap(),newAntibodyMaps[i],null);
-            double accuracy;
-            if(accuracyValidation > 0.0){
-                accuracy = (accuracyTest + accuracyValidation)/2;
-            }else{
-                accuracy = accuracyTest;
-            }
-            if(accuracy > currentAccuracy){
-                this.ais.setAntibodyMap(newAntibodyMaps[i]);
-                currentAccuracy = accuracy;
-            }
-        }
-    }
-
-    public void select3(){
-        HashMap<String,ArrayList<Antibody>> newAntibodyMap = new HashMap<>();
-
-        for(String label: ais.getLabels()){
-            newAntibodyMap.put(label,new ArrayList<>());
-            newAntibodyMap.get(label).addAll(ais.getAntibodyMap().get(label));
-        }
-        for(int i=0;i<allIslands.size();i++){
-
-            for(String label: allIslands.get(i).getAis().getAntibodyMap().keySet()){
-                newAntibodyMap.get(label).addAll(allIslands.get(i).getAis().getAntibodyMap().get(label));
-            }
-        }
-
-        newAntibodyMap = AIS.fitnessProportionateSelection(newAntibodyMap,ais.getPopulationSize(),ais.getLabels());
-
-        double accuracyTest = AIS.vote(this.ais.getAntigenMap(),newAntibodyMap,null);
-        double accuracyValidation = AIS.vote(this.ais.getAntigenValidationMap(),newAntibodyMap,null);
-        double accuracy;
-        if(accuracyValidation > 0.0){
-            accuracy = (accuracyTest + accuracyValidation)/2;
-        }else{
-            accuracy = accuracyTest;
-        }
-        if(accuracy > currentAccuracy){
-            this.ais.setAntibodyMap(newAntibodyMap);
-            currentAccuracy = accuracy;
         }
     }
 

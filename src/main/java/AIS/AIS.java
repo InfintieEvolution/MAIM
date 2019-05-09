@@ -92,21 +92,30 @@ public class AIS {
                 String randomLabel = this.labels.get(random.nextInt(labels.size()));
                 String randomLabel2 = this.labels.get(random.nextInt(labels.size()));
                 Antibody parent1;
-                Antibody parent2;
-                double rand = random.nextDouble();
+                Antibody parent2 = null;
+                //boolean crossover = true;
+                double rand = 2.0;
+                /*if(rand < (double)iteration / maxIterations){
+                    crossover = false;
+                }*/
                 if(antibodyMap.get(randomLabel).size() > numberOfTournaments){
                     parent1 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
                     if(parent1.getTotalInteraction() == 0.0){ //if the antibody is not able to recognize anything correctly, do not allow it to reproduce
                         parent1 = createAntibody(randomLabel,true);
                     }
-                    parent2 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
-                    if(parent2.getTotalInteraction() == 0.0){
-                        parent2 = createAntibody(randomLabel,true);
-                    }
+                    //if(crossover){
+                        parent2 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
+                        if(parent2.getTotalInteraction() == 0.0){
+                            parent2 = createAntibody(randomLabel,true);
+                        }
+                    //}
                 }
                 else{
                     parent1 = createAntibody(randomLabel,false);
-                    parent2 = createAntibody(randomLabel,false);
+                    //if(crossover){
+                        parent2 = createAntibody(randomLabel,false);
+                    //}
+
                 }
 
                 //crossover across classes
@@ -119,12 +128,18 @@ public class AIS {
             else{
                 parent2 = createAntibody(randomLabel2,false);
             }*/
-                Antibody child = crossover(parent1,parent2);
-                //child.setConnectedAntigens();
-                double p = Math.random();
-                if(p <= this.mutationRate){
-                    this.mutate(child);
-                }
+            Antibody child;
+                //if(!crossover){
+                    //child = new Antibody(parent1.getFeatures(),parent1.getRadius(),parent1.getLabel(),parent1.getAntigens(),this,parent1.getActiveFeatures());
+                    //this.mutate(child);
+                //}else{
+                    child = crossover(parent1,parent2);
+                    //child.setConnectedAntigens();
+                    double p = Math.random();
+                    if(p <= this.mutationRate){
+                        this.mutate(child);
+                    }
+                //}
                 //children[childrenCount ++] = child;
                 newAntibodiesOfLabel.add(child);
             }
