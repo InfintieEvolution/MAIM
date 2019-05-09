@@ -90,8 +90,10 @@ public class AIS {
         //double offspringSize = populationSize;
         for(int i=0;i<offspringSize;i++){
                 String randomLabel = this.labels.get(random.nextInt(labels.size()));
+                String randomLabel2 = this.labels.get(random.nextInt(labels.size()));
                 Antibody parent1;
                 Antibody parent2;
+                double rand = random.nextDouble();
                 if(antibodyMap.get(randomLabel).size() > numberOfTournaments){
                     parent1 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
                     if(parent1.getTotalInteraction() == 0.0){ //if the antibody is not able to recognize anything correctly, do not allow it to reproduce
@@ -107,6 +109,16 @@ public class AIS {
                     parent2 = createAntibody(randomLabel,false);
                 }
 
+                //crossover across classes
+            /*if(antibodyMap.get(randomLabel2).size() > numberOfTournaments){
+                parent2 = tournamentSelection(antibodyMap.get(randomLabel2), numberOfTournaments);
+                if(parent2.getTotalInteraction() == 0.0){
+                    parent2 = createAntibody(randomLabel2,true);
+                }
+            }
+            else{
+                parent2 = createAntibody(randomLabel2,false);
+            }*/
                 Antibody child = crossover(parent1,parent2);
                 //child.setConnectedAntigens();
                 double p = Math.random();
@@ -477,8 +489,11 @@ public class AIS {
                 if (antigen.getLabel().equals(antigenClassification.get(antigen))) {
                     correctClassification++;
                     //if(ais!=null){
-                        antigen.addDanger(ais,1.0);
+                    /*if(ais == null){
                         antigen.addDanger(1.0);
+                    }*/
+                    antigen.addDanger(1.0);
+                    antigen.addDanger(ais,1.0);
                     //}
                 }/*else{
                     if(ais != null){
