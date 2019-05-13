@@ -90,29 +90,56 @@ public class AIS {
         //double offspringSize = populationSize;
         for(int i=0;i<offspringSize;i++){
                 String randomLabel = this.labels.get(random.nextInt(labels.size()));
+                String randomLabel2 = this.labels.get(random.nextInt(labels.size()));
                 Antibody parent1;
-                Antibody parent2;
+                Antibody parent2 = null;
+                //boolean crossover = true;
+                double rand = 2.0;
+                /*if(rand < (double)iteration / maxIterations){
+                    crossover = false;
+                }*/
                 if(antibodyMap.get(randomLabel).size() > numberOfTournaments){
                     parent1 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
                     if(parent1.getTotalInteraction() == 0.0){ //if the antibody is not able to recognize anything correctly, do not allow it to reproduce
                         parent1 = createAntibody(randomLabel,true);
                     }
-                    parent2 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
-                    if(parent2.getTotalInteraction() == 0.0){
-                        parent2 = createAntibody(randomLabel,true);
-                    }
+                    //if(crossover){
+                        parent2 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
+                        if(parent2.getTotalInteraction() == 0.0){
+                            parent2 = createAntibody(randomLabel,true);
+                        }
+                    //}
                 }
                 else{
                     parent1 = createAntibody(randomLabel,false);
-                    parent2 = createAntibody(randomLabel,false);
+                    //if(crossover){
+                        parent2 = createAntibody(randomLabel,false);
+                    //}
+
                 }
 
-                Antibody child = crossover(parent1,parent2);
-                //child.setConnectedAntigens();
-                double p = Math.random();
-                if(p <= this.mutationRate){
-                    this.mutate(child);
+                //crossover across classes
+            /*if(antibodyMap.get(randomLabel2).size() > numberOfTournaments){
+                parent2 = tournamentSelection(antibodyMap.get(randomLabel2), numberOfTournaments);
+                if(parent2.getTotalInteraction() == 0.0){
+                    parent2 = createAntibody(randomLabel2,true);
                 }
+            }
+            else{
+                parent2 = createAntibody(randomLabel2,false);
+            }*/
+            Antibody child;
+                //if(!crossover){
+                    //child = new Antibody(parent1.getFeatures(),parent1.getRadius(),parent1.getLabel(),parent1.getAntigens(),this,parent1.getActiveFeatures());
+                    //this.mutate(child);
+                //}else{
+                    child = crossover(parent1,parent2);
+                    //child.setConnectedAntigens();
+                    double p = Math.random();
+                    if(p <= this.mutationRate){
+                        this.mutate(child);
+                    }
+                //}
                 //children[childrenCount ++] = child;
                 newAntibodiesOfLabel.add(child);
             }
@@ -477,8 +504,11 @@ public class AIS {
                 if (antigen.getLabel().equals(antigenClassification.get(antigen))) {
                     correctClassification++;
                     //if(ais!=null){
-                        antigen.addDanger(ais,1.0);
+                    /*if(ais == null){
                         antigen.addDanger(1.0);
+                    }*/
+                    antigen.addDanger(1.0);
+                    antigen.addDanger(ais,1.0);
                     //}
                 }/*else{
                     if(ais != null){

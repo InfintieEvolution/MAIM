@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 public class AISIGA extends Application {
 
@@ -227,7 +228,7 @@ public class AISIGA extends Application {
         gui.startButton.setDisable(true);
         gui.iterationTextField.setDisable(true);
         gui.stopButton.setDisable(false);
-
+        Random random = new Random();
         double[] accuracies = new double[k];
         DataSet dataSet = new DataSet("./DataSets/" + dataSetName, 0.0,0.0, labelIndex,pcaDimensions);
         HashMap<String,ArrayList<Antigen>>[] dataSetSplits = DataSet.splitDataSet(k,dataSet.antigenMap);
@@ -243,7 +244,9 @@ public class AISIGA extends Application {
             HashMap<String,ArrayList<Antigen>> testSetMap = dataSetSplits[j];
             HashMap<String,ArrayList<Antigen>> trainingSetMap = new HashMap<>();
             HashMap<String,ArrayList<Antigen>> validationSetMap = new HashMap<>();
-
+            int validationAntigenCount = 0;
+            int totalTrainingAntigen = 0;
+            int trainingAntigenCount = 0;
             ArrayList<Antigen> antigenArrayList = new ArrayList<>();
             for(String label: dataSet.labels){
                 trainingSetMap.put(label,new ArrayList<>());
@@ -259,13 +262,32 @@ public class AISIGA extends Application {
                         double p = Math.random();
                         if(p < validationSplit){
                             validationSetMap.get(label).add(antigen);
+                            validationAntigenCount ++;
                         }else{
                             trainingSetMap.get(label).add(antigen);
                             antigenArrayList.add(antigen);
+                            trainingAntigenCount ++;
                         }
+                        totalTrainingAntigen++;
                     }
                 }
             }
+            while (validationAntigenCount < (int)(totalTrainingAntigen*validationSplit)){
+                Antigen antigen = antigenArrayList.remove(random.nextInt(antigenArrayList.size()));
+                trainingSetMap.get(antigen.getLabel()).remove(antigen);
+                validationSetMap.get(antigen.getLabel()).add(antigen);
+                validationAntigenCount++;
+                trainingAntigenCount--;
+            }
+            while (trainingAntigenCount < (int)(totalTrainingAntigen*(1-validationSplit))){
+                String randomLabel = dataSet.labels.get(random.nextInt(dataSet.labels.size()));
+                Antigen antigen = validationSetMap.get(randomLabel).remove(random.nextInt(validationSetMap.get(randomLabel).size()));
+                trainingSetMap.get(randomLabel).add(antigen);
+                antigenArrayList.add(antigen);
+                trainingAntigenCount++;
+                validationAntigenCount--;
+            }
+
             Antigen[] antigens = new Antigen[antigenArrayList.size()];
             antigens = antigenArrayList.toArray(antigens);
 

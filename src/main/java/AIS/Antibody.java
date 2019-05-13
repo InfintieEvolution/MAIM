@@ -120,6 +120,7 @@ public class Antibody {
                     //correctClassificationRate = antigen.getDangerMap().get(this.ais)/ais.getIteration();
                     //System.out.println("Iteration: "+ais.getIteration()+" correct classifications: "+antigen.getDangerMap().get(this.ais));
                     double rate = antigen.getCorrectlyClassified()/(ais.getIteration()*ais.getIslandCount());
+                    //double rate = antigen.getCorrectlyClassified()/(ais.getIteration());
                     //correctClassificationRate = antigen.getDangerMap().get(this.ais)/(ais.getIteration());
                     if(rate < correctClassificationRate){
                         correctClassificationRate = rate;
