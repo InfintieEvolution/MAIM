@@ -35,8 +35,10 @@ public class GUI extends BorderPane {
         dataSetLabelIndexes.put("spirals.txt",2);
         dataSetLabelIndexes.put("heart.dat",13);
         dataSetLabelIndexes.put("breastCancer.csv",9);
+        dataSetLabelIndexes.put("bupa.data",6);
+
     }
-    private final ChoiceBox<String> dataSetBox = new ChoiceBox<>(FXCollections.observableArrayList("iris.data", "wine.data", "ionosphere.data", "glass.data", "crabs.csv", "abalone.data","sonar.all-data.txt","diabetes.csv","spirals.txt","heart.dat","breastCancer.csv"));
+    private final ChoiceBox<String> dataSetBox = new ChoiceBox<>(FXCollections.observableArrayList("iris.data", "wine.data", "ionosphere.data", "glass.data", "crabs.csv", "abalone.data","sonar.all-data.txt","diabetes.csv","spirals.txt","heart.dat","breastCancer.csv","bupa.data"));
     private int labelIndex;
 
     private final Stage primaryStage;

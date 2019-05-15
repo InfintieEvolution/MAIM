@@ -230,7 +230,7 @@ public class MasterIsland {
         for(Antigen antigen:this.ais.getAntigens()){
             antigen.setConnectedAntibodies(new ArrayList<>());
             antigen.setTotalInteraction(0.0);
-            antigen.getInteractionMap().put(this.ais,0.0);
+            antigen.setInteractionMap(new HashMap<>());
         }
 
         HashMap<String,ArrayList<Antibody>> population = new HashMap<>();
@@ -261,10 +261,10 @@ public class MasterIsland {
             }
             AIS.vote(this.trainingAntigenMap,subPopulation,islandToCalculate.getAis());
         }*/
-            //double accuracy1 = AIS.vote(trainingAntigenMap,population,this.ais);
+        //double accuracy1 = AIS.vote(trainingAntigenMap,population,this.ais);
         //double accuracy2 = AIS.vote(validationAntigenMap,population,null);
 
-        double accuracy = AIS.vote(combinedAntigenMap,population,null);
+        double accuracy = AIS.vote(validationAntigenMap,population,null);
         //double accuracy = (accuracy1 + accuracy2)/2;
         if(accuracy >= currentAccuracy){
             //currentBestPopulation = AIS.copy(population);
@@ -272,6 +272,7 @@ public class MasterIsland {
             currentAccuracy = accuracy;
             populationChanged = true;
         }
+        //double accuracy1 = AIS.vote(trainingAntigenMap,this.ais.getAntibodyMap(),this.ais);
 
         //set the interaction of the antigens
         for(String label:population.keySet()){

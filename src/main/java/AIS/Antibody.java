@@ -3,8 +3,8 @@ package AIS;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-
-import static java.lang.Double.NaN;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Antibody {
 
@@ -23,9 +23,9 @@ public class Antibody {
     private double accuracy;
     private AIS ais;
     private double weightedAccuracy;
-    private boolean[] activeFeatures;
+    private double[] featuresWeights;
 
-    public Antibody(double[] features, double radius, String label, Antigen[] antigens, AIS ais, boolean[] activeFeatures){
+    public Antibody(double[] features, double radius, String label, Antigen[] antigens, AIS ais, double[] featuresWeights){
         this.features = features;
         this.radius = radius;
         this.label = label;
@@ -39,20 +39,21 @@ public class Antibody {
         this.accuracy = 0.0;
         this.correctInteraction = 0.0;
         this.connectedAntigenOfLabel = new HashMap<>();
-        this.activeFeatures = new boolean[features.length];
-        if(activeFeatures == null){
+        this.featuresWeights = new double[features.length];
+        if(featuresWeights == null){
             initializeFeatureSet();
         }else{
-            this.activeFeatures = activeFeatures;
+            this.featuresWeights = featuresWeights;
         }
     }
 
     public void initializeFeatureSet(){
-        for (int i=0; i<activeFeatures.length;i++){
-            activeFeatures[i] = true;
+        for (int i = 0; i< featuresWeights.length; i++){
+            double r = ThreadLocalRandom.current().nextDouble(0.5, 1.5);
+            featuresWeights[i] = r;
             /*double p = Math.random();
             if(p<0.5){
-                activeFeatures[i] = !activeFeatures[i];
+                featuresWeights[i] = !featuresWeights[i];
             }*/
         }
     }
@@ -108,14 +109,34 @@ public class Antibody {
             double correctClassificationRate = 1.0;
             double dangerousIndividuals = 1;
             double classificationWeight = 1.0;
+            double b =0.0;
             for(Antigen antigen: connectedAntigen.keySet()){
-
-                if(antigen.getAntigenWeights().containsKey(ais) /*&& antigen.getLabel().equals(this.getLabel())*/){
-                    classificationWeight += antigen.getAntigenWeights().get(ais)/this.ais.getIteration();
+                /*if(antigen.getInteractionMap().containsKey(this.ais)){
+                    b += Math.pow(antigen.getInteractionMap().get(this.ais),2)/antigen.getTotalInteraction();
+                    //System.out.println(b);
+                }*/
+                /*if(antigen.getAntigenWeights().containsKey(ais) && antigen.getLabel().equals(this.getLabel())){
+                    double w = antigen.getAntigenWeights().get(ais)/this.ais.getIteration();
+                    if(w < classificationWeight){
+                        classificationWeight = w;
+                        //System.out.println(classificationWeight);
+                    }
+                }*/
+                if(antigen.getCorrectlyClassified() > 0.0 && antigen.getLabel().equals(this.label)){
+                    double w = antigen.getCorrectlyClassified() / ais.getIteration();
+                    if(w < correctClassificationRate){
+                        correctClassificationRate = w;
+                        //System.out.println(w);
+                    }
                 }
+                Random rd = new Random();
                 double weight = connectedAntigen.get(antigen);
-                sharingFactor += Math.pow(weight,2)/antigen.getTotalInteraction(); //part of the antigen that belongs to the antibody
+                //System.out.println(rd.nextInt(2)+1);
+                sharingFactor += Math.pow(weight,2)/(antigen.getTotalInteraction()); //part of the antigen that belongs to the antibody
             }
+            //System.out.println(b+" sharing factor "+sharingFactor);
+            //System.out.println(b);
+
             //System.out.println(classificationWeight);
             this.fitness = ((sharingFactor*weightedAccuracy)/(totalInteraction));
         }
@@ -167,10 +188,10 @@ public class Antibody {
 
         double eucledeanDistance = 0.0;
         for (int i=0;i<featureSet1.length;i++){
-            /*if(!activeFeatures[i]){
+            /*if(!featuresWeights[i]){
                 continue;
             }*/
-            eucledeanDistance += Math.pow(featureSet1[i] - featureSet2[i],2);
+            eucledeanDistance += /*this.featuresWeights[i]**/(Math.pow(featureSet1[i] - featureSet2[i],2));
         }
 
         eucledeanDistance = Math.sqrt(eucledeanDistance);
@@ -263,12 +284,12 @@ public class Antibody {
     public void setConnectedAntigensSet(boolean connectedAntigensSet) {
         this.connectedAntigensSet = connectedAntigensSet;
     }
-    public boolean[] getActiveFeatures() {
-        return activeFeatures;
+    public double[] getFeaturesWeights() {
+        return featuresWeights;
     }
 
-    public void setActiveFeatures(boolean[] inactiveFeatures) {
-        this.activeFeatures = inactiveFeatures;
+    public void setFeaturesWeights(double[] inactiveFeatures) {
+        this.featuresWeights = inactiveFeatures;
     }
     @Override
     public String toString() {
