@@ -77,12 +77,6 @@ public class AIS {
 
     public void iterate(){
         this.iteration++;
-        //clear the connected antibodies list for the next iteration
-        for(Antigen antigen:antigens){
-            antigen.setConnectedAntibodies(new ArrayList<>());
-            antigen.setTotalInteraction(0.0);
-            antigen.getInteractionMap().put(this,0.0);
-        }
 
         ArrayList<Antibody> newAntibodiesOfLabel = new ArrayList<>();
 
@@ -147,10 +141,21 @@ public class AIS {
                 antibodyMap.get(antibody.getLabel()).add(antibody);
             }
 
+        if(islandCount == 1){   //only basic ais
+            for(Antigen antigen:antigens){
+                antigen.setConnectedAntibodies(new ArrayList<>());
+                antigen.setTotalInteraction(0.0);
+                antigen.getInteractionMap().put(this,0.0);
+            }
+        }
+
         //set connections
         for(String label: antibodyMap.keySet()){
             for(Antibody antibody:antibodyMap.get(label)){
                 antibody.setConnectedAntigens();
+                if(islandCount == 1){   //only basic AIS so we calculate local sharing factor
+                    antibody.setInteraction();
+                }
             }
         }
         //calculate fitness after connections has been set
@@ -249,7 +254,7 @@ public class AIS {
         return winner;
     }
 
-    private void select(){
+    private void rankSelection(){
         final ArrayList<Antibody> priorityQueue = new ArrayList<>();
 
         for (String label:antibodyMap.keySet()){
@@ -507,8 +512,9 @@ public class AIS {
                     /*if(ais == null){
                         antigen.addDanger(1.0);
                     }*/
-                    antigen.addDanger(1.0);
-                    antigen.addDanger(ais,1.0);
+                    if(ais != null){
+                        antigen.getAntigenWeights().put(ais,antigen.getAntigenWeights().get(ais)+1);
+                    }
                     //}
                 }/*else{
                     if(ais != null){

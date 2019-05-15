@@ -27,6 +27,7 @@ public class MasterIsland {
     private HashMap<String,ArrayList<Antibody>> combinedBestMap;
     private HashMap<Island,Double> accuracies;
     private HashMap<String,ArrayList<Antibody>>[] bestGenerations;
+    private HashMap<String,ArrayList<Antibody>> currentBestPopulation;
 
     public MasterIsland(AIS ais, double migrationRate, double migrationFrequency, ArrayList<Island> allIslands) {
         this.ais = ais;
@@ -56,6 +57,11 @@ public class MasterIsland {
             }if(this.ais.getAntigenValidationMap().containsKey(label)){
                 combinedAntigenMap.get(label).addAll(this.ais.getAntigenValidationMap().get(label));
                 validationAntigenMap.get(label).addAll(this.ais.getAntigenValidationMap().get(label));
+            }
+        }
+        for(Antigen antigen:this.ais.getAntigens()){
+            for(Island island:allIslands){
+                antigen.getAntigenWeights().put(island.getAis(),1.0/this.ais.getAntigens().length);
             }
         }
 
@@ -221,37 +227,11 @@ public class MasterIsland {
     public void incorporateAllIslands(){
         populationChanged = false;
 
-        /*boolean newBest = false;
-        for(int j = 0; j < allIslands.size(); j++) {
-            double currentAccuracy = allIslands.get(j).getAis().getCurrentAccuracy();
-            double currentBestAccuracy = accuracies.get(allIslands.get(j));
-            if(currentAccuracy >= currentBestAccuracy){
-                accuracies.put(allIslands.get(j),currentAccuracy);
-                bestGenerations[j] = allIslands.get(j).getAis().getAntibodyMap();
-                newBest = true;
-            }
+        for(Antigen antigen:this.ais.getAntigens()){
+            antigen.setConnectedAntibodies(new ArrayList<>());
+            antigen.setTotalInteraction(0.0);
+            antigen.getInteractionMap().put(this.ais,0.0);
         }
-        if(newBest){
-            combinedBestMap = new HashMap<>();
-
-            for(String label: ais.getLabels()){
-                combinedBestMap.put(label,new ArrayList<>());
-            }
-            for(int j = 0; j < allIslands.size(); j++){
-                HashMap<String,ArrayList<Antibody>> islandBestMap = bestGenerations[j];
-                for(String label: islandBestMap.keySet()){
-                    combinedBestMap.get(label).addAll(islandBestMap.get(label));
-                }
-            }
-
-            double accuracy = AIS.vote(combinedAntigenMap,combinedBestMap,null);
-            if(accuracy >= currentAccuracy){
-                this.ais.setAntibodyMap(combinedBestMap);
-                currentAccuracy = accuracy;
-                populationChanged = true;
-            }
-        }*/
-
 
         HashMap<String,ArrayList<Antibody>> population = new HashMap<>();
         for(String label: this.ais.getLabels()){
@@ -264,16 +244,48 @@ public class MasterIsland {
             }
         }
 
-        //double accuracy1 = AIS.vote(trainingAntigenMap,population,null);
+        //create a subpopulation of all the other islands
+        /*for(int i=0; i<allIslands.size();i++) {
+            Island islandToCalculate = allIslands.get(i);   //island we want to calculate the antigen weights for
+            HashMap<String,ArrayList<Antibody>> subPopulation = new HashMap<>();
+            for(String label: this.ais.getLabels()){
+                subPopulation.put(label,new ArrayList<>());
+            }
+            for(int j=0; j<allIslands.size();j++) {
+                if(j==i){
+                    continue;
+                }
+                for(String label: allIslands.get(j).getAis().getAntibodyMap().keySet()){
+                    subPopulation.get(label).addAll(allIslands.get(j).getAis().getAntibodyMap().get(label));
+                }
+            }
+            AIS.vote(this.trainingAntigenMap,subPopulation,islandToCalculate.getAis());
+        }*/
+            //double accuracy1 = AIS.vote(trainingAntigenMap,population,this.ais);
         //double accuracy2 = AIS.vote(validationAntigenMap,population,null);
 
-        double accuracy = AIS.vote(validationAntigenMap,population,null);
+        double accuracy = AIS.vote(combinedAntigenMap,population,null);
         //double accuracy = (accuracy1 + accuracy2)/2;
         if(accuracy >= currentAccuracy){
+            //currentBestPopulation = AIS.copy(population);
             this.ais.setAntibodyMap(population);
             currentAccuracy = accuracy;
             populationChanged = true;
         }
+
+        //set the interaction of the antigens
+        for(String label:population.keySet()){
+            for(Antibody antibody: population.get(label)){
+                antibody.setInteraction();
+            }
+        }
+
+
+        /*int k = 0;
+        for(String label:this.ais.getAntibodyMap().keySet()){
+            k+= this.ais.getAntibodyMap().get(label).size();
+        }
+        System.out.println(k);*/
     }
 
     public void removeWorstAntibodies() {
