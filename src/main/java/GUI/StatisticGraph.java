@@ -98,7 +98,7 @@ class StatisticGraph extends Pane {
             bestAccuracyText.setX((width/2)*0.8);
         }
 
-        this.setStyle("-fx-border-color: rgba(0,0,0,1.0)");
+        this.setStyle("-fx-border-color: rgba(0,0,0,0.1)");
         //this.setStyle("-fx-border-opacity: 0.1");
 
         bestAccuracyText.setY(height+20);

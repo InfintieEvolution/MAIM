@@ -3,8 +3,8 @@ package AIS;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-
-import static java.lang.Double.NaN;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Antibody {
 
@@ -23,9 +23,9 @@ public class Antibody {
     private double accuracy;
     private AIS ais;
     private double weightedAccuracy;
-    private boolean[] activeFeatures;
+    private double[] featuresWeights;
 
-    public Antibody(double[] features, double radius, String label, Antigen[] antigens, AIS ais, boolean[] activeFeatures){
+    public Antibody(double[] features, double radius, String label, Antigen[] antigens, AIS ais, double[] featuresWeights){
         this.features = features;
         this.radius = radius;
         this.label = label;
@@ -39,43 +39,33 @@ public class Antibody {
         this.accuracy = 0.0;
         this.correctInteraction = 0.0;
         this.connectedAntigenOfLabel = new HashMap<>();
-        this.activeFeatures = new boolean[features.length];
-        if(activeFeatures == null){
+        this.featuresWeights = new double[features.length];
+        if(featuresWeights == null){
             initializeFeatureSet();
         }else{
-            this.activeFeatures = activeFeatures;
+            this.featuresWeights = featuresWeights;
         }
     }
 
     public void initializeFeatureSet(){
-        for (int i=0; i<activeFeatures.length;i++){
-            activeFeatures[i] = true;
+        for (int i = 0; i< featuresWeights.length; i++){
+            double r = ThreadLocalRandom.current().nextDouble(0.5, 1.5);
+            featuresWeights[i] = r;
             /*double p = Math.random();
             if(p<0.5){
-                activeFeatures[i] = !activeFeatures[i];
+                featuresWeights[i] = !featuresWeights[i];
             }*/
         }
     }
     public void setConnectedAntigens(){
         //Connected antigens has been calculated before, we only need to re-add the connected antigen
-        if(this.connectedAntigensSet){
-            for (Antigen antigen:connectedAntigen.keySet()){
-                antigen.getConnectedAntibodies().add(this);
-                antigen.setTotalInteraction(antigen.getTotalInteraction() + this.getConnectedAntigen().get(antigen));
-                antigen.addInteraction(this, this.getConnectedAntigen().get(antigen));
-            }
-        }else{  //first time calculating fitness
+        if(!this.connectedAntigensSet){  //first time calculating fitness
             for (Antigen antigen:antigens){
                 double distance = eucledeanDistance(this.features,antigen.getAttributes());
                 if (distance <= this.radius) {
-                    antigen.getConnectedAntibodies().add(this);
                     double weight = calcualteWeight(antigen,distance);
                     totalInteraction += weight;
                     connectedAntigen.put(antigen,weight);
-
-                    //interaction of antigen
-                    antigen.setTotalInteraction(antigen.getTotalInteraction() + weight);
-                    antigen.addInteraction(this,weight);
 
                     this.connectedAntigensSet = true;
                     this.boundAntigensCount++;
@@ -92,10 +82,19 @@ public class Antibody {
                 }
             }
             this.weightedAccuracy = (1 + correctInteraction) /(connectedAntigenOfLabel.keySet().size()+totalInteraction);
+            this.accuracy = (double) correctClassificationCount/(boundAntigensCount);
         }
     }
+
+    public void setInteraction(){
+        for (Antigen antigen:connectedAntigen.keySet()){
+            antigen.getConnectedAntibodies().add(this);
+            antigen.addInteraction(this.getConnectedAntigen().get(antigen)); //add interaction weight from this antibody to the connected antigen
+            antigen.addInteraction(this, this.getConnectedAntigen().get(antigen));
+        }
+    }
+
     public double calcualteWeight(Antigen antigen,double distance){
-        //double distance = this.getConnectedAntigen().get(antigen);
         double weight = 1/distance;
 
         return weight;
@@ -105,52 +104,41 @@ public class Antibody {
         if(this.boundAntigensCount == 0){
             this.fitness = 0.0;
         }else{
-            this.accuracy = (double) correctClassificationCount/(boundAntigensCount);
             double sharingFactor = 0.0;
             int connectedIndividuals = 0;
-            /*double danger = 1.0;
-            double dangerousIndividuals = 1.0;
-            int individuals = 1;*/
             double correctClassificationRate = 1.0;
             double dangerousIndividuals = 1;
+            double classificationWeight = 1.0;
+            double b =0.0;
             for(Antigen antigen: connectedAntigen.keySet()){
-                //System.out.println("Wrongly classified: "+antigen.getDangerMap().get(this.ais));
-                //System.out.println("Itearation: "+ais.getIteration());
-                if(antigen.getLabel().equals(this.getLabel()) && antigen.getDangerMap().get(this.ais) != null){
-                    //correctClassificationRate = antigen.getDangerMap().get(this.ais)/ais.getIteration();
-                    //System.out.println("Iteration: "+ais.getIteration()+" correct classifications: "+antigen.getDangerMap().get(this.ais));
-                    double rate = antigen.getCorrectlyClassified()/(ais.getIteration()*ais.getIslandCount());
-                    //double rate = antigen.getCorrectlyClassified()/(ais.getIteration());
-                    //correctClassificationRate = antigen.getDangerMap().get(this.ais)/(ais.getIteration());
-                    if(rate < correctClassificationRate){
-                        correctClassificationRate = rate;
-                    }
-                    //dangerousIndividuals++;
-                    //System.out.println(correctClassificationRate);
-                }
-                double weight = connectedAntigen.get(antigen);
-                /*if(antigen.getLabel().equals(this.getLabel()) && antigen.getDangerMap().containsKey(this.ais)){
-                    danger += antigen.getDangerMap().get(this.ais)/ais.getIteration();
-                    dangerousIndividuals +=1;
-                }
-                individuals += 1;*/
-                //if(antigen.getLabel().equals(this.getLabel()) && weight == antigen.getTotalInteraction()){
-                    //sharingFactor += Math.pow(weight,2)/antigen.getInteractionMap().get(this.getAis()); //part of the antigen that belongs to the antibody
-                    sharingFactor += Math.pow(weight,2)/antigen.getTotalInteraction(); //part of the antigen that belongs to the antibody
-                    //connectedIndividuals++;
-                /*}else {
-                    sharingFactor += Math.pow(weight,1)/antigen.getInteractionMap().get(this.getAis()); //part of the antigen that belongs to the antibody
+                /*if(antigen.getInteractionMap().containsKey(this.ais)){
+                    b += Math.pow(antigen.getInteractionMap().get(this.ais),2)/antigen.getTotalInteraction();
+                    //System.out.println(b);
                 }*/
+                /*if(antigen.getAntigenWeights().containsKey(ais) && antigen.getLabel().equals(this.getLabel())){
+                    double w = antigen.getAntigenWeights().get(ais)/this.ais.getIteration();
+                    if(w < classificationWeight){
+                        classificationWeight = w;
+                        //System.out.println(classificationWeight);
+                    }
+                }*/
+                if(antigen.getCorrectlyClassified() > 0.0 && antigen.getLabel().equals(this.label)){
+                    double w = antigen.getCorrectlyClassified() / ais.getIteration();
+                    if(w < correctClassificationRate){
+                        correctClassificationRate = w;
+                        //System.out.println(w);
+                    }
+                }
+                Random rd = new Random();
+                double weight = connectedAntigen.get(antigen);
+                //System.out.println(rd.nextInt(2)+1);
+                sharingFactor += Math.pow(weight,2)/(antigen.getTotalInteraction()); //part of the antigen that belongs to the antibody
             }
-            //correctClassificationRate /= dangerousIndividuals;
-            //System.out.println(correctClassificationRate);
-            //sharingFactor /= connectedIndividuals;
-            /*if(danger > 1.0){
-                danger = danger/individuals;
-            }
-            System.out.println(danger);*/
+            //System.out.println(b+" sharing factor "+sharingFactor);
+            //System.out.println(b);
 
-            this.fitness = ((sharingFactor*weightedAccuracy)/(totalInteraction*correctClassificationRate));
+            //System.out.println(classificationWeight);
+            this.fitness = ((sharingFactor*weightedAccuracy)/(totalInteraction));
         }
     }
 
@@ -200,10 +188,10 @@ public class Antibody {
 
         double eucledeanDistance = 0.0;
         for (int i=0;i<featureSet1.length;i++){
-            /*if(!activeFeatures[i]){
+            /*if(!featuresWeights[i]){
                 continue;
             }*/
-            eucledeanDistance += Math.pow(featureSet1[i] - featureSet2[i],2);
+            eucledeanDistance += /*this.featuresWeights[i]**/(Math.pow(featureSet1[i] - featureSet2[i],2));
         }
 
         eucledeanDistance = Math.sqrt(eucledeanDistance);
@@ -296,12 +284,12 @@ public class Antibody {
     public void setConnectedAntigensSet(boolean connectedAntigensSet) {
         this.connectedAntigensSet = connectedAntigensSet;
     }
-    public boolean[] getActiveFeatures() {
-        return activeFeatures;
+    public double[] getFeaturesWeights() {
+        return featuresWeights;
     }
 
-    public void setActiveFeatures(boolean[] inactiveFeatures) {
-        this.activeFeatures = inactiveFeatures;
+    public void setFeaturesWeights(double[] inactiveFeatures) {
+        this.featuresWeights = inactiveFeatures;
     }
     @Override
     public String toString() {

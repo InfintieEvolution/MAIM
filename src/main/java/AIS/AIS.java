@@ -29,6 +29,7 @@ public class AIS {
     private double radiusMultiplier;
     private int offspringSize;
     private int islandCount;
+    public int islandIndex;
     public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations, double radiusMultiplier, int islandCount){
         this.antigens = antigens;
         this.antigenMap = antigenMap;
@@ -51,6 +52,7 @@ public class AIS {
         this.radiusMultiplier = radiusMultiplier;
         this.offspringSize = populationSize;
         this.islandCount = islandCount;
+        this.islandIndex = random.nextInt(2)+1;
         selectionComparator = (o1, o2) -> {
             if (o1.getFitness() > o2.getFitness()) {
                 return -1;
@@ -77,12 +79,6 @@ public class AIS {
 
     public void iterate(){
         this.iteration++;
-        //clear the connected antibodies list for the next iteration
-        for(Antigen antigen:antigens){
-            antigen.setConnectedAntibodies(new ArrayList<>());
-            antigen.setTotalInteraction(0.0);
-            antigen.getInteractionMap().put(this,0.0);
-        }
 
         ArrayList<Antibody> newAntibodiesOfLabel = new ArrayList<>();
 
@@ -91,6 +87,7 @@ public class AIS {
         for(int i=0;i<offspringSize;i++){
                 String randomLabel = this.labels.get(random.nextInt(labels.size()));
                 String randomLabel2 = this.labels.get(random.nextInt(labels.size()));
+                ArrayList<Antibody> antibodiesToExclude = new ArrayList<>();
                 Antibody parent1;
                 Antibody parent2 = null;
                 //boolean crossover = true;
@@ -99,12 +96,13 @@ public class AIS {
                     crossover = false;
                 }*/
                 if(antibodyMap.get(randomLabel).size() > numberOfTournaments){
-                    parent1 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
+                    parent1 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments,antibodiesToExclude);
                     if(parent1.getTotalInteraction() == 0.0){ //if the antibody is not able to recognize anything correctly, do not allow it to reproduce
                         parent1 = createAntibody(randomLabel,true);
                     }
+                    antibodiesToExclude.add(parent1);
                     //if(crossover){
-                        parent2 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments);
+                        parent2 = tournamentSelection(antibodyMap.get(randomLabel), numberOfTournaments,antibodiesToExclude);
                         if(parent2.getTotalInteraction() == 0.0){
                             parent2 = createAntibody(randomLabel,true);
                         }
@@ -113,7 +111,7 @@ public class AIS {
                 else{
                     parent1 = createAntibody(randomLabel,false);
                     //if(crossover){
-                        parent2 = createAntibody(randomLabel,false);
+                    parent2 = createAntibody(randomLabel,false);
                     //}
 
                 }
@@ -130,7 +128,7 @@ public class AIS {
             }*/
             Antibody child;
                 //if(!crossover){
-                    //child = new Antibody(parent1.getFeatures(),parent1.getRadius(),parent1.getLabel(),parent1.getAntigens(),this,parent1.getActiveFeatures());
+                    //child = new Antibody(parent1.getFeatures(),parent1.getRadius(),parent1.getLabel(),parent1.getAntigens(),this,parent1.getFeaturesWeights());
                     //this.mutate(child);
                 //}else{
                     child = crossover(parent1,parent2);
@@ -147,10 +145,21 @@ public class AIS {
                 antibodyMap.get(antibody.getLabel()).add(antibody);
             }
 
+        if(islandCount == 1){   //only basic ais
+            for(Antigen antigen:antigens){
+                antigen.setConnectedAntibodies(new ArrayList<>());
+                antigen.setTotalInteraction(0.0);
+                antigen.getInteractionMap().put(this,0.0);
+            }
+        }
+
         //set connections
         for(String label: antibodyMap.keySet()){
             for(Antibody antibody:antibodyMap.get(label)){
                 antibody.setConnectedAntigens();
+                if(islandCount == 1){   //only basic AIS so we calculate local sharing factor
+                    antibody.setInteraction();
+                }
             }
         }
         //calculate fitness after connections has been set
@@ -170,7 +179,7 @@ public class AIS {
         double r;
 
         //if(p > 0.5){//mutate radius
-            r = ThreadLocalRandom.current().nextDouble(0.8, 1.1);
+            r = ThreadLocalRandom.current().nextDouble(0.8, 1.2);
             antibody.setRadius(antibody.getRadius()*r);
         //}else {
             double probability = (double)1/(1+antibody.getFeatures().length);
@@ -181,10 +190,17 @@ public class AIS {
                     antibody.getFeatures()[i] *= r;
                 }
             }
+            for(int i=0;i<antibody.getFeaturesWeights().length;i++){
+            double rand = Math.random();
+            if(rand >= probability){
+                r = ThreadLocalRandom.current().nextDouble(0.8, 1.2);
+                antibody.getFeaturesWeights()[i] *= r;
+            }
+        }
         //}
 
         //int randomIndex = random.nextInt(antibody.getFeatures().length);
-        //antibody.getActiveFeatures()[randomIndex] = !antibody.getActiveFeatures()[randomIndex];
+        //antibody.getFeaturesWeights()[randomIndex] = !antibody.getFeaturesWeights()[randomIndex];
     }
 
     private Antibody crossover(Antibody parent1, Antibody parent2){
@@ -196,20 +212,24 @@ public class AIS {
             bestParent = parent2;
         }
         double[] features = new double[parent1.getFeatures().length];
+        double[] featureWeights = new double[parent1.getFeatures().length];
+
         for(int i=0;i<features.length;i++){
             double rand = Math.random();
             if(rand > 0.5){
                 features[i] = parent1.getFeatures()[i];
+                featureWeights[i] = parent1.getFeaturesWeights()[i];
             }else{
                 features[i] = parent2.getFeatures()[i];
+                featureWeights[i] = parent2.getFeaturesWeights()[i];
             }
         }
-        Antibody antibody = new Antibody(features,this.calculateNewRadius(bestParent),parent1.getLabel(),this.antigens,this,bestParent.getActiveFeatures());
+        Antibody antibody = new Antibody(features,this.calculateNewRadius(bestParent),parent1.getLabel(),this.antigens,this,featureWeights);
         /*double bestAffinity = antibody.calculateAffinity();
         for(int i=0;i<antibody.getFeatures().length;i++){
-            Antibody newAntibody = new Antibody(features,this.calculateNewRadius(bestParent),parent1.getLabel(),this.antigens,this,bestParent.getActiveFeatures());
+            Antibody newAntibody = new Antibody(features,this.calculateNewRadius(bestParent),parent1.getLabel(),this.antigens,this,bestParent.getFeaturesWeights());
             int randomIndex = random.nextInt(newAntibody.getFeatures().length);
-            newAntibody.getActiveFeatures()[randomIndex] = !newAntibody.getActiveFeatures()[randomIndex];
+            newAntibody.getFeaturesWeights()[randomIndex] = !newAntibody.getFeaturesWeights()[randomIndex];
             double affinity = newAntibody.calculateAffinity();
 
             if(affinity > bestAffinity){
@@ -236,11 +256,15 @@ public class AIS {
         return radius;
     }
 
-    private Antibody tournamentSelection(ArrayList<Antibody> antibodies, int numberOfTournaments){
+    private Antibody tournamentSelection(ArrayList<Antibody> antibodies, int numberOfTournaments, ArrayList<Antibody> antibodiesToExclude){
         Antibody winner = null;
 
         for (int i = 0; i < numberOfTournaments; i ++) {
-            final Antibody participant = antibodies.get(random.nextInt(antibodies.size()));
+            Antibody participant = antibodies.get(random.nextInt(antibodies.size()));
+
+            while (antibodiesToExclude.contains(participant)){
+                participant = antibodies.get(random.nextInt(antibodies.size()));
+            }
 
             if (winner == null || participant.getFitness() > winner.getFitness()) {
                 winner = participant;
@@ -249,7 +273,7 @@ public class AIS {
         return winner;
     }
 
-    private void select(){
+    private void rankSelection(){
         final ArrayList<Antibody> priorityQueue = new ArrayList<>();
 
         for (String label:antibodyMap.keySet()){
@@ -469,7 +493,7 @@ public class AIS {
                         double distance = antibody.eucledeanDistance(antibody.getFeatures(), antigen.getAttributes());
                         if (distance <= antibody.getRadius()) {
                             //antibody is inside recognition radius
-                            double voteWeight = (1 / (distance)) * antibody.getAccuracy();
+                            double voteWeight = 1/*(1 / (distance)) * antibody.getAccuracy()*/;
                             if (!votingMap.containsKey(antibody.getLabel())) {
                                 votingMap.put(antibody.getLabel(), voteWeight);
                             } else {
@@ -507,8 +531,10 @@ public class AIS {
                     /*if(ais == null){
                         antigen.addDanger(1.0);
                     }*/
-                    antigen.addDanger(1.0);
-                    antigen.addDanger(ais,1.0);
+                    if(ais != null){
+                        //antigen.getAntigenWeights().put(ais,antigen.getAntigenWeights().get(ais)+1);
+                        antigen.addDanger(1.0);
+                    }
                     //}
                 }/*else{
                     if(ais != null){

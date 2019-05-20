@@ -112,7 +112,7 @@ public class AISIGA extends Application {
 
                 for (int j = 0; j < allAIS.size(); j++) {
                     AIS someAIS = allAIS.get(j);
-                    double accuracy = AIS.vote(someAIS.getAntigenMap(), someAIS.getAntibodyMap(),someAIS);
+                    double accuracy = AIS.vote(someAIS.getAntigenMap(), someAIS.getAntibodyMap(),null);
                     if(plotSolution) {
                         antibodyGenerationAccuracies[j].add(accuracy);
                         antibodyGenerations[j].add(AIS.copy(someAIS.getAntibodyMap()));
@@ -168,7 +168,7 @@ public class AISIGA extends Application {
             }
             for (int j = 0; j < allAIS.size(); j++) {
                 AIS someAIS = allAIS.get(j);
-                double accuracy = AIS.vote(someAIS.getAntigenMap(), someAIS.getAntibodyMap(),someAIS);
+                double accuracy = AIS.vote(someAIS.getAntigenMap(), someAIS.getAntibodyMap(),null);
                 if(plotSolution) {
                     antibodyGenerationAccuracies[j].add(accuracy);
                     antibodyGenerations[j].add(AIS.copy(someAIS.getAntibodyMap()));
@@ -317,7 +317,7 @@ public class AISIGA extends Application {
 
                     for (int m = 0; m < allAIS.size(); m++) {
                         AIS someAIS = allAIS.get(m);
-                        accuracy = AIS.vote(someAIS.getAntigenMap(), someAIS.getAntibodyMap(),someAIS);
+                        accuracy = AIS.vote(someAIS.getAntigenMap(), someAIS.getAntibodyMap(),null);
                         someAIS.setCurrentAccuracy(accuracy);
                     }
 

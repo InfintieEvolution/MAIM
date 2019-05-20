@@ -34,9 +34,11 @@ public class GUI extends BorderPane {
         dataSetLabelIndexes.put("diabetes.csv",8);
         dataSetLabelIndexes.put("spirals.txt",2);
         dataSetLabelIndexes.put("heart.dat",13);
+        dataSetLabelIndexes.put("breastCancer.csv",9);
+        dataSetLabelIndexes.put("bupa.data",6);
 
     }
-    private final ChoiceBox<String> dataSetBox = new ChoiceBox<>(FXCollections.observableArrayList("iris.data", "wine.data", "ionosphere.data", "glass.data", "crabs.csv", "abalone.data","sonar.all-data.txt","diabetes.csv","spirals.txt","heart.dat"));
+    private final ChoiceBox<String> dataSetBox = new ChoiceBox<>(FXCollections.observableArrayList("iris.data", "wine.data", "ionosphere.data", "glass.data", "crabs.csv", "abalone.data","sonar.all-data.txt","diabetes.csv","spirals.txt","heart.dat","breastCancer.csv","bupa.data"));
     private int labelIndex;
 
     private final Stage primaryStage;
@@ -176,7 +178,7 @@ public class GUI extends BorderPane {
             setBestAccuracyIteration(antibodyGenerationAccuracies[Integer.parseInt(setBox.getValue())-1].get(bestIterations[Integer.parseInt(setBox.getValue())-1]), bestIterations[Integer.parseInt(setBox.getValue())-1]);
             boolean isInteger = tryParseInt(iterationTextField.getText());
             if(!isInteger){
-                this.drawSolution(antigenTestMap,antibodyGenerations[Integer.parseInt(setBox.getValue())-1].get(bestIterations[Integer.parseInt(setBox.getValue())-1]),0.0,radiusPlot);
+                this.drawSolution(antigenTestMap,antibodyGenerations[Integer.parseInt(setBox.getValue())-1].get(bestIterations[antibodyGenerations.length-1]),0.0,radiusPlot);
             }else{
                 int iteration = Integer.valueOf(iterationTextField.getText());
                 int islandNumber = Integer.parseInt(setBox.getValue())-1;
@@ -194,7 +196,7 @@ public class GUI extends BorderPane {
             boolean isInteger = tryParseInt(iterationTextField.getText());
             if(e.getCode() == KeyCode.ENTER){
                 if(!isInteger){
-                    this.drawSolution(antigenTestMap,antibodyGenerations[Integer.parseInt(setBox.getValue())-1].get(bestIterations[Integer.parseInt(setBox.getValue())-1]),0.0,radiusPlot);
+                    this.drawSolution(antigenTestMap,antibodyGenerations[Integer.parseInt(setBox.getValue())-1].get(bestIterations[antibodyGenerations.length-1]),0.0,radiusPlot);
                 }else{
                     int iteration = Integer.valueOf(iterationTextField.getText());
                     int islandNumber = Integer.parseInt(setBox.getValue())-1;
@@ -232,7 +234,7 @@ public class GUI extends BorderPane {
                     iterationTextField.setText(Integer.toString(iteration));
                 }else if(iteration == antibodyGenerations[islandNumber].size()){
                     iterationTextField.setText("Test");
-                    this.drawSolution(antigenTestMap,antibodyGenerations[Integer.parseInt(setBox.getValue())-1].get(bestIterations[Integer.parseInt(setBox.getValue())-1]),0.0,radiusPlot);
+                    this.drawSolution(antigenTestMap,antibodyGenerations[Integer.parseInt(setBox.getValue())-1].get(bestIterations[antibodyGenerations.length-1]),0.0,radiusPlot);
                 }
             }
         });

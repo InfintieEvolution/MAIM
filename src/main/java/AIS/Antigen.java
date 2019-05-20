@@ -13,6 +13,7 @@ public class Antigen {
     private HashMap<AIS,Double> interactionMap;
     private HashMap<AIS,Double> dangerMap;
     private double correctlyClassified;
+    private HashMap<AIS,Double> antigenWeights;
     public Antigen(double[] attributes, String label){
 
         this.attributes = attributes;
@@ -22,6 +23,7 @@ public class Antigen {
         this.interactionMap = new HashMap<>();
         this.dangerMap = new HashMap<>();
         this.correctlyClassified = 0;
+        this.antigenWeights = new HashMap<AIS, Double>();
     }
 
 
@@ -71,6 +73,10 @@ public class Antigen {
         }
 
     }
+    public void addInteraction(double weight){
+        this.totalInteraction +=weight;
+
+    }
     public void addDanger(AIS ais, double danger){
         if(dangerMap.containsKey(ais)){
             this.dangerMap.put(ais,this.dangerMap.get(ais) +danger);
@@ -110,6 +116,14 @@ public class Antigen {
 
     public void setCorrectlyClassified(double correctlyClassified) {
         this.correctlyClassified = correctlyClassified;
+    }
+
+    public HashMap<AIS, Double> getAntigenWeights() {
+        return antigenWeights;
+    }
+
+    public void setAntigenWeights(HashMap<AIS, Double> antigenWeights) {
+        this.antigenWeights = antigenWeights;
     }
 
     @Override

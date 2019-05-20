@@ -2,7 +2,6 @@ package Island;
 
 import AIS.AIS;
 import AIS.Antibody;
-import AIS.Antigen;
 
 import java.util.*;
 
@@ -235,21 +234,20 @@ public class Island {
         //removeRandomAntibodies();
 
 //        ArrayList<Antibody> receivingAntibodies = sendingIsland.sendAllRandom(sendingIsland.getAis());
-        for(Antigen antigen:getAis().getAntigens()){
+        /*for(Antigen antigen:getAis().getAntigens()){
             antigen.setConnectedAntibodies(new ArrayList<>());
             antigen.setTotalInteraction(0.0);
             antigen.getInteractionMap().put(this.getAis(),0.0);
-        }
+        }*/
 
         ArrayList<Antibody> receivingAntibodies = sendingIsland.sendAllRandomNew();
-        ArrayList<Antibody> newAntibodies = new ArrayList<>();
         for (Antibody antibody : receivingAntibodies){
-            var newAntibody = new Antibody(antibody.getFeatures(), antibody.getRadius(), antibody.getLabel(), this.getAis().getAntigens(), this.getAis(),antibody.getActiveFeatures());
-            newAntibodies.add(newAntibody);
-
+            var newAntibody = new Antibody(antibody.getFeatures(), antibody.getRadius(), antibody.getLabel(), this.getAis().getAntigens(), this.getAis(),antibody.getFeaturesWeights());
+            newAntibody.setFitness(antibody.getFitness());
+            newAntibody.setAccuracy(antibody.getAccuracy());
             this.getAis().getAntibodyMap().get(antibody.getLabel()).add(newAntibody);
         }
-        for(String label: this.getAis().getAntibodyMap().keySet()){
+        /*for(String label: this.getAis().getAntibodyMap().keySet()){
             for(Antibody antibody: this.getAis().getAntibodyMap().get(label)){
                 antibody.setConnectedAntigens();
             }
@@ -258,7 +256,7 @@ public class Island {
             for(Antibody antibody: this.getAis().getAntibodyMap().get(label)){
                 antibody.calculateFitness();
             }
-        }
+        }*/
 
     }
 
