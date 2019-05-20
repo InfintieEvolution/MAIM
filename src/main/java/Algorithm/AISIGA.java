@@ -9,6 +9,10 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -47,7 +51,28 @@ public class AISIGA extends Application {
                     boolean plotSolution) {
 
         if(k > 1){
-            this.validateAccuracies(k,
+            for(int i=0;i<=10;i++){
+                for(int j=0;j<=10;j++){
+                    double migFreq = (double) i/10;
+                    double migRate = (double) j/10;
+                    this.validateAccuracies(k,
+                            iterations,
+                            populationSize,
+                            mutationRate,
+                            numberOfTournaments,
+                            dataSetName,
+                            labelIndex,
+                            migFreq,
+                            numberOfIslands,
+                            migRate,
+                            masterIsland,
+                            islandIntegrationCount,
+                            pcaDimensions,
+                            validationSplit,
+                            radiusMultiplier);
+                }
+            }
+            /*this.validateAccuracies(k,
                     iterations,
                     populationSize,
                     mutationRate,
@@ -61,7 +86,7 @@ public class AISIGA extends Application {
                     islandIntegrationCount,
                     pcaDimensions,
                     validationSplit,
-                    radiusMultiplier);
+                    radiusMultiplier);*/
 
         }else{
         this.running = true;
@@ -232,9 +257,9 @@ public class AISIGA extends Application {
         double[] accuracies = new double[k];
         DataSet dataSet = new DataSet("./DataSets/" + dataSetName, 0.0,0.0, labelIndex,pcaDimensions);
         HashMap<String,ArrayList<Antigen>>[] dataSetSplits = DataSet.splitDataSet(k,dataSet.antigenMap);
-        gui.createStatisticGraph(k-1,1,false);
+        //gui.createStatisticGraph(k-1,1,false);
 
-        Thread aisThread = new Thread(() -> {
+        //Thread aisThread = new Thread(() -> {
 
             double totalBestAccuracy = 0.0;
             for(int j=0; j<accuracies.length;j++){
@@ -358,12 +383,12 @@ public class AISIGA extends Application {
             HashMap<String, ArrayList<Antibody>> bestGeneration =  antibodyGenerations.get(ais.getBestIteration());
 
             double accuracy =AIS.vote(testSetMap,bestGeneration,null);
-            gui.addIteration(accuracy, false,0);
+            //gui.addIteration(accuracy, false,0);
             accuracies[j] = accuracy;
 
             if(accuracy >= totalBestAccuracy){
                 totalBestAccuracy = accuracy;
-                gui.setBestAccuracy(accuracy,0);
+                //gui.setBestAccuracy(accuracy,0);
             }
             double accuracySum = 0.0;
             int accuracyCount = 0;
@@ -373,20 +398,53 @@ public class AISIGA extends Application {
                     accuracyCount++;
                 }
             }
-            gui.setAverageAccuracy(accuracySum/accuracyCount,0);
+            double averageAccuracy = accuracySum/accuracyCount;
+            //gui.setAverageAccuracy(accuracySum/accuracyCount,0);
+                int scale = (int) Math.pow(10, 4);
+                averageAccuracy = (double) Math.round(averageAccuracy * scale) / scale;
+            if(j == accuracies.length-1){
+                String stuff = migrationFrequency+","+migrationRate+","+averageAccuracy+"\n";
+                try {
+                    BufferedWriter writer = new BufferedWriter(new FileWriter("./values.csv", true));
+                    writer.append(stuff);
+
+                    writer.close();
+                    System.out.println("line written");
+                } catch (IOException e) {
+                    e.printStackTrace();
+
+                }
+            }
         }
 
-        Platform.runLater(() -> {
+        /*Platform.runLater(() -> {
             gui.startButton.setDisable(false);
             gui.startButton.requestFocus();
             gui.iterationTextField.setDisable(false);
             gui.stopButton.setDisable(true);
-        });
-        });
+        });*/
+        //});
 
-        aisThread.start();
+        //aisThread.start();
     }
 
+    /*public void writeValues(String stuff){
+        throws IOException {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("./values.csv", true));
+            writer.append("\n"+stuff);
+
+            writer.close();
+        }
+    }*/
+    public void whenAppendStringUsingBufferedWritter_thenOldContentShouldExistToo()
+            throws IOException {
+        String str = "World";
+        BufferedWriter writer = new BufferedWriter(new FileWriter("values.txt", true));
+        writer.append(' ');
+        writer.append(str);
+
+        writer.close();
+    }
     public synchronized boolean getRunning() {
         return running;
     }
