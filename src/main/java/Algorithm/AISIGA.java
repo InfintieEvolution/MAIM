@@ -26,6 +26,7 @@ public class AISIGA extends Application {
     private ArrayList<AIS> allAIS;
     private boolean radiusPlot = true;
 
+    public int f = 0;
     @Override
     public void start(Stage primaryStage) throws Exception {
         gui = new GUI(primaryStage, this);
@@ -51,27 +52,30 @@ public class AISIGA extends Application {
                     boolean plotSolution) {
 
         if(k > 1){
-            for(int i=0;i<=10;i++){
-                for(int j=0;j<=10;j++){
-                    double migFreq = (double) i/10;
-                    double migRate = (double) j/10;
-                    this.validateAccuracies(k,
-                            iterations,
-                            populationSize,
-                            mutationRate,
-                            numberOfTournaments,
-                            dataSetName,
-                            labelIndex,
-                            migFreq,
-                            numberOfIslands,
-                            migRate,
-                            masterIsland,
-                            islandIntegrationCount,
-                            pcaDimensions,
-                            validationSplit,
-                            radiusMultiplier);
+            for(int op=0; op< 5; op++){
+                for(int i=0;i<=10;i++){
+                    for(int j=0;j<=10;j++){
+                        double migFreq = (double) i/10;
+                        double migRate = (double) j/10;
+                        this.validateAccuracies(k,
+                                iterations,
+                                populationSize,
+                                mutationRate,
+                                numberOfTournaments,
+                                dataSetName,
+                                labelIndex,
+                                migFreq,
+                                numberOfIslands,
+                                migRate,
+                                masterIsland,
+                                islandIntegrationCount,
+                                pcaDimensions,
+                                validationSplit,
+                                radiusMultiplier);
+                    }
                 }
             }
+
             /*this.validateAccuracies(k,
                     iterations,
                     populationSize,
@@ -407,9 +411,16 @@ public class AISIGA extends Application {
                 try {
                     BufferedWriter writer = new BufferedWriter(new FileWriter("./values.csv", true));
                     writer.append(stuff);
+                    if (this.f == 121){
+                        writer.newLine();
+                    }
 
                     writer.close();
-                    System.out.println("line written");
+                    this.f += 1;
+                    System.out.println("line written: " + String.valueOf(f));
+                    if(this.f == 121){
+                        this.f = 0;
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
 
