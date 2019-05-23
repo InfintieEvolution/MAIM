@@ -145,21 +145,21 @@ public class AIS {
                 antibodyMap.get(antibody.getLabel()).add(antibody);
             }
 
-        if(islandCount == 1){   //only basic ais
+        //if(islandCount == 1){   //only basic ais
             for(Antigen antigen:antigens){
                 antigen.setConnectedAntibodies(new ArrayList<>());
                 antigen.setTotalInteraction(0.0);
                 antigen.getInteractionMap().put(this,0.0);
             }
-        }
+        //}
 
         //set connections
         for(String label: antibodyMap.keySet()){
             for(Antibody antibody:antibodyMap.get(label)){
                 antibody.setConnectedAntigens();
-                if(islandCount == 1){   //only basic AIS so we calculate local sharing factor
+                //if(islandCount == 1){   //only basic AIS so we calculate local sharing factor
                     antibody.setInteraction();
-                }
+                //}
             }
         }
         //calculate fitness after connections has been set

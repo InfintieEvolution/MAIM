@@ -227,11 +227,11 @@ public class MasterIsland {
     public void incorporateAllIslands(){
         populationChanged = false;
 
-        for(Antigen antigen:this.ais.getAntigens()){
+        /*for(Antigen antigen:this.ais.getAntigens()){
             antigen.setConnectedAntibodies(new ArrayList<>());
             antigen.setTotalInteraction(0.0);
             antigen.setInteractionMap(new HashMap<>());
-        }
+        }*/
 
         HashMap<String,ArrayList<Antibody>> population = new HashMap<>();
         for(String label: this.ais.getLabels()){
@@ -275,11 +275,11 @@ public class MasterIsland {
         //double accuracy1 = AIS.vote(trainingAntigenMap,this.ais.getAntibodyMap(),this.ais);
 
         //set the interaction of the antigens
-        for(String label:population.keySet()){
+        /*for(String label:population.keySet()){
             for(Antibody antibody: population.get(label)){
                 antibody.setInteraction();
             }
-        }
+        }*/
 
 
         /*int k = 0;
