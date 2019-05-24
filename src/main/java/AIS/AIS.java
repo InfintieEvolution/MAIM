@@ -353,6 +353,7 @@ public class AIS {
         priorityQueue.sort(selectionComparator);
 
         final Antibody[] survivors = new Antibody[populationSize];
+        HashSet<Integer> hashSet = new HashSet<>();
 
         int index = 0;
 
@@ -372,21 +373,30 @@ public class AIS {
                     survivors[index ++] = priorityQueue.remove(random.nextInt(priorityQueue.size()));
                     break;
                 }
-                cumulativeProbability += priorityQueue.get(listIndex).getFitness()/fitnessSum;
+                Antibody currentAntibody = priorityQueue.get(listIndex);
+                cumulativeProbability += currentAntibody.getFitness()/fitnessSum;
 
-                if(p <= cumulativeProbability){
+                if(p <= cumulativeProbability && !hashSet.contains(Arrays.hashCode(currentAntibody.getFeatures()))){
 
                     survivors[index ++] = priorityQueue.remove(listIndex);
+                    hashSet.add(Arrays.hashCode(currentAntibody.getFeatures()));
                     break;
                 }
                 listIndex++;
             }
         }
+        //HashSet<Integer> hashSet1 = new HashSet<>();
 
         for (String label: labels){
             newAntibdyMap.put(label,new ArrayList<>());
         }
         for(Antibody antibody: survivors){
+            /*int hashCode = Arrays.hashCode(antibody.getFeatures());
+            if(hashSet1.contains(hashCode)){
+                System.out.println("hey");
+            }else{
+                hashSet1.add(hashCode);
+            }*/
             newAntibdyMap.get(antibody.getLabel()).add(antibody);
         }
 
@@ -493,7 +503,7 @@ public class AIS {
                         double distance = antibody.eucledeanDistance(antibody.getFeatures(), antigen.getAttributes());
                         if (distance <= antibody.getRadius()) {
                             //antibody is inside recognition radius
-                            double voteWeight = 1/*(1 / (distance)) * antibody.getAccuracy()*/;
+                            double voteWeight = (1 / (distance)) * antibody.getWeightedAccuracy();
                             if (!votingMap.containsKey(antibody.getLabel())) {
                                 votingMap.put(antibody.getLabel(), voteWeight);
                             } else {

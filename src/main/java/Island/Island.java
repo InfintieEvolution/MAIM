@@ -245,6 +245,7 @@ public class Island {
             var newAntibody = new Antibody(antibody.getFeatures(), antibody.getRadius(), antibody.getLabel(), this.getAis().getAntigens(), this.getAis(),antibody.getFeaturesWeights());
             newAntibody.setFitness(antibody.getFitness());
             newAntibody.setAccuracy(antibody.getAccuracy());
+            newAntibody.setWeightedAccuracy(antibody.getWeightedAccuracy());
             this.getAis().getAntibodyMap().get(antibody.getLabel()).add(newAntibody);
         }
         /*for(String label: this.getAis().getAntibodyMap().keySet()){
