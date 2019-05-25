@@ -432,21 +432,25 @@ public class AIS {
         priorityQueue.sort(selectionComparator);
 
         final Antibody[] survivors = new Antibody[populationSize];
+        HashSet<Integer> hashSet = new HashSet<>();
 
         for(int i =0; i<survivors.length;i++){
-            survivors[i] = priorityQueue.remove(0);
+            boolean antibodyNotFound = true;
+            while (antibodyNotFound){
+            Antibody antibody = priorityQueue.remove(0);
+
+            if(!hashSet.contains(Arrays.hashCode(antibody.getFeatures()))){
+                survivors[i] = antibody;
+                hashSet.add(Arrays.hashCode(antibody.getFeatures()));
+                antibodyNotFound = false;
+            }
+            }
         }
 
         for (String label: labels){
             newAntibdyMap.put(label,new ArrayList<>());
         }
         for(Antibody antibody: survivors){
-            /*int hashCode = Arrays.hashCode(antibody.getFeatures());
-            if(hashSet1.contains(hashCode)){
-                System.out.println("hey");
-            }else{
-                hashSet1.add(hashCode);
-            }*/
             newAntibdyMap.get(antibody.getLabel()).add(antibody);
         }
 

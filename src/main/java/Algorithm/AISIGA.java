@@ -316,6 +316,8 @@ public class AISIGA extends Application {
                     if (!this.getRunning()) {
                         break;
                     }
+                    gui.setCurrentIteration(i+1,0);
+
                     double accuracy;
                     iga.migrate();
 

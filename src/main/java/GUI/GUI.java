@@ -320,7 +320,9 @@ public class GUI extends BorderPane {
     public void setAverageAccuracy(double accuracy,int graphIndex) {
         graphs.get(graphIndex).setAverageAccuracy(accuracy);
     }
-
+    public void setCurrentIteration(int iteration, int graphIndex) {
+        graphs.get(graphIndex).setIteration(iteration);
+    }
     public void setBestAccuracyIteration(double accuracy, int iteration) {
         solutionGraph.setBestAccuracyIteration(accuracy, iteration);
     }

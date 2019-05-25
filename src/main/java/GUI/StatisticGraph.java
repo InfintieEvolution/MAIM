@@ -22,6 +22,8 @@ class StatisticGraph extends Pane {
     private final boolean slave;
     private Text bestAccuracyText = new Text();
     private Text averageAccuracyText = new Text();
+    private Text iterationText = new Text();
+
     private Text labelText = new Text();
 
     StatisticGraph(double width, double height, int iterations,boolean kfold, boolean slave, int index) {
@@ -108,9 +110,11 @@ class StatisticGraph extends Pane {
         averageAccuracyText.setX((width/2)*0.8);
         BorderPane.setAlignment(averageAccuracyText, Pos.CENTER);
 
+        iterationText.setY(height+60);
+        iterationText.setX((width/2)*0.8);
+        BorderPane.setAlignment(iterationText, Pos.CENTER);
 
-
-        super.getChildren().addAll(line1,line2, line3, line4, line1Text,line2Text, line3Text, line4Text, bestAccuracyText,averageAccuracyText,labelText);
+        super.getChildren().addAll(line1,line2, line3, line4, line1Text,line2Text, line3Text, line4Text, bestAccuracyText,averageAccuracyText,labelText,iterationText);
     }
 
     public void addIteration(double fitness, boolean migration) {
@@ -142,5 +146,8 @@ class StatisticGraph extends Pane {
 
     void setAverageAccuracy(double accuracy) {
         Platform.runLater(() -> averageAccuracyText.setText(String.format(Locale.US, "Average achieved accuracy: %.2f%%", accuracy*100)));
+    }
+    void setIteration(int iteration) {
+        Platform.runLater(() -> iterationText.setText("Current iteration: "+ iteration));
     }
 }
