@@ -40,11 +40,11 @@ public class Antibody {
         this.correctInteraction = 0.0;
         this.connectedAntigenOfLabel = new HashMap<>();
         this.featuresWeights = new double[features.length];
-        if(featuresWeights == null){
+        /*if(featuresWeights == null){
             initializeFeatureSet();
         }else{
             this.featuresWeights = featuresWeights;
-        }
+        }*/
     }
 
     public void initializeFeatureSet(){

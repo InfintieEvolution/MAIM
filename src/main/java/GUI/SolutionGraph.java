@@ -142,7 +142,7 @@ public class SolutionGraph extends Pane {
                             connection.setStartY(mapYToGraph(antibody.getFeatures()[1]));
                             connection.setEndX(mapXToGraph(antigen.getAttributes()[0]));
                             connection.setEndY(mapYToGraph(antigen.getAttributes()[1]));
-                            connection.setOpacity(0.1);
+                            connection.setOpacity(1);
                             connectionPane.getChildren().add(connection);
                         }
                     }

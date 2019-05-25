@@ -28,14 +28,15 @@ public class MasterIsland {
     private HashMap<Island,Double> accuracies;
     private HashMap<String,ArrayList<Antibody>>[] bestGenerations;
     private HashMap<String,ArrayList<Antibody>> currentBestPopulation;
-
-    public MasterIsland(AIS ais, double migrationRate, double migrationFrequency, ArrayList<Island> allIslands) {
+    private boolean globalSharingFactor;
+    public MasterIsland(AIS ais, double migrationRate, double migrationFrequency, ArrayList<Island> allIslands, boolean globalSharingFactor) {
         this.ais = ais;
         this.migrationRate = migrationRate;
         this.migrationFrequency = migrationFrequency;
         this.numberOfMigrants = (int) (migrationRate * ais.getPopulationSize());
         this.allIslands = allIslands;
         this.currentAccuracy = 0.0;
+        this.globalSharingFactor = globalSharingFactor;
         combinedAntigenMap = new HashMap<>();
         validationAntigenMap = new HashMap<>();
         trainingAntigenMap = new HashMap<>();
@@ -227,12 +228,13 @@ public class MasterIsland {
     public void incorporateAllIslands(){
         populationChanged = false;
 
-        for(Antigen antigen:this.ais.getAntigens()){
-            antigen.setConnectedAntibodies(new ArrayList<>());
-            antigen.setTotalInteraction(0.0);
-            antigen.setInteractionMap(new HashMap<>());
+        if(globalSharingFactor){
+            for(Antigen antigen:this.ais.getAntigens()){
+                antigen.setConnectedAntibodies(new ArrayList<>());
+                antigen.setTotalInteraction(0.0);
+                antigen.setInteractionMap(new HashMap<>());
+            }
         }
-
         HashMap<String,ArrayList<Antibody>> population = new HashMap<>();
         for(String label: this.ais.getLabels()){
             population.put(label,new ArrayList<>());
@@ -275,9 +277,11 @@ public class MasterIsland {
         //double accuracy1 = AIS.vote(trainingAntigenMap,this.ais.getAntibodyMap(),this.ais);
 
         //set the interaction of the antigens
-        for(String label:population.keySet()){
-            for(Antibody antibody: population.get(label)){
-                antibody.setInteraction();
+        if(globalSharingFactor){
+                for(String label:population.keySet()){
+                for(Antibody antibody: population.get(label)){
+                    antibody.setInteraction();
+                }
             }
         }
 

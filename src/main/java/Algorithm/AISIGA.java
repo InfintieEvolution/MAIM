@@ -44,7 +44,8 @@ public class AISIGA extends Application {
                     boolean radiusPlot,
                     double validationSplit,
                     double radiusMultiplier,
-                    boolean plotSolution) {
+                    boolean plotSolution,
+                    boolean globalSharingFactor) {
 
         if(k > 1){
             this.validateAccuracies(k,
@@ -61,7 +62,8 @@ public class AISIGA extends Application {
                     islandIntegrationCount,
                     pcaDimensions,
                     validationSplit,
-                    radiusMultiplier);
+                    radiusMultiplier,
+                    globalSharingFactor);
 
         }else{
         this.running = true;
@@ -72,7 +74,7 @@ public class AISIGA extends Application {
 
         DataSet dataSet = new DataSet("./DataSets/" + dataSetName, trainingTestSplit,validationSplit, labelIndex,pcaDimensions);
 
-        IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland);
+        IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland,globalSharingFactor);
         iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations, radiusMultiplier);
 
         if(iga.hasMaster()){
@@ -221,7 +223,8 @@ public class AISIGA extends Application {
                                    int islandIntegrationCount,
                                    int pcaDimensions,
                                    double validationSplit,
-                                   double radiusMultiplier){
+                                   double radiusMultiplier,
+                                   boolean globalSharingFactor){
 
 
         this.running = true;
@@ -295,7 +298,7 @@ public class AISIGA extends Application {
             dataSet.setAntigenMap(trainingSetMap);
             dataSet.setValidationAntigenMap(validationSetMap);
 
-            IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland);
+            IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland,globalSharingFactor);
             iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations, radiusMultiplier);
 
             if(iga.hasMaster()){
@@ -307,7 +310,8 @@ public class AISIGA extends Application {
 
             this.allAIS = iga.getAllAIS();
 
-            ArrayList<HashMap<String, ArrayList<Antibody>>> antibodyGenerations = new ArrayList<>();
+            //ArrayList<HashMap<String, ArrayList<Antibody>>> antibodyGenerations = new ArrayList<>();
+                HashMap<String, ArrayList<Antibody>> bestGeneration = new HashMap<>();
                 for (int i = 0; i < iterations; i++) {
                     if (!this.getRunning()) {
                         break;
@@ -327,11 +331,12 @@ public class AISIGA extends Application {
                     }else{
                         accuracy = AIS.vote(ais.getAntigenMap(), ais.getAntibodyMap(),null);
                     }
-                    antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
+                    //antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
 
                     if (accuracy >= ais.getBestAccuracy()) {
                         ais.setBestAccuracy(accuracy);
                         ais.setBestIteration(i);
+                        bestGeneration = AIS.copy(ais.getAntibodyMap());
                     }
 
                     for (int m = 0; m < allAIS.size(); m++) {
@@ -353,9 +358,9 @@ public class AISIGA extends Application {
                 ais.setBestIteration(iterations);
             }
 
-            antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
+            //antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
 
-            HashMap<String, ArrayList<Antibody>> bestGeneration =  antibodyGenerations.get(ais.getBestIteration());
+            //HashMap<String, ArrayList<Antibody>> bestGeneration =  antibodyGenerations.get(ais.getBestIteration());
 
             double accuracy =AIS.vote(testSetMap,bestGeneration,null);
             gui.addIteration(accuracy, false,0);

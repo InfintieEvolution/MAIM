@@ -30,7 +30,8 @@ public class AIS {
     private int offspringSize;
     private int islandCount;
     public int islandIndex;
-    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations, double radiusMultiplier, int islandCount){
+    public boolean globalSharingFactor;
+    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations, double radiusMultiplier, int islandCount,boolean globalSharingFactor){
         this.antigens = antigens;
         this.antigenMap = antigenMap;
         this.featureMap = new HashMap<>();
@@ -53,6 +54,7 @@ public class AIS {
         this.offspringSize = populationSize;
         this.islandCount = islandCount;
         this.islandIndex = random.nextInt(2)+1;
+        this.globalSharingFactor = globalSharingFactor;
         selectionComparator = (o1, o2) -> {
             if (o1.getFitness() > o2.getFitness()) {
                 return -1;
@@ -145,7 +147,7 @@ public class AIS {
                 antibodyMap.get(antibody.getLabel()).add(antibody);
             }
 
-        if(islandCount == 1){   //only basic ais
+        if(islandCount == 1 || !globalSharingFactor){   //only basic ais
             for(Antigen antigen:antigens){
                 antigen.setConnectedAntibodies(new ArrayList<>());
                 antigen.setTotalInteraction(0.0);
@@ -157,7 +159,7 @@ public class AIS {
         for(String label: antibodyMap.keySet()){
             for(Antibody antibody:antibodyMap.get(label)){
                 antibody.setConnectedAntigens();
-                if(islandCount == 1){   //only basic AIS so we calculate local sharing factor
+                if(islandCount == 1 || !globalSharingFactor){   //only basic AIS so we calculate local sharing factor
                     antibody.setInteraction();
                 }
             }
@@ -169,6 +171,8 @@ public class AIS {
             }
         }
         this.antibodyMap = fitnessProportionateSelection(this.antibodyMap,this.populationSize,this.labels);
+        //this.antibodyMap = extremeElitism(this.antibodyMap,this.populationSize,this.labels);
+
         //this.select();
 
     }
@@ -190,13 +194,13 @@ public class AIS {
                     antibody.getFeatures()[i] *= r;
                 }
             }
-            for(int i=0;i<antibody.getFeaturesWeights().length;i++){
+            /*for(int i=0;i<antibody.getFeaturesWeights().length;i++){
             double rand = Math.random();
             if(rand >= probability){
                 r = ThreadLocalRandom.current().nextDouble(0.8, 1.2);
                 antibody.getFeaturesWeights()[i] *= r;
             }
-        }
+        }*/
         //}
 
         //int randomIndex = random.nextInt(antibody.getFeatures().length);
@@ -212,19 +216,19 @@ public class AIS {
             bestParent = parent2;
         }
         double[] features = new double[parent1.getFeatures().length];
-        double[] featureWeights = new double[parent1.getFeatures().length];
+        //double[] featureWeights = new double[parent1.getFeatures().length];
 
         for(int i=0;i<features.length;i++){
             double rand = Math.random();
             if(rand > 0.5){
                 features[i] = parent1.getFeatures()[i];
-                featureWeights[i] = parent1.getFeaturesWeights()[i];
+                //featureWeights[i] = parent1.getFeaturesWeights()[i];
             }else{
                 features[i] = parent2.getFeatures()[i];
-                featureWeights[i] = parent2.getFeaturesWeights()[i];
+                //featureWeights[i] = parent2.getFeaturesWeights()[i];
             }
         }
-        Antibody antibody = new Antibody(features,this.calculateNewRadius(bestParent),parent1.getLabel(),this.antigens,this,featureWeights);
+        Antibody antibody = new Antibody(features,this.calculateNewRadius(bestParent),parent1.getLabel(),this.antigens,this,null);
         /*double bestAffinity = antibody.calculateAffinity();
         for(int i=0;i<antibody.getFeatures().length;i++){
             Antibody newAntibody = new Antibody(features,this.calculateNewRadius(bestParent),parent1.getLabel(),this.antigens,this,bestParent.getFeaturesWeights());
@@ -403,7 +407,53 @@ public class AIS {
         return newAntibdyMap;
     }
 
-    public void initialisePopulation(int populationSize, boolean shouldBeConnected){
+    public static HashMap<String, ArrayList<Antibody>> extremeElitism(HashMap<String, ArrayList<Antibody>> antibodyMap, int populationSize, ArrayList<String> labels) {
+        HashMap<String, ArrayList<Antibody>> newAntibdyMap = new HashMap<>();
+        Random random = new Random();
+
+        //use fitness selection comparator
+        Comparator<Antibody> selectionComparator = (o1, o2) -> {
+            if (o1.getFitness() > o2.getFitness()) {
+                return -1;
+            }
+            else if (o1.getFitness() < o2.getFitness()) {
+                return 1;
+            }
+            return 0;
+        };
+
+        //list for sorting
+        final ArrayList<Antibody> priorityQueue = new ArrayList<>();
+
+        for (String label:antibodyMap.keySet()){
+            priorityQueue.addAll(antibodyMap.get(label));
+        }
+
+        priorityQueue.sort(selectionComparator);
+
+        final Antibody[] survivors = new Antibody[populationSize];
+
+        for(int i =0; i<survivors.length;i++){
+            survivors[i] = priorityQueue.remove(0);
+        }
+
+        for (String label: labels){
+            newAntibdyMap.put(label,new ArrayList<>());
+        }
+        for(Antibody antibody: survivors){
+            /*int hashCode = Arrays.hashCode(antibody.getFeatures());
+            if(hashSet1.contains(hashCode)){
+                System.out.println("hey");
+            }else{
+                hashSet1.add(hashCode);
+            }*/
+            newAntibdyMap.get(antibody.getLabel()).add(antibody);
+        }
+
+        return newAntibdyMap;
+    }
+
+        public void initialisePopulation(int populationSize, boolean shouldBeConnected){
         for(String label: labels){
             this.antibodyMap.put(label,new ArrayList<>());
         }

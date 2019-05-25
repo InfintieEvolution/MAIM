@@ -67,6 +67,7 @@ public class GUI extends BorderPane {
     private CheckBox masterIslandCheckBox = new CheckBox("MasterIsland");
     private CheckBox radiusCheckBox = new CheckBox("Plot radius");
     private CheckBox plotSolutionCheckBox = new CheckBox("Plot solution");
+    private CheckBox globalSharingFactorCheckBox = new CheckBox("Global Sharing Factor");
 
     private final FlowPane graphPane = new FlowPane();
     private final ScrollPane scrollPane = new ScrollPane();
@@ -135,7 +136,8 @@ public class GUI extends BorderPane {
                 new Text("Radius multiplier:"), radiusMultiplier,
                 new Text("PCA projection"),pca,
                 radiusCheckBox,
-                plotSolutionCheckBox);
+                plotSolutionCheckBox,
+                globalSharingFactorCheckBox);
         setLeft(options);
 
         startButton.setOnAction((e) -> {
@@ -156,7 +158,8 @@ public class GUI extends BorderPane {
                     radiusCheckBox.isSelected(),
                     Double.valueOf(inputValidationSplit.getText()),
                     Double.valueOf(radiusMultiplier.getText()),
-                    plotSolutionCheckBox.isSelected());
+                    plotSolutionCheckBox.isSelected(),
+                    globalSharingFactorCheckBox.isSelected());
         });
         stopButton.setOnAction(event -> AISIGA.stopRunning());
         stopButton.setDisable(true);
