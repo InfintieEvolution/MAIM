@@ -31,7 +31,7 @@ public class AIS {
     private int islandCount;
     public int islandIndex;
     public boolean globalSharingFactor;
-    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations, double radiusMultiplier, int islandCount,boolean globalSharingFactor){
+    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations, int islandCount,boolean globalSharingFactor){
         this.antigens = antigens;
         this.antigenMap = antigenMap;
         this.featureMap = new HashMap<>();
@@ -500,6 +500,7 @@ public class AIS {
                 attributes[i] = minValue + (maxValue - minValue)*random.nextDouble();
             }
 
+            //Antigen randomAntigen = antigenMap.get(label).get(random.nextInt(antigenMap.get(label).size()));
             Antigen randomAntigen = antigens[random.nextInt(antigens.length)];
             double radius = AIS.eucledeanDistance(attributes,randomAntigen.getAttributes());
 

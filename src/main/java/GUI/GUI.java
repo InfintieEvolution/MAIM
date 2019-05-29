@@ -68,6 +68,7 @@ public class GUI extends BorderPane {
     private CheckBox radiusCheckBox = new CheckBox("Plot radius");
     private CheckBox plotSolutionCheckBox = new CheckBox("Plot solution");
     private CheckBox globalSharingFactorCheckBox = new CheckBox("Global Sharing Factor");
+    private CheckBox masterValidationCheckBox = new CheckBox("Master valdidation");
 
     private final FlowPane graphPane = new FlowPane();
     private final ScrollPane scrollPane = new ScrollPane();
@@ -108,6 +109,7 @@ public class GUI extends BorderPane {
         masterIslandCheckBox.setSelected(true);
         plotSolutionCheckBox.setSelected(true);
         radiusCheckBox.setSelected(true);
+        masterValidationCheckBox.setSelected(true);
         menu = new HBox(5);
         //menu.setPadding(new Insets(5,0,10,0));
         menu.setAlignment(Pos.CENTER);
@@ -133,11 +135,11 @@ public class GUI extends BorderPane {
                 new Text("Dataset split:"),inputDataSetSplit,
                 new Text("Validation split:"),inputValidationSplit,
                 new Text("k-fold cross validation:"),inputK,
-                new Text("Radius multiplier:"), radiusMultiplier,
                 new Text("PCA projection"),pca,
                 radiusCheckBox,
                 plotSolutionCheckBox,
-                globalSharingFactorCheckBox);
+                globalSharingFactorCheckBox,
+                masterValidationCheckBox);
         setLeft(options);
 
         startButton.setOnAction((e) -> {
@@ -157,7 +159,7 @@ public class GUI extends BorderPane {
                     Integer.valueOf(pca.getText()),
                     radiusCheckBox.isSelected(),
                     Double.valueOf(inputValidationSplit.getText()),
-                    Double.valueOf(radiusMultiplier.getText()),
+                    masterValidationCheckBox.isSelected(),
                     plotSolutionCheckBox.isSelected(),
                     globalSharingFactorCheckBox.isSelected());
         });
