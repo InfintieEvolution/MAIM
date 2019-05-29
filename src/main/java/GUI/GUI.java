@@ -166,7 +166,7 @@ public class GUI extends BorderPane {
         primaryStage.show();
     }
 
-    public void setAntibodyGenerations(ArrayList<HashMap<String,ArrayList<Antibody>>> antibodyGenerations[], int[] bestIterations, ArrayList<Double> antibodyGenerationAccuracies[],HashMap<String,ArrayList<Antigen>> antigenMap, HashMap<String,ArrayList<Antigen>> antigenTestMap, boolean radiusPlot){
+    public void setAntibodyGenerations(ArrayList<ArrayList<Antibody>> antibodyGenerations[], int[] bestIterations, ArrayList<Double> antibodyGenerationAccuracies[],HashMap<String,ArrayList<Antigen>> antigenMap, HashMap<String,ArrayList<Antigen>> antigenTestMap, boolean radiusPlot){
         //this.antibodyGenerations = antibodyGenerations;
 
         setBox = new ChoiceBox<>();
@@ -186,7 +186,7 @@ public class GUI extends BorderPane {
                 int iteration = Integer.valueOf(iterationTextField.getText());
                 int islandNumber = Integer.parseInt(setBox.getValue())-1;
                 if(iteration >= 0 && iteration <antibodyGenerations[islandNumber].size()){
-                    HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations[islandNumber].get(iteration);
+                    ArrayList<Antibody> antibodyMap = antibodyGenerations[islandNumber].get(iteration);
                     double accuracy = antibodyGenerationAccuracies[islandNumber].get(iteration);
                     this.drawSolution(antigenMap,antibodyMap,accuracy,radiusPlot);
                 }
@@ -204,7 +204,7 @@ public class GUI extends BorderPane {
                     int iteration = Integer.valueOf(iterationTextField.getText());
                     int islandNumber = Integer.parseInt(setBox.getValue())-1;
                     if(iteration >= 0 && iteration <antibodyGenerations[islandNumber].size()){
-                        HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations[islandNumber].get(iteration);
+                        ArrayList<Antibody> antibodyMap = antibodyGenerations[islandNumber].get(iteration);
                         double accuracy = antibodyGenerationAccuracies[islandNumber].get(iteration);
                         this.drawSolution(antigenMap,antibodyMap,accuracy,radiusPlot);
                     }
@@ -214,7 +214,7 @@ public class GUI extends BorderPane {
                 int iteration = Integer.valueOf(iterationTextField.getText())-1;
                 int islandNumber = Integer.parseInt(setBox.getValue())-1;
                 if(iteration >= 0 && iteration <antibodyGenerations[islandNumber].size()){
-                    HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations[islandNumber].get(iteration);
+                    ArrayList<Antibody> antibodyMap = antibodyGenerations[islandNumber].get(iteration);
                     double accuracy = antibodyGenerationAccuracies[islandNumber].get(iteration);
                     this.drawSolution(antigenMap,antibodyMap,accuracy,radiusPlot);
                     iterationTextField.setText(Integer.toString(iteration));
@@ -222,7 +222,7 @@ public class GUI extends BorderPane {
             }else if(e.getCode() == KeyCode.DOWN){
                 int islandNumber = Integer.parseInt(setBox.getValue())-1;
                 int iteration = antibodyGenerations[islandNumber].size()-1;
-                HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations[islandNumber].get(iteration);
+                ArrayList<Antibody> antibodyMap = antibodyGenerations[islandNumber].get(iteration);
                 double accuracy = antibodyGenerationAccuracies[islandNumber].get(iteration);
                 this.drawSolution(antigenMap,antibodyMap,accuracy,radiusPlot);
                 iterationTextField.setText(Integer.toString(iteration));
@@ -231,7 +231,7 @@ public class GUI extends BorderPane {
                 int iteration = Integer.valueOf(iterationTextField.getText())+1;
                 int islandNumber = Integer.parseInt(setBox.getValue())-1;
                 if(iteration >= 0 && iteration < antibodyGenerations[islandNumber].size()){
-                    HashMap<String,ArrayList<Antibody>> antibodyMap = antibodyGenerations[islandNumber].get(iteration);
+                    ArrayList<Antibody> antibodyMap = antibodyGenerations[islandNumber].get(iteration);
                     double accuracy = antibodyGenerationAccuracies[islandNumber].get(iteration);
                     this.drawSolution(antigenMap,antibodyMap,accuracy,radiusPlot);
                     iterationTextField.setText(Integer.toString(iteration));
@@ -258,13 +258,13 @@ public class GUI extends BorderPane {
             return false;
         }
     }
-    public void createSolutionGraph(HashMap<String, double[][]> featureMap, HashMap<String,ArrayList<Antibody>> antibodyMap) {
-        this.solutionGraph = new SolutionGraph(solutionGraphWidth, solutionGraphHeight, featureMap,antibodyMap);
+    public void createSolutionGraph(HashMap<String, double[][]> featureMap,ArrayList<Antibody> antibodies) {
+        this.solutionGraph = new SolutionGraph(solutionGraphWidth, solutionGraphHeight, featureMap,antibodies);
         setCenter(solutionGraph);
     }
 
-    public void drawSolution(HashMap<String, ArrayList<Antigen>> antigenMap, HashMap<String, ArrayList<Antibody>> antibodyMap, double accuracy, boolean radiusPlot){
-        solutionGraph.drawSolutionGraph(antigenMap,antibodyMap,accuracy, radiusPlot);
+    public void drawSolution(HashMap<String, ArrayList<Antigen>> antigenMap, ArrayList<Antibody> antibodies, double accuracy, boolean radiusPlot){
+        solutionGraph.drawSolutionGraph(antigenMap,antibodies,accuracy, radiusPlot);
     }
 
     public void setAccuracy(double accuracy) {

@@ -27,14 +27,14 @@ public class SolutionGraph extends Pane {
     private final Color[] colors = {Color.GREEN, Color.RED, Color.ORANGE, Color.BLUE, Color.PURPLE, Color.PINK, Color.AQUA, Color.GOLDENROD, Color.LIME, Color.DARKRED, Color.DARKBLUE, Color.DARKOLIVEGREEN};
 
     private HashMap<String, ArrayList<Antigen>> antigenMap;
-    private HashMap<String, ArrayList<Antibody>> antibodyMap;
+    private ArrayList<Antibody> antibodies;
     private HashMap<String, double[][]> featureMap;
     private HashMap<String,String> colorMap;
     private Text accuracyText = new Text();
     private Text bestAccuracyText = new Text();
     private double accuracy;
     private double width;
-    public SolutionGraph(double width, double height, HashMap<String, double[][]> featureMap, HashMap<String, ArrayList<Antibody>> antibodyMap) {
+    public SolutionGraph(double width, double height, HashMap<String, double[][]> featureMap, ArrayList<Antibody> antibodies) {
         super();
         antigenPane = new Pane();
         antibodyPane = new Pane();
@@ -44,10 +44,10 @@ public class SolutionGraph extends Pane {
         super.getChildren().addAll(connectionPane, antibodyPane, antigenPane);
         this.featureMap = featureMap;
         this.colorMap = new HashMap<>();
-        this.antibodyMap = antibodyMap;
+        this.antibodies = antibodies;
         this.width = width;
         setRandomColors(this.featureMap);
-        setBounds(featureMap, antibodyMap,false);
+        setBounds(featureMap, antibodies,false);
         this.accuracy = 0.0;
         this.height = height;
 
@@ -60,14 +60,14 @@ public class SolutionGraph extends Pane {
         super.getChildren().addAll(accuracyText, bestAccuracyText);
     }
 
-    public void drawSolutionGraph(HashMap<String, ArrayList<Antigen>> antigenMap,HashMap<String, ArrayList<Antibody>> antibodyMap, double accuracy, boolean radiusPlot){
-        setBounds(featureMap,antibodyMap,radiusPlot);
+    public void drawSolutionGraph(HashMap<String, ArrayList<Antigen>> antigenMap,ArrayList<Antibody> antibodies, double accuracy, boolean radiusPlot){
+        setBounds(featureMap,antibodies,radiusPlot);
         this.factorX = width / Math.abs(this.maxX - this.minX);
         this.factorY = height / Math.abs(this.maxY - this.minY);
         this.accuracy = accuracy;
         //plot antigens
         //plot antibodies
-        this.setAntibodies(antibodyMap,radiusPlot);
+        this.setAntibodies(antibodies,radiusPlot);
         this.setAntigens(antigenMap);
 
         if(!radiusPlot){
@@ -77,7 +77,7 @@ public class SolutionGraph extends Pane {
         if(accuracy > 0.0){
             setAccuracy(this.accuracy);
         }else{
-            setAccuracy(AIS.vote(this.antigenMap,this.antibodyMap,null));
+            setAccuracy(AIS.vote(this.antigenMap,this.antibodies,null));
         }
     }
     public void setAntigens(HashMap<String, ArrayList<Antigen>> antigenMap) {
@@ -98,13 +98,11 @@ public class SolutionGraph extends Pane {
         }
     }
 
-    public void setAntibodies(HashMap<String, ArrayList<Antibody>> antibodyMap, boolean radiusPlot) {
-        this.antibodyMap = antibodyMap;
+    public void setAntibodies(ArrayList<Antibody> antibodies, boolean radiusPlot) {
+        this.antibodies = antibodies;
         antibodyPane.getChildren().clear();
-        for (String label : antibodyMap.keySet()) {
-            String color = this.colorMap.get(label);
-            var al = antibodyMap.get(label);
-            for (Antibody antibody : al){
+            for (Antibody antibody : antibodies){
+                String color = this.colorMap.get(antibody.getLabel());
                 if(radiusPlot){
                     Circle antibodyCircle = new Circle(antibody.getRadius()*factorX);
                     antibodyCircle.setTranslateX(mapXToGraph(antibody.getFeatures()[0]));
@@ -123,15 +121,13 @@ public class SolutionGraph extends Pane {
                     antibodyPane.getChildren().add(antibodyCircle);
                 }
             }
-        }
     }
 
 
     public void setConnections(){
         connectionPane.getChildren().clear();
-        for (String antibodyLabel : antibodyMap.keySet()) {
-            String color = this.colorMap.get(antibodyLabel);
-            for(Antibody antibody: antibodyMap.get(antibodyLabel)){
+            for(Antibody antibody: antibodies){
+                String color = this.colorMap.get(antibody.getLabel());
                 for (String antigenLabel : antigenMap.keySet()) {
                     for (Antigen antigen : antigenMap.get(antigenLabel)) {
                         double distance = antibody.eucledeanDistance(antibody.getFeatures(), antigen.getAttributes());
@@ -148,7 +144,6 @@ public class SolutionGraph extends Pane {
                     }
                 }
             }
-        }
     }
 
     private void setRandomColors(HashMap<String, double[][]> featureMap) {
@@ -162,7 +157,7 @@ public class SolutionGraph extends Pane {
         }
     }
 
-    private void setBounds(HashMap<String, double[][]> featureMap, HashMap<String, ArrayList<Antibody>> antibodyMap, boolean radiusPlot) {
+    private void setBounds(HashMap<String, double[][]> featureMap, ArrayList<Antibody> antibodyMap, boolean radiusPlot) {
         double lowestValuedFeatureX = Double.MAX_VALUE;
         double highestValuedFeatureX = Double.NEGATIVE_INFINITY;
 
@@ -192,8 +187,7 @@ public class SolutionGraph extends Pane {
         }
 
         if(radiusPlot){
-            for (String antibodyLabel : antibodyMap.keySet()){
-                for(Antibody antibody : antibodyMap.get(antibodyLabel)){
+                for(Antibody antibody : antibodies){
                     var features = antibody.getFeatures();
 
                     if (features[0] -antibody.getRadius() < lowestValuedFeatureX) {
@@ -210,10 +204,9 @@ public class SolutionGraph extends Pane {
                         highestValuedFeatureY = features[1] + antibody.getRadius();
                     }
                 }
-            }
+
         }else{
-            for (String antibodyLabel : antibodyMap.keySet()){
-                for(Antibody antibody : antibodyMap.get(antibodyLabel)){
+                for(Antibody antibody : antibodies){
                     var features = antibody.getFeatures();
 
                     if (features[0] < lowestValuedFeatureX) {
@@ -230,7 +223,6 @@ public class SolutionGraph extends Pane {
                         highestValuedFeatureY = features[1];
                     }
                 }
-            }
         }
         this.minX = lowestValuedFeatureX;
         this.minY = lowestValuedFeatureY;

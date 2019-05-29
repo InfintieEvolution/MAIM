@@ -10,56 +10,38 @@ public class Antibody {
 
     private double[] features;
     private double radius;
-    private String label;
     private double fitness;
     private Antigen[] antigens;
     private HashMap<Antigen,Double> connectedAntigen;
     private HashMap<String, ArrayList<Antigen>> connectedAntigenOfLabel;
     private double boundAntigensCount;
     private double totalInteraction;
-    private int correctClassificationCount;
     private boolean connectedAntigensSet;
-    private double correctInteraction;
     private double accuracy;
     private AIS ais;
     private double weightedAccuracy;
     private double[] featuresWeights;
-
-    public Antibody(double[] features, double radius, String label, Antigen[] antigens, AIS ais, double[] featuresWeights){
+    private HashMap<String,Double> classDistributionMap;
+    private String label;
+    public Antibody(double[] features, double radius, Antigen[] antigens, AIS ais, double[] featuresWeights){
         this.features = features;
         this.radius = radius;
-        this.label = label;
         this.fitness = 0.0;
         this.antigens = antigens;
         this.connectedAntigen = new HashMap<>();
         this.boundAntigensCount = 0;
-        this.correctClassificationCount = 0;
         this.connectedAntigensSet = false;
         this.ais = ais;
         this.accuracy = 0.0;
-        this.correctInteraction = 0.0;
         this.connectedAntigenOfLabel = new HashMap<>();
         this.featuresWeights = new double[features.length];
-        /*if(featuresWeights == null){
-            initializeFeatureSet();
-        }else{
-            this.featuresWeights = featuresWeights;
-        }*/
-    }
-
-    public void initializeFeatureSet(){
-        for (int i = 0; i< featuresWeights.length; i++){
-            double r = ThreadLocalRandom.current().nextDouble(0.5, 1.5);
-            featuresWeights[i] = r;
-            /*double p = Math.random();
-            if(p<0.5){
-                featuresWeights[i] = !featuresWeights[i];
-            }*/
-        }
+        this.classDistributionMap = new HashMap<>();
+        //setConnectedAntigens();
     }
     public void setConnectedAntigens(){
         //Connected antigens has been calculated before, we only need to re-add the connected antigen
         if(!this.connectedAntigensSet){  //first time calculating fitness
+            double totalClassDistribution = 0.0;
             for (Antigen antigen:antigens){
                 double distance = eucledeanDistance(this.features,antigen.getAttributes());
                 if (distance <= this.radius) {
@@ -75,14 +57,27 @@ public class Antibody {
                     }else{
                         connectedAntigenOfLabel.put(antigen.getLabel(),new ArrayList<>(){{add(antigen);}});
                     }
-                    if(antigen.getLabel().equals(this.label)){
-                        correctClassificationCount +=1;
-                        correctInteraction += weight;
-                    }
+
+                    //add to class distribution.
+                    classDistributionMap.put(antigen.getLabel(), classDistributionMap.getOrDefault(antigen.getLabel(), 1.0) + weight);
                 }
             }
-            this.weightedAccuracy = (1 + correctInteraction) /(connectedAntigenOfLabel.keySet().size()+totalInteraction);
-            this.accuracy = (double) correctClassificationCount/(boundAntigensCount);
+            String mostRepresentedClass = null;
+            double highestDistribution = 0.0;
+            for(String label:classDistributionMap.keySet()){
+                double distribution = classDistributionMap.get(label);
+                if(distribution > highestDistribution){
+                    highestDistribution = distribution;
+                    mostRepresentedClass = label;
+                }
+                classDistributionMap.put(label,distribution/(classDistributionMap.keySet().size()+totalInteraction));
+            }
+
+            if(mostRepresentedClass == null){
+                this.label = antigens[0].getLabel();
+            }else{
+                this.label = mostRepresentedClass;
+            }
         }
     }
 
@@ -105,40 +100,11 @@ public class Antibody {
             this.fitness = 0.0;
         }else{
             double sharingFactor = 0.0;
-            int connectedIndividuals = 0;
-            double correctClassificationRate = 1.0;
-            double dangerousIndividuals = 1;
-            double classificationWeight = 1.0;
-            double b =0.0;
             for(Antigen antigen: connectedAntigen.keySet()){
-                /*if(antigen.getInteractionMap().containsKey(this.ais)){
-                    b += Math.pow(antigen.getInteractionMap().get(this.ais),2)/antigen.getTotalInteraction();
-                    //System.out.println(b);
-                }*/
-                /*if(antigen.getAntigenWeights().containsKey(ais) && antigen.getLabel().equals(this.getLabel())){
-                    double w = antigen.getAntigenWeights().get(ais)/this.ais.getIteration();
-                    if(w < classificationWeight){
-                        classificationWeight = w;
-                        //System.out.println(classificationWeight);
-                    }
-                }*/
-                if(antigen.getCorrectlyClassified() > 0.0 && antigen.getLabel().equals(this.label)){
-                    double w = antigen.getCorrectlyClassified() / ais.getIteration();
-                    if(w < correctClassificationRate){
-                        correctClassificationRate = w;
-                        //System.out.println(w);
-                    }
-                }
-                Random rd = new Random();
                 double weight = connectedAntigen.get(antigen);
-                //System.out.println(rd.nextInt(2)+1);
-                sharingFactor += Math.pow(weight,2)/(antigen.getTotalInteraction()); //part of the antigen that belongs to the antibody
+                sharingFactor += (Math.pow(weight,2)/(antigen.getTotalInteraction()))*classDistributionMap.get(antigen.getLabel()); //part of the antigen that belongs to the antibody
             }
-            //System.out.println(b+" sharing factor "+sharingFactor);
-            //System.out.println(b);
-
-            //System.out.println(classificationWeight);
-            this.fitness = ((sharingFactor*weightedAccuracy)/(totalInteraction));
+            this.fitness = ((sharingFactor)/(totalInteraction));
         }
     }
 
@@ -167,7 +133,7 @@ public class Antibody {
         return affinity;
     }
 
-    public double checkAccuracy(){
+    /*public double checkAccuracy(){
         int totalClassifications = 0;
         int correctClassifications = 0;
         for (Antigen antigen:antigens){
@@ -182,7 +148,7 @@ public class Antibody {
         double accuracy = (double)correctClassifications/totalClassifications;
         this.accuracy = accuracy;
         return accuracy;
-    }
+    }*/
 
     public double eucledeanDistance(double[] featureSet1, double[] featureSet2){
 
@@ -198,13 +164,6 @@ public class Antibody {
         return eucledeanDistance;
     }
 
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
 
     public double[] getFeatures() {
         return features;
@@ -291,11 +250,27 @@ public class Antibody {
     public void setFeaturesWeights(double[] inactiveFeatures) {
         this.featuresWeights = inactiveFeatures;
     }
+
+    public HashMap<String, Double> getClassDistributionMap() {
+        return classDistributionMap;
+    }
+
+    public void setClassDistributionMap(HashMap<String, Double> classDistributionMap) {
+        this.classDistributionMap = classDistributionMap;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
     @Override
     public String toString() {
         return
                 "features=" + Arrays.toString(features) +
-                ", radius=" + radius +
-                ", label='" + label + '\'';
+                ", radius=" + radius;
     }
 }

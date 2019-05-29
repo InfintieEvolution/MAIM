@@ -77,7 +77,7 @@ public class MasterIsland {
         };
     }
 
-    public void removeRandomAntibodies() {
+    /*public void removeRandomAntibodies() {
         Set<String> labels = this.ais.getAntibodyMap().keySet();
         ArrayList<Antibody>allAntibodies = new ArrayList<>();
         for (String label : labels) {
@@ -97,13 +97,14 @@ public class MasterIsland {
         for (Antibody antibody: receivingAntibodies) {
             this.ais.getAntibodyMap().get(antibody.getLabel()).add(antibody);
         }
-    }
+    }*/
 
     public void select(int islandIntegrationCount){
         if(islandIntegrationCount == allIslands.size()){
             incorporateAllIslands();
             return;
         }
+        /*
         this.ais.setIteration(this.ais.getIteration()+1);
         ArrayList<Antibody> subPopulationList = new ArrayList<>();
 
@@ -134,8 +135,7 @@ public class MasterIsland {
                 subPopulation.put(label,new ArrayList<>());
             }
             for(Antibody antibody: survivors){
-                /*Antibody antibody1 = new Antibody(antibody.getFeatures(),antibody.getRadius(),antibody.getLabel(),this.getAis().getAntigens(),this.getAis());
-                subPopulation.get(antibody1.getLabel()).add(antibody1);*/
+
 
                 subPopulation.get(antibody.getLabel()).add(antibody);
             }
@@ -164,50 +164,13 @@ public class MasterIsland {
 
                 Island island = allIslands.get(islandIndex);
                 for(String label: island.getAis().getAntibodyMap().keySet()){
-                    /*for(Antibody antibody: island.getAis().getAntibodyMap().get(label)){
-                        Antibody antibody1 = new Antibody(antibody.getFeatures(),antibody.getRadius(),antibody.getLabel(),this.getAis().getAntigens(),this.getAis());
-                        subPopulations[islandCount].get(label).add(antibody1);
-                    }*/
+
                     subPopulations[islandCount].get(label).addAll(island.getAis().getAntibodyMap().get(label));
                 }
                 islandIndexes.add(islandIndex);
                 integratedIslands++;
             }
 
-            /*for(Antigen antigen:this.getAis().getAntigens()){
-                antigen.setConnectedAntibodies(new ArrayList<>());
-                antigen.setTotalInteraction(0.0);
-                antigen.getInteractionMap().put(getAis(),0.0);
-            }
-
-            for(String label: subPopulation.keySet()){
-                for(Antibody antibody:subPopulation.get(label)){
-                    antibody.setConnectedAntigens();
-                }
-            }
-            //calculate fitness after connections has been set
-            for(String label: subPopulation.keySet()) {
-                for(Antibody antibody:subPopulation.get(label)) {
-                    antibody.calculateFitness();
-                }
-            }*/
-            /*HashMap<String,ArrayList<Antigen>>[] antigenList = DataSet.splitDataSet(3,this.ais.getAntigenMap());
-
-            double accuracySum = 0.0;
-            for(HashMap<String,ArrayList<Antigen>> antigens: antigenList){
-                accuracySum += AIS.vote(antigens,subPopulation);
-
-            }*/
-            //double accuracy = accuracySum/antigenList.length;
-
-            /*double accuracyTest = AIS.vote(this.ais.getAntigenMap(),subPopulation);
-            double accuracyValidation = AIS.vote(this.ais.getAntigenValidationMap(),subPopulation);
-            double accuracy;
-            if(accuracyValidation > 0.0){
-                accuracy = (accuracyTest + accuracyValidation)/2;
-            }else{
-                accuracy = accuracyTest;
-            }*/
             double accuracy = AIS.vote(combinedAntigenMap,subPopulation,null);
             if(accuracy > bestIslandAccuracy){
                 bestIslandIndex = islandCount;
@@ -222,7 +185,7 @@ public class MasterIsland {
             populationChanged = true;
         }else{
             populationChanged = false;
-        }
+        }*/
     }
 
     public void incorporateAllIslands(){
@@ -235,15 +198,10 @@ public class MasterIsland {
                 antigen.setInteractionMap(new HashMap<>());
             }
         }
-        HashMap<String,ArrayList<Antibody>> population = new HashMap<>();
-        for(String label: this.ais.getLabels()){
-            population.put(label,new ArrayList<>());
-        }
+        ArrayList<Antibody> population = new ArrayList<>();
 
         for(int i=0; i<allIslands.size();i++){
-            for(String label: allIslands.get(i).getAis().getAntibodyMap().keySet()){
-                population.get(label).addAll(allIslands.get(i).getAis().getAntibodyMap().get(label));
-            }
+            population.addAll(allIslands.get(i).getAis().getAntibodies());
         }
 
         //create a subpopulation of all the other islands
@@ -270,7 +228,7 @@ public class MasterIsland {
         //double accuracy = (accuracy1 + accuracy2)/2;
         if(accuracy >= currentAccuracy){
             //currentBestPopulation = AIS.copy(population);
-            this.ais.setAntibodyMap(population);
+            this.ais.setAntibodies(population);
             currentAccuracy = accuracy;
             populationChanged = true;
         }
@@ -278,11 +236,9 @@ public class MasterIsland {
 
         //set the interaction of the antigens
         if(globalSharingFactor){
-                for(String label:population.keySet()){
-                for(Antibody antibody: population.get(label)){
+                for(Antibody antibody: population){
                     antibody.setInteraction();
                 }
-            }
         }
 
 
@@ -293,7 +249,7 @@ public class MasterIsland {
         System.out.println(k);*/
     }
 
-    public void removeWorstAntibodies() {
+    /*public void removeWorstAntibodies() {
         Set<String> labels = this.ais.getAntibodyMap().keySet();
         ArrayList<Antibody> allAntibodies = new ArrayList<>();
         for (String label : labels) {
@@ -304,7 +260,7 @@ public class MasterIsland {
         for (Antibody antibody : worstAntibodies) {
             this.ais.getAntibodyMap().get(antibody.getLabel()).remove(antibody);
         }
-    }
+    }*/
 
 
     public AIS getAis() {
