@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 public class GUI extends BorderPane {
 
-    private final static HashMap<String, Integer> dataSetLabelIndexes = new HashMap<>();
+    public final static HashMap<String, Integer> dataSetLabelIndexes = new HashMap<>();
     static {
         dataSetLabelIndexes.put("iris.data", 4);
         dataSetLabelIndexes.put("wine.data", 0);
