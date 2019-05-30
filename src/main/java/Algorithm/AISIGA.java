@@ -79,7 +79,7 @@ public class AISIGA extends Application {
                                 mutationRate,
                                 numberOfTournaments,
                                 datasetName,
-                                labelIndex,
+                                gui.dataSetLabelIndexes.get(datasetName),
                                 migrationFrequency,
                                 islandNumber,
                                 migrationRate,
@@ -97,7 +97,7 @@ public class AISIGA extends Application {
                                 mutationRate,
                                 numberOfTournaments,
                                 datasetName,
-                                labelIndex,
+                                gui.dataSetLabelIndexes.get(datasetName),
                                 migrationFrequency,
                                 islandNumber,
                                 migrationRate,
@@ -475,7 +475,7 @@ public class AISIGA extends Application {
                                    boolean masterValidation,
                                    boolean globalSharingFactor){
 
-
+        //System.out.println(dataSetName);
         this.running = true;
         gui.startButton.setDisable(true);
         gui.iterationTextField.setDisable(true);
@@ -649,6 +649,12 @@ public class AISIGA extends Application {
                 }
             }
         }
+        Platform.runLater(() -> {
+            gui.startButton.setDisable(false);
+            gui.startButton.requestFocus();
+            gui.iterationTextField.setDisable(false);
+            gui.stopButton.setDisable(true);
+        });
 
     }
 
