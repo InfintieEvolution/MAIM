@@ -43,7 +43,7 @@ public class IGA {
         this.globalSharingFactor = globalSharingFactor;
     }
 
-    public void initialize(DataSet dataSet, double mutationRate, int numberOfTournaments, int iterations, double someNum){
+    public void initialize(DataSet dataSet, double mutationRate, int numberOfTournaments, int iterations, boolean masterValidation){
 
         /*HashMap<String,ArrayList<Antigen>>[] antigenSets = DataSet.splitDataSet(numberOfIslands,dataSet.antigenMap);
         ArrayList<Antigen>[] antigenLists = new ArrayList[antigenSets.length];
@@ -67,7 +67,7 @@ public class IGA {
             //antigens = antigenLists[i].toArray(antigens);
 
             //AIS ais = new AIS(antigens,dataSet.featureMap,dataSet.labels,antigenSets[i],dataSet.validationAntigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations,someNum,islandCount);
-            AIS ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,dataSet.validationAntigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations, someNum, islandCount,globalSharingFactor);
+            AIS ais = new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,dataSet.validationAntigenMap, (this.populationSize/this.numberOfIslands), mutationRate, numberOfTournaments, iterations, islandCount,globalSharingFactor);
             this.islands.add(new Island(ais, migrationRate, migrationFrequency, i));
         }
         if(islands.size() > 1){
@@ -94,11 +94,12 @@ public class IGA {
 
         if(this.MASTERISLAND) {
              this.masterIsland = new MasterIsland(
-                    new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,dataSet.validationAntigenMap, this.populationSize, mutationRate, numberOfTournaments, iterations, someNum,islandCount,this.globalSharingFactor),
+                    new AIS(dataSet.trainingSet,dataSet.featureMap,dataSet.labels,dataSet.antigenMap,dataSet.validationAntigenMap, this.populationSize, mutationRate, numberOfTournaments, iterations,islandCount,this.globalSharingFactor),
                     migrationRate,
                     migrationFrequency,
                     this.islands,
-                    this.globalSharingFactor
+                    this.globalSharingFactor,
+                     masterValidation
             );
         }
     }

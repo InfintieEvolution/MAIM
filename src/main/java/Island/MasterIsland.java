@@ -29,7 +29,8 @@ public class MasterIsland {
     private HashMap<String,ArrayList<Antibody>>[] bestGenerations;
     private HashMap<String,ArrayList<Antibody>> currentBestPopulation;
     private boolean globalSharingFactor;
-    public MasterIsland(AIS ais, double migrationRate, double migrationFrequency, ArrayList<Island> allIslands, boolean globalSharingFactor) {
+    boolean masterValidation;
+    public MasterIsland(AIS ais, double migrationRate, double migrationFrequency, ArrayList<Island> allIslands, boolean globalSharingFactor, boolean masterValidation) {
         this.ais = ais;
         this.migrationRate = migrationRate;
         this.migrationFrequency = migrationFrequency;
@@ -40,7 +41,7 @@ public class MasterIsland {
         combinedAntigenMap = new HashMap<>();
         validationAntigenMap = new HashMap<>();
         trainingAntigenMap = new HashMap<>();
-
+        this.masterValidation = masterValidation;
         combinedBestMap = new HashMap<>();
         accuracies = new HashMap<>();
         bestGenerations = new HashMap[allIslands.size()];
@@ -266,7 +267,13 @@ public class MasterIsland {
         //double accuracy1 = AIS.vote(trainingAntigenMap,population,this.ais);
         //double accuracy2 = AIS.vote(validationAntigenMap,population,null);
 
-        double accuracy = AIS.vote(validationAntigenMap,population,null);
+        double accuracy;
+        if(masterValidation){
+            accuracy = AIS.vote(validationAntigenMap,population,null);
+
+        }else{
+            accuracy = AIS.vote(combinedAntigenMap,population,null);
+        }
         //double accuracy = (accuracy1 + accuracy2)/2;
         if(accuracy >= currentAccuracy){
             //currentBestPopulation = AIS.copy(population);

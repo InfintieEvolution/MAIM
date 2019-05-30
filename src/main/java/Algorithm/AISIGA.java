@@ -43,7 +43,7 @@ public class AISIGA extends Application {
                     int pcaDimensions,
                     boolean radiusPlot,
                     double validationSplit,
-                    double radiusMultiplier,
+                    boolean masterValidation,
                     boolean plotSolution,
                     boolean globalSharingFactor) {
 
@@ -62,7 +62,7 @@ public class AISIGA extends Application {
                     islandIntegrationCount,
                     pcaDimensions,
                     validationSplit,
-                    radiusMultiplier,
+                    masterValidation,
                     globalSharingFactor);
 
         }else{
@@ -75,7 +75,7 @@ public class AISIGA extends Application {
         DataSet dataSet = new DataSet("./DataSets/" + dataSetName, trainingTestSplit,validationSplit, labelIndex,pcaDimensions);
 
         IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland,globalSharingFactor);
-        iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations, radiusMultiplier);
+        iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations, masterValidation);
 
         if(iga.hasMaster()){
             this.ais = iga.getMasterIsland().getAis();
@@ -223,7 +223,7 @@ public class AISIGA extends Application {
                                    int islandIntegrationCount,
                                    int pcaDimensions,
                                    double validationSplit,
-                                   double radiusMultiplier,
+                                   boolean masterValidation,
                                    boolean globalSharingFactor){
 
 
@@ -299,7 +299,7 @@ public class AISIGA extends Application {
             dataSet.setValidationAntigenMap(validationSetMap);
 
             IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland,globalSharingFactor);
-            iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations, radiusMultiplier);
+            iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations, masterValidation);
 
             if(iga.hasMaster()){
                 this.ais = iga.getMasterIsland().getAis();

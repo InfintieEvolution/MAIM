@@ -26,12 +26,11 @@ public class AIS {
     private int iteration;
     private int maxIterations;
     private double averageFitness;
-    private double radiusMultiplier;
     private int offspringSize;
     private int islandCount;
     public int islandIndex;
     public boolean globalSharingFactor;
-    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations, double radiusMultiplier, int islandCount,boolean globalSharingFactor){
+    public AIS(Antigen[] antigens, HashMap<String,double[][]> featureMap, ArrayList<String> labels, HashMap<String,ArrayList<Antigen>> antigenMap,HashMap<String,ArrayList<Antigen>> antigenValidationMap,int populationSize, double mutationRate, int numberOfTorunaments, int maxIterations, int islandCount,boolean globalSharingFactor){
         this.antigens = antigens;
         this.antigenMap = antigenMap;
         this.featureMap = new HashMap<>();
@@ -50,7 +49,6 @@ public class AIS {
         this.labels = labels;
         this.maxIterations = maxIterations;
         this.antigenValidationMap = antigenValidationMap;
-        this.radiusMultiplier = radiusMultiplier;
         this.offspringSize = populationSize;
         this.islandCount = islandCount;
         this.islandIndex = random.nextInt(2)+1;
@@ -531,10 +529,11 @@ public class AIS {
 
 
             //TODO: Make initial radius better
-            double radius = ThreadLocalRandom.current().nextDouble(minAverage, maxAverage) + (featureMap.get(label).length * radiusMultiplier);
+            //double radius = ThreadLocalRandom.current().nextDouble(minAverage, maxAverage) + (featureMap.get(label).length * radiusMultiplier);
             //double radius = (minAverage + (maxAverage - minAverage) * random.nextDouble()) + (featureMap.get(label).length * radiusMultiplier);
             //double radius = (overallMin + (overallMax - overallMin) * random.nextDouble()) + (featureMap.get(label).length * radiusMultiplier);
-
+            Antigen randomAntigen = antigenMap.get(label).get(random.nextInt(antigenMap.get(label).size()));
+            double radius = AIS.eucledeanDistance(attributes,randomAntigen.getAttributes());
             Antibody antibody = new Antibody(attributes, radius, label, this.antigens,this,null);
             if(!shouldBeConnected){
                 return antibody;
@@ -779,6 +778,17 @@ public class AIS {
 
     public void setIslandCount(int islandCount) {
         this.islandCount = islandCount;
+    }
+
+    public static double eucledeanDistance(double[] featureSet1, double[] featureSet2){
+
+        double eucledeanDistance = 0.0;
+        for (int i=0;i<featureSet1.length;i++){
+            eucledeanDistance +=(Math.pow(featureSet1[i] - featureSet2[i],2));
+        }
+
+        eucledeanDistance = Math.sqrt(eucledeanDistance);
+        return eucledeanDistance;
     }
 
     public static HashMap<String, ArrayList<Antibody>> copy(HashMap<String, ArrayList<Antibody>> original)
