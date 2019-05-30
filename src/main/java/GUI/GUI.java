@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 public class GUI extends BorderPane {
 
-    private final static HashMap<String, Integer> dataSetLabelIndexes = new HashMap<>();
+    public final static HashMap<String, Integer> dataSetLabelIndexes = new HashMap<>();
     static {
         dataSetLabelIndexes.put("iris.data", 4);
         dataSetLabelIndexes.put("wine.data", 0);
@@ -36,7 +36,6 @@ public class GUI extends BorderPane {
         dataSetLabelIndexes.put("heart.dat",13);
         dataSetLabelIndexes.put("breastCancer.csv",9);
         dataSetLabelIndexes.put("bupa.data",6);
-
     }
     private final ChoiceBox<String> dataSetBox = new ChoiceBox<>(FXCollections.observableArrayList("iris.data", "wine.data", "ionosphere.data", "glass.data", "crabs.csv", "abalone.data","sonar.all-data.txt","diabetes.csv","spirals.txt","heart.dat","breastCancer.csv","bupa.data"));
     private int labelIndex;

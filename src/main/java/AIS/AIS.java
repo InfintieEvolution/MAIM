@@ -535,14 +535,15 @@ public class AIS {
             Antigen randomAntigen = antigenMap.get(label).get(random.nextInt(antigenMap.get(label).size()));
             double radius = AIS.eucledeanDistance(attributes,randomAntigen.getAttributes());
             Antibody antibody = new Antibody(attributes, radius, label, this.antigens,this,null);
-            if(!shouldBeConnected){
+            return antibody;
+            /*if(!shouldBeConnected){
                 return antibody;
             }
             else{
                 if(antibody.isConnected()){
                     return antibody;
                 }
-            }
+            }*/
         }
     }
 
