@@ -62,7 +62,8 @@ public class AISIGA extends Application {
             excludeDatasets.add("spirals.txt");
 
             for(String datasetName:gui.dataSetLabelIndexes.keySet()){
-                if(excludeDatasets.contains(dataSetName)){
+
+                if(excludeDatasets.contains(datasetName)){
                     continue;
                 }
                 int[] islandNumbers = new int[]{1,2,3,4,5,6,7,8,9,10,11,12};
