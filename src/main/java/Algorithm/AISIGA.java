@@ -58,11 +58,16 @@ public class AISIGA extends Application {
         if(k > 1){
             HashSet<String> excludeDatasets = new HashSet<>();
             excludeDatasets.add("abalone.data");
-            excludeDatasets.add("crabs.csv");
+            excludeDatasets.add("ionosphere.data");
+            excludeDatasets.add("crabs.data");
             excludeDatasets.add("spirals.txt");
+            excludeDatasets.add("bupa.data");
+            excludeDatasets.add("breastCancer.csv");
+            excludeDatasets.add("wine.data");
+            excludeDatasets.add("glass.data");
 
             for(String datasetName:gui.dataSetLabelIndexes.keySet()){
-                if(excludeDatasets.contains(dataSetName)){
+                if(excludeDatasets.contains(datasetName)){
                     continue;
                 }
                 int[] islandNumbers = new int[]{1,2,3,4,5,6,7,8,9,10,11,12};
@@ -102,7 +107,7 @@ public class AISIGA extends Application {
                                 islandNumber,
                                 migrationRate,
                                 masterIsland,
-                                islandIntegrationCount,
+                                islandNumber,
                                 pcaDimensions,
                                 validationSplit,
                                 masterValidation,
@@ -561,7 +566,7 @@ public class AISIGA extends Application {
 
             this.allAIS = iga.getAllAIS();
 
-            ArrayList<HashMap<String, ArrayList<Antibody>>> antibodyGenerations = new ArrayList<>();
+            HashMap<String, ArrayList<Antibody>> bestGeneration = new HashMap<>();
             for (int i = 0; i < iterations; i++) {
                 if (!this.getRunning()) {
                     break;
@@ -581,11 +586,12 @@ public class AISIGA extends Application {
                 }else{
                     accuracy = AIS.vote(ais.getAntigenMap(), ais.getAntibodyMap(),null);
                 }
-                antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
+                //antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
 
                 if (accuracy >= ais.getBestAccuracy()) {
                     ais.setBestAccuracy(accuracy);
                     ais.setBestIteration(i);
+                    bestGeneration = AIS.copy(ais.getAntibodyMap());
                 }
 
                 for (int m = 0; m < allAIS.size(); m++) {
@@ -605,11 +611,8 @@ public class AISIGA extends Application {
             if (acc >= ais.getBestAccuracy()) {
                 ais.setBestAccuracy(acc);
                 ais.setBestIteration(iterations);
+                bestGeneration = AIS.copy(ais.getAntibodyMap());
             }
-
-            antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
-
-            HashMap<String, ArrayList<Antibody>> bestGeneration =  antibodyGenerations.get(ais.getBestIteration());
 
             double accuracy =AIS.vote(testSetMap,bestGeneration,null);
             accuracies[j] = accuracy;

@@ -120,7 +120,7 @@ public class IGA {
 
     public void migrateMaster(int islandIntegrationCount){
         //this.masterIsland.select(islandIntegrationCount);
-        this.masterIsland.select(islandIntegrationCount);
+        this.masterIsland.incorporateAllIslands();
 
     }
 
