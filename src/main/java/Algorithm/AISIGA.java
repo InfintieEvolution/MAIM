@@ -63,12 +63,13 @@ public class AISIGA extends Application {
             excludeDatasets.add("iris.data");
             excludeDatasets.add("wine.data");
             //excludeDatasets.add("ionosphere.data");
-            //excludeDatasets.add("glass.data");
+            excludeDatasets.add("glass.data");
             //excludeDatasets.add("sonar.all-data.txt");
             excludeDatasets.add("diabetes.csv");
             excludeDatasets.add("heart.dat");
             excludeDatasets.add("breastCancer.csv");
             excludeDatasets.add("bupa.data");
+
 
             for(String datasetName:gui.dataSetLabelIndexes.keySet()){
 
@@ -154,7 +155,7 @@ public class AISIGA extends Application {
                                 islandNumber,
                                 migrationRate,
                                 masterIsland,
-                                islandIntegrationCount,
+                                islandNumber,
                                 pcaDimensions,
                                 validationSplit,
                                 masterValidation,
@@ -661,10 +662,6 @@ public class AISIGA extends Application {
                 ais.setBestIteration(iterations);
                 bestGeneration = AIS.copy(ais.getAntibodyMap());
             }
-
-            //antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
-
-            //HashMap<String, ArrayList<Antibody>> bestGeneration =  antibodyGenerations.get(ais.getBestIteration());
 
             double accuracy =AIS.vote(testSetMap,bestGeneration,null);
             accuracies[j] = accuracy;
