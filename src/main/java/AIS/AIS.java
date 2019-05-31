@@ -85,8 +85,8 @@ public class AIS {
         //offspringSize = (int)(this.populationSize*randomOffspringSize(this.populationSize,this.iteration,this.maxIterations));
         //double offspringSize = populationSize;
         for(int i=0;i<offspringSize;i++){
-                String randomLabel = this.labels.get(random.nextInt(labels.size()));
-                String randomLabel2 = this.labels.get(random.nextInt(labels.size()));
+                String randomLabel = antigens[random.nextInt(antigens.length)].getLabel();
+                //String randomLabel2 = this.labels.get(random.nextInt(labels.size()));
                 ArrayList<Antibody> antibodiesToExclude = new ArrayList<>();
                 Antibody parent1;
                 Antibody parent2 = null;

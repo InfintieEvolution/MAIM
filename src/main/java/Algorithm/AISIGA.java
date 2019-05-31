@@ -58,20 +58,71 @@ public class AISIGA extends Application {
         if(k > 1){
             HashSet<String> excludeDatasets = new HashSet<>();
             excludeDatasets.add("abalone.data");
-            excludeDatasets.add("crabs.csv");
+            excludeDatasets.add("crabs.data");
             excludeDatasets.add("spirals.txt");
+            excludeDatasets.add("iris.data");
+            excludeDatasets.add("wine.data");
+            //excludeDatasets.add("ionosphere.data");
+            //excludeDatasets.add("glass.data");
+            //excludeDatasets.add("sonar.all-data.txt");
+            excludeDatasets.add("diabetes.csv");
+            excludeDatasets.add("heart.dat");
+            excludeDatasets.add("breastCancer.csv");
+            excludeDatasets.add("bupa.data");
 
             for(String datasetName:gui.dataSetLabelIndexes.keySet()){
 
                 if(excludeDatasets.contains(datasetName)){
                     continue;
                 }
-                int[] islandNumbers = new int[]{1,2,3,4,5,6,7,8,9,10,11,12};
+                int[] islandNumbers = new int[]{4,5,6,7,8,12};
+                int[] populationSizes = new int[]{500,1000,1500,2000};
+                int[] iterationsList = new int[]{500,1000,1500,2000};
 
                 for(int islandNumber:islandNumbers){
+                    for(int populationS:populationSizes){
+                        for(int iteration:iterationsList){
+                            for(int i=0; i<10;i++){
+                                if (islandNumber==1){
+                                    this.testStuff(k,
+                                            iteration,
+                                            populationS,
+                                            mutationRate,
+                                            numberOfTournaments,
+                                            datasetName,
+                                            gui.dataSetLabelIndexes.get(datasetName),
+                                            migrationFrequency,
+                                            islandNumber,
+                                            migrationRate,
+                                            false,
+                                            islandIntegrationCount,
+                                            pcaDimensions,
+                                            validationSplit,
+                                            masterValidation,
+                                            globalSharingFactor);
+                                }else{
 
-                    for(int i=0; i<10;i++){
-
+                                    this.testStuff(k,
+                                            iteration,
+                                            populationS,
+                                            mutationRate,
+                                            numberOfTournaments,
+                                            datasetName,
+                                            gui.dataSetLabelIndexes.get(datasetName),
+                                            migrationFrequency,
+                                            islandNumber,
+                                            migrationRate,
+                                            masterIsland,
+                                            islandIntegrationCount,
+                                            pcaDimensions,
+                                            validationSplit,
+                                            masterValidation,
+                                            globalSharingFactor);
+                                }
+                            }
+                        }
+                    }
+                    /*for(int i=0; i<10;i++){
                     if (islandNumber==1){
 
                         this.testStuff(k,
@@ -109,7 +160,7 @@ public class AISIGA extends Application {
                                 masterValidation,
                                 globalSharingFactor);
                         }
-                    }
+                    }*/
                 }
             }
             /*this.validateAccuracies(k,
@@ -422,6 +473,7 @@ public class AISIGA extends Application {
             if (acc >= ais.getBestAccuracy()) {
                 ais.setBestAccuracy(acc);
                 ais.setBestIteration(iterations);
+                bestGeneration = AIS.copy(ais.getAntibodyMap());
             }
 
             //antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
@@ -484,7 +536,7 @@ public class AISIGA extends Application {
         Random random = new Random();
         double[] accuracies = new double[k];
         DataSet dataSet = new DataSet("./DataSets/" + dataSetName, 0.0,0.0, labelIndex,pcaDimensions);
-        int totalAntigenPopulation = dataSet.testSet.length + dataSet.trainingSet.length + dataSet.validationSet.length;
+        //int totalAntigenPopulation = dataSet.testSet.length + dataSet.trainingSet.length + dataSet.validationSet.length;
         HashMap<String,ArrayList<Antigen>>[] dataSetSplits = DataSet.splitDataSet(k,dataSet.antigenMap);
         //gui.createStatisticGraph(k-1,1,false);
 
@@ -550,7 +602,7 @@ public class AISIGA extends Application {
             dataSet.setAntigenMap(trainingSetMap);
             dataSet.setValidationAntigenMap(validationSetMap);
 
-            IGA iga = new IGA(numberOfIslands, totalAntigenPopulation, iterations, migrationFrequency, migrationRate, masterIsland,globalSharingFactor);
+            IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland,globalSharingFactor);
             iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations, masterValidation);
 
             if(iga.hasMaster()){
@@ -562,7 +614,7 @@ public class AISIGA extends Application {
 
             this.allAIS = iga.getAllAIS();
 
-            ArrayList<HashMap<String, ArrayList<Antibody>>> antibodyGenerations = new ArrayList<>();
+            HashMap<String, ArrayList<Antibody>> bestGeneration = new HashMap<>();
             for (int i = 0; i < iterations; i++) {
                 if (!this.getRunning()) {
                     break;
@@ -582,11 +634,12 @@ public class AISIGA extends Application {
                 }else{
                     accuracy = AIS.vote(ais.getAntigenMap(), ais.getAntibodyMap(),null);
                 }
-                antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
+                //antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
 
                 if (accuracy >= ais.getBestAccuracy()) {
                     ais.setBestAccuracy(accuracy);
                     ais.setBestIteration(i);
+                    bestGeneration = AIS.copy(ais.getAntibodyMap());
                 }
 
                 for (int m = 0; m < allAIS.size(); m++) {
@@ -606,11 +659,12 @@ public class AISIGA extends Application {
             if (acc >= ais.getBestAccuracy()) {
                 ais.setBestAccuracy(acc);
                 ais.setBestIteration(iterations);
+                bestGeneration = AIS.copy(ais.getAntibodyMap());
             }
 
-            antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
+            //antibodyGenerations.add(AIS.copy(ais.getAntibodyMap()));
 
-            HashMap<String, ArrayList<Antibody>> bestGeneration =  antibodyGenerations.get(ais.getBestIteration());
+            //HashMap<String, ArrayList<Antibody>> bestGeneration =  antibodyGenerations.get(ais.getBestIteration());
 
             double accuracy =AIS.vote(testSetMap,bestGeneration,null);
             accuracies[j] = accuracy;
@@ -635,9 +689,9 @@ public class AISIGA extends Application {
                 long timeInMilli = NANOSECONDS.toMillis(time);
                 double timeInSeconds = (double) timeInMilli/1000;
 
-                String stuff = dataSetName+","+timeInSeconds+","+averageAccuracy+"\n";
+                String stuff = dataSetName+","+timeInSeconds+","+averageAccuracy+","+iterations+","+populationSize+"\n";
                 try {
-                    BufferedWriter writer = new BufferedWriter(new FileWriter("./"+numberOfIslands+".csv", true));
+                    BufferedWriter writer = new BufferedWriter(new FileWriter("./"+numberOfIslands+"itpop.csv", true));
                     writer.append(stuff);
 
                     writer.close();
