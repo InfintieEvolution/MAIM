@@ -67,6 +67,7 @@ public class AISIGA extends Application {
             excludeDatasets.add("glass.data");
 
             for(String datasetName:gui.dataSetLabelIndexes.keySet()){
+
                 if(excludeDatasets.contains(datasetName)){
                     continue;
                 }
