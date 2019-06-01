@@ -61,8 +61,9 @@ public class AISIGA extends Application {
 
             HashSet<String> excludeDatasets = new HashSet<>();
             excludeDatasets.add("abalone.data");
-            excludeDatasets.add("crabs.csv");
+            excludeDatasets.add("crabs.data");
             excludeDatasets.add("spirals.txt");
+            excludeDatasets.add("bupa.data");
 
             for(String datasetName:gui.dataSetLabelIndexes.keySet()){
 
