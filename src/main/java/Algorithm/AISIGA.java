@@ -57,18 +57,18 @@ public class AISIGA extends Application {
 
         if(k > 1){
             HashSet<String> excludeDatasets = new HashSet<>();
-            excludeDatasets.add("abalone.data");
-            excludeDatasets.add("crabs.data");
-            excludeDatasets.add("spirals.txt");
-            excludeDatasets.add("iris.data");
+            //excludeDatasets.add("abalone.data");
+            //excludeDatasets.add("crabs.data");
+            //xcludeDatasets.add("spirals.txt");
+            //excludeDatasets.add("iris.data");
             excludeDatasets.add("wine.data");
-            excludeDatasets.add("ionosphere.data");
-            excludeDatasets.add("glass.data");
+            //excludeDatasets.add("ionosphere.data");
+            //excludeDatasets.add("glass.data");
             //excludeDatasets.add("sonar.all-data.txt");
             excludeDatasets.add("diabetes.csv");
             excludeDatasets.add("heart.dat");
-            excludeDatasets.add("breastCancer.csv");
-            excludeDatasets.add("bupa.data");
+            //excludeDatasets.add("breastCancer.csv");
+            //excludeDatasets.add("bupa.data");
 
 
             for(String datasetName:gui.dataSetLabelIndexes.keySet()){
@@ -76,94 +76,63 @@ public class AISIGA extends Application {
                 if(excludeDatasets.contains(datasetName)){
                     continue;
                 }
-                int[] islandNumbers = new int[]{1,4,8,12};
-                int[] populationSizes = new int[]{500,1000,1500,2000};
+                int[] islandNumbers = new int[]{4};
+                int[] populationSizes = new int[]{1};
                 int[] iterationsList = new int[]{600};
 
                 for(int islandNumber:islandNumbers){
                     for(int populationS:populationSizes){
                         for(int iteration:iterationsList){
-                            for(int i=0; i<10;i++){
-                                if (islandNumber==1){
-                                    this.testStuff(k,
-                                            iteration,
-                                            populationS,
-                                            mutationRate,
-                                            numberOfTournaments,
-                                            datasetName,
-                                            gui.dataSetLabelIndexes.get(datasetName),
-                                            migrationFrequency,
-                                            islandNumber,
-                                            migrationRate,
-                                            false,
-                                            islandIntegrationCount,
-                                            pcaDimensions,
-                                            validationSplit,
-                                            masterValidation,
-                                            globalSharingFactor,
-                                            false);
-                                }else{
 
-                                    this.testStuff(k,
-                                            iteration,
-                                            populationS,
-                                            mutationRate,
-                                            numberOfTournaments,
-                                            datasetName,
-                                            gui.dataSetLabelIndexes.get(datasetName),
-                                            migrationFrequency,
-                                            islandNumber,
-                                            migrationRate,
-                                            masterIsland,
-                                            islandIntegrationCount,
-                                            pcaDimensions,
-                                            validationSplit,
-                                            masterValidation,
-                                            globalSharingFactor,
-                                            false);
+                            for(int i=0; i<5;i++){
+                                for(int m=0;m<=10;m++){
+                                    for(int j=0;j<=10;j++) {
+                                        double migFreq = (double) m / 10;
+                                        double migRate = (double) j / 10;
+
+                                        if (islandNumber == 1) {
+                                            this.testStuff(k,
+                                                    iteration,
+                                                    populationS,
+                                                    mutationRate,
+                                                    numberOfTournaments,
+                                                    datasetName,
+                                                    gui.dataSetLabelIndexes.get(datasetName),
+                                                    migrationFrequency,
+                                                    islandNumber,
+                                                    migrationRate,
+                                                    false,
+                                                    islandIntegrationCount,
+                                                    pcaDimensions,
+                                                    validationSplit,
+                                                    masterValidation,
+                                                    globalSharingFactor,
+                                                    false);
+                                        } else {
+
+                                            this.testStuff(k,
+                                                    iteration,
+                                                    populationS,
+                                                    mutationRate,
+                                                    numberOfTournaments,
+                                                    datasetName,
+                                                    gui.dataSetLabelIndexes.get(datasetName),
+                                                    migFreq,
+                                                    islandNumber,
+                                                    migRate,
+                                                    masterIsland,
+                                                    islandIntegrationCount,
+                                                    pcaDimensions,
+                                                    validationSplit,
+                                                    masterValidation,
+                                                    globalSharingFactor,
+                                                    true);
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                    /*for(int i=0; i<10;i++){
-                    if (islandNumber==1){
-
-                        this.testStuff(k,
-                                iterations,
-                                populationSize,
-                                mutationRate,
-                                numberOfTournaments,
-                                datasetName,
-                                gui.dataSetLabelIndexes.get(datasetName),
-                                migrationFrequency,
-                                islandNumber,
-                                migrationRate,
-                                false,
-                                islandIntegrationCount,
-                                pcaDimensions,
-                                validationSplit,
-                                masterValidation,
-                                globalSharingFactor);
-                    }else{
-
-                        this.testStuff(k,
-                                iterations,
-                                populationSize,
-                                mutationRate,
-                                numberOfTournaments,
-                                datasetName,
-                                gui.dataSetLabelIndexes.get(datasetName),
-                                migrationFrequency,
-                                islandNumber,
-                                migrationRate,
-                                masterIsland,
-                                islandNumber,
-                                pcaDimensions,
-                                validationSplit,
-                                masterValidation,
-                                globalSharingFactor);
-                        }
-                    }*/
                 }
             }
             /*this.validateAccuracies(k,
@@ -181,8 +150,8 @@ public class AISIGA extends Application {
                     pcaDimensions,
                     validationSplit,
                     masterValidation,
-                    globalSharingFactor);*/
-
+                    globalSharingFactor);
+*/
         }else{
         this.running = true;
         gui.startButton.setDisable(true);
@@ -540,7 +509,7 @@ public class AISIGA extends Application {
         Random random = new Random();
         double[] accuracies = new double[k];
         DataSet dataSet = new DataSet("./DataSets/" + dataSetName, 0.0,0.0, labelIndex,pcaDimensions);
-        //int totalAntigenPopulation = dataSet.testSet.length + dataSet.trainingSet.length + dataSet.validationSet.length;
+        int totalAntigenPopulation = dataSet.testSet.length + dataSet.trainingSet.length + dataSet.validationSet.length;
         HashMap<String,ArrayList<Antigen>>[] dataSetSplits = DataSet.splitDataSet(k,dataSet.antigenMap);
         //gui.createStatisticGraph(k-1,1,false);
 
@@ -606,7 +575,7 @@ public class AISIGA extends Application {
             dataSet.setAntigenMap(trainingSetMap);
             dataSet.setValidationAntigenMap(validationSetMap);
 
-            IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland,globalSharingFactor);
+            IGA iga = new IGA(numberOfIslands, totalAntigenPopulation, iterations, migrationFrequency, migrationRate, masterIsland,globalSharingFactor);
             iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations, masterValidation);
 
             if(iga.hasMaster()){
@@ -692,7 +661,7 @@ public class AISIGA extends Application {
                 String filename;
                 if(parameterSweep){
                     stuff = dataSetName+","+timeInSeconds+","+averageAccuracy+","+migrationFrequency+","+migrationRate+"\n";
-                    filename = "./"+numberOfIslands+"-parametersweep.csv";
+                    filename = "./parametersweep-deletion-migration.csv";
                 }else{
                     stuff = dataSetName+","+timeInSeconds+","+averageAccuracy+","+iterations+","+populationSize+"\n";
                     filename = "./"+numberOfIslands+"-timetest.csv";
