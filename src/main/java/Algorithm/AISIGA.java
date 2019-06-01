@@ -62,7 +62,7 @@ public class AISIGA extends Application {
             excludeDatasets.add("spirals.txt");
             excludeDatasets.add("iris.data");
             excludeDatasets.add("wine.data");
-            //excludeDatasets.add("ionosphere.data");
+            excludeDatasets.add("ionosphere.data");
             excludeDatasets.add("glass.data");
             //excludeDatasets.add("sonar.all-data.txt");
             excludeDatasets.add("diabetes.csv");
@@ -76,9 +76,9 @@ public class AISIGA extends Application {
                 if(excludeDatasets.contains(datasetName)){
                     continue;
                 }
-                int[] islandNumbers = new int[]{4,5,6,7,8,12};
+                int[] islandNumbers = new int[]{1,4,8,12};
                 int[] populationSizes = new int[]{500,1000,1500,2000};
-                int[] iterationsList = new int[]{500,1000,1500,2000};
+                int[] iterationsList = new int[]{600};
 
                 for(int islandNumber:islandNumbers){
                     for(int populationS:populationSizes){
@@ -100,7 +100,8 @@ public class AISIGA extends Application {
                                             pcaDimensions,
                                             validationSplit,
                                             masterValidation,
-                                            globalSharingFactor);
+                                            globalSharingFactor,
+                                            false);
                                 }else{
 
                                     this.testStuff(k,
@@ -118,7 +119,8 @@ public class AISIGA extends Application {
                                             pcaDimensions,
                                             validationSplit,
                                             masterValidation,
-                                            globalSharingFactor);
+                                            globalSharingFactor,
+                                            false);
                                 }
                             }
                         }
@@ -210,7 +212,7 @@ public class AISIGA extends Application {
         }
         gui.createStatisticGraph(iterations,islandCount,masterIsland);
 
-            ArrayList<HashMap<String, ArrayList<Antibody>>>[] antibodyGenerations = new ArrayList[islandCount]; //contains the antibody population for each iteration.
+        ArrayList<HashMap<String, ArrayList<Antibody>>>[] antibodyGenerations = new ArrayList[islandCount]; //contains the antibody population for each iteration.
             ArrayList<Double>[] antibodyGenerationAccuracies = new ArrayList[islandCount]; //contains the population accuracies over each iteration.
         int[] bestIterations = new int[islandCount];
 
@@ -527,7 +529,8 @@ public class AISIGA extends Application {
                                    int pcaDimensions,
                                    double validationSplit,
                                    boolean masterValidation,
-                                   boolean globalSharingFactor){
+                                   boolean globalSharingFactor,
+                                    boolean parameterSweep){
 
         //System.out.println(dataSetName);
         this.running = true;
@@ -685,10 +688,17 @@ public class AISIGA extends Application {
                 long time = endTime - startTime;
                 long timeInMilli = NANOSECONDS.toMillis(time);
                 double timeInSeconds = (double) timeInMilli/1000;
-
-                String stuff = dataSetName+","+timeInSeconds+","+averageAccuracy+","+iterations+","+populationSize+"\n";
+                String stuff;
+                String filename;
+                if(parameterSweep){
+                    stuff = dataSetName+","+timeInSeconds+","+averageAccuracy+","+migrationFrequency+","+migrationRate+"\n";
+                    filename = "./"+numberOfIslands+"-parametersweep.csv";
+                }else{
+                    stuff = dataSetName+","+timeInSeconds+","+averageAccuracy+","+iterations+","+populationSize+"\n";
+                    filename = "./"+numberOfIslands+"-timetest.csv";
+                }
                 try {
-                    BufferedWriter writer = new BufferedWriter(new FileWriter("./"+numberOfIslands+"itpop.csv", true));
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
                     writer.append(stuff);
 
                     writer.close();
