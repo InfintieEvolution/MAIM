@@ -62,7 +62,7 @@ public class AISIGA extends Application {
             excludeDatasets.add("spirals.txt");
             excludeDatasets.add("iris.data");
             excludeDatasets.add("wine.data");
-            //excludeDatasets.add("ionosphere.data");
+            excludeDatasets.add("ionosphere.data");
             excludeDatasets.add("glass.data");
             //excludeDatasets.add("sonar.all-data.txt");
             excludeDatasets.add("diabetes.csv");
@@ -76,13 +76,16 @@ public class AISIGA extends Application {
                 if(excludeDatasets.contains(datasetName)){
                     continue;
                 }
-                int[] islandNumbers = new int[]{4,5,6,7,8,12};
+                int[] islandNumbers = new int[]{4};
                 int[] populationSizes = new int[]{500,1000,1500,2000};
                 int[] iterationsList = new int[]{500,1000,1500,2000};
 
                 for(int islandNumber:islandNumbers){
                     for(int populationS:populationSizes){
                         for(int iteration:iterationsList){
+                            if(iteration == 500 && populationS == 500){
+                                continue;
+                            }
                             for(int i=0; i<10;i++){
                                 if (islandNumber==1){
                                     this.testStuff(k,
