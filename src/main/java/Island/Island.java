@@ -136,7 +136,7 @@ public class Island {
             int randomIndex = random.nextInt(allAntibodies.size());
             Antibody antibody = allAntibodies.get(randomIndex);
             selectedForMigration.add(antibody);
-            this.ais.getAntibodyMap().get(antibody.getLabel()).remove(antibody); //remove the antibody from the sending population
+            //this.ais.getAntibodyMap().get(antibody.getLabel()).remove(antibody); //remove the antibody from the sending population
         }
         // Remove them before they are migrated
         //removeRandomAntibodies(selectedForMigration);
