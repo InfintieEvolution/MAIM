@@ -134,10 +134,12 @@ public class Island {
 
         for (int i = 0; i < this.numberOfMigrants; i++) {
             int randomIndex = random.nextInt(allAntibodies.size());
-            selectedForMigration.add(allAntibodies.get(randomIndex));
+            Antibody antibody = allAntibodies.get(randomIndex);
+            selectedForMigration.add(antibody);
+            //this.ais.getAntibodyMap().get(antibody.getLabel()).remove(antibody); //remove the antibody from the sending population
         }
         // Remove them before they are migrated
-        removeRandomAntibodies(selectedForMigration);
+        //removeRandomAntibodies(selectedForMigration);
         return selectedForMigration;
     }
 
@@ -197,14 +199,13 @@ public class Island {
     }
 
     public void removeRandomAntibodies(ArrayList<Antibody> randomAntibodies) {
-        var allAntibodies = new ArrayList<Antibody>();
         for(String label : this.ais.getAntibodyMap().keySet()){
-            allAntibodies.addAll(this.ais.getAntibodyMap().get(label));
+            this.ais.getAntibodyMap().get(label).removeAll(randomAntibodies);
         }
 
-        for (Antibody antibody : randomAntibodies) {
+        /*for (Antibody antibody : randomAntibodies) {
             allAntibodies.remove(antibody);
-        }
+        }*/
     }
 
     /**
