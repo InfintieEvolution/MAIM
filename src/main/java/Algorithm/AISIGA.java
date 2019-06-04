@@ -63,24 +63,48 @@ public class AISIGA extends Application {
             excludeDatasets.add("abalone.data");
             excludeDatasets.add("crabs.data");
             excludeDatasets.add("spirals.txt");
+            excludeDatasets.add("iris.data");
+            excludeDatasets.add("wine.data");
+            //excludeDatasets.add("ionosphere.data");
+            //excludeDatasets.add("glass.data");
+            //excludeDatasets.add("ionosphere.data");
+            //excludeDatasets.add("glass.data");
+            excludeDatasets.add("sonar.all-data.txt");
+            excludeDatasets.add("diabetes.csv");
+            excludeDatasets.add("heart.dat");
+            excludeDatasets.add("breastCancer.csv");
             excludeDatasets.add("bupa.data");
 
-            for(String datasetName:gui.dataSetLabelIndexes.keySet()){
-
+            String[] datasets = new String[]{"glass.data","ionosphere.data"};
+            for(String datasetName:datasets){
                 if(excludeDatasets.contains(datasetName)){
                     continue;
                 }
-                int[] islandNumbers = new int[]{1,2,3,4,5,6,7,8,9,10,11,12};
+                int islandNumber = 1;
+                int[] islandNumbers = new int[]{4,5,6};
+                int[] populationSizes = new int[]{500,1000,1500,2000};
+                int[] iterationsList = new int[]{500,1000,1500,2000};
 
-                for(int islandNumber:islandNumbers){
+                if(datasetName.equals("sonar.all-data.txt")){
+                    islandNumber = 4;
+                }
+                if(datasetName.equals("ionosphere.data")){
+                    islandNumber = 5;
+                }
+                if(datasetName.equals("glass.data")){
+                    islandNumber = 6;
+                }
 
-                    for(int i=0; i<10;i++){
+                //for(int islandNumber:islandNumbers) {
+                    for(int populationS:populationSizes){
+                        for(int iteration:iterationsList){
 
-                        if (islandNumber==1){
+                    for (int i = 0; i < 10; i++) {
+                        if (islandNumber == 1) {
 
                             this.testStuff(k,
-                                    iterations,
-                                    populationSize,
+                                    iteration,
+                                    populationS,
                                     mutationRate,
                                     numberOfTournaments,
                                     datasetName,
@@ -94,11 +118,11 @@ public class AISIGA extends Application {
                                     validationSplit,
                                     masterValidation,
                                     globalSharingFactor);
-                        }else{
+                        } else {
 
                             this.testStuff(k,
-                                    iterations,
-                                    populationSize,
+                                    iteration,
+                                    populationS,
                                     mutationRate,
                                     numberOfTournaments,
                                     datasetName,
@@ -114,7 +138,8 @@ public class AISIGA extends Application {
                                     globalSharingFactor);
                         }
                     }
-                }
+                }}
+                //}
             }
             /*this.validateAccuracies(k,
                     iterations,
@@ -561,7 +586,7 @@ public class AISIGA extends Application {
                 dataSet.setAntigenMap(trainingSetMap);
                 dataSet.setValidationAntigenMap(validationSetMap);
 
-                IGA iga = new IGA(numberOfIslands, totalAntigenPopulation, iterations, migrationFrequency, migrationRate, masterIsland,globalSharingFactor);
+                IGA iga = new IGA(numberOfIslands, populationSize, iterations, migrationFrequency, migrationRate, masterIsland,globalSharingFactor);
                 iga.initialize(dataSet, mutationRate, numberOfTournaments, iterations, masterValidation);
 
                 if(iga.hasMaster()){
@@ -650,9 +675,9 @@ public class AISIGA extends Application {
                     long timeInMilli = NANOSECONDS.toMillis(time);
                     double timeInSeconds = (double) timeInMilli/1000;
 
-                    String stuff = dataSetName+","+timeInSeconds+","+averageAccuracy+"\n";
+                    String stuff = dataSetName+","+timeInSeconds+","+averageAccuracy+","+iterations+","+populationSize+"\n";
                     try {
-                        BufferedWriter writer = new BufferedWriter(new FileWriter("./"+numberOfIslands+"-class-distributed.csv", true));
+                        BufferedWriter writer = new BufferedWriter(new FileWriter("./"+numberOfIslands+"-itpop-class-distributed.csv", true));
                         writer.append(stuff);
 
                         writer.close();
