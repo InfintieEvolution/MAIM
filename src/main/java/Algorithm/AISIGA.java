@@ -62,6 +62,8 @@ public class AISIGA extends Application {
             //xcludeDatasets.add("spirals.txt");
             //excludeDatasets.add("iris.data");
             excludeDatasets.add("wine.data");
+            excludeDatasets.add("ionosphere.data");
+            excludeDatasets.add("glass.data");
             //excludeDatasets.add("ionosphere.data");
             //excludeDatasets.add("glass.data");
             //excludeDatasets.add("sonar.all-data.txt");
@@ -77,58 +79,52 @@ public class AISIGA extends Application {
                     continue;
                 }
                 int[] islandNumbers = new int[]{4};
-                int[] populationSizes = new int[]{1};
-                int[] iterationsList = new int[]{600};
+                int[] populationSizes = new int[]{500,1000,1500,2000};
+                int[] iterationsList = new int[]{500,1000,1500,2000};
+
 
                 for(int islandNumber:islandNumbers){
                     for(int populationS:populationSizes){
                         for(int iteration:iterationsList){
 
-                            for(int i=0; i<5;i++){
-                                for(int m=0;m<=10;m++){
-                                    for(int j=0;j<=10;j++) {
-                                        double migFreq = (double) m / 10;
-                                        double migRate = (double) j / 10;
+                            for(int i=0; i<10;i++){
+                                if (islandNumber==1){
+                                    this.testStuff(k,
+                                            iteration,
+                                            populationS,
+                                            mutationRate,
+                                            numberOfTournaments,
+                                            datasetName,
+                                            gui.dataSetLabelIndexes.get(datasetName),
+                                            migrationFrequency,
+                                            islandNumber,
+                                            migrationRate,
+                                            false,
+                                            islandIntegrationCount,
+                                            pcaDimensions,
+                                            validationSplit,
+                                            masterValidation,
+                                            globalSharingFactor,
+                                            false);
+                                }else{
 
-                                        if (islandNumber == 1) {
-                                            this.testStuff(k,
-                                                    iteration,
-                                                    populationS,
-                                                    mutationRate,
-                                                    numberOfTournaments,
-                                                    datasetName,
-                                                    gui.dataSetLabelIndexes.get(datasetName),
-                                                    migrationFrequency,
-                                                    islandNumber,
-                                                    migrationRate,
-                                                    false,
-                                                    islandIntegrationCount,
-                                                    pcaDimensions,
-                                                    validationSplit,
-                                                    masterValidation,
-                                                    globalSharingFactor,
-                                                    false);
-                                        } else {
-
-                                            this.testStuff(k,
-                                                    iteration,
-                                                    populationS,
-                                                    mutationRate,
-                                                    numberOfTournaments,
-                                                    datasetName,
-                                                    gui.dataSetLabelIndexes.get(datasetName),
-                                                    migFreq,
-                                                    islandNumber,
-                                                    migRate,
-                                                    masterIsland,
-                                                    islandIntegrationCount,
-                                                    pcaDimensions,
-                                                    validationSplit,
-                                                    masterValidation,
-                                                    globalSharingFactor,
-                                                    true);
-                                        }
-                                    }
+                                    this.testStuff(k,
+                                            iteration,
+                                            populationS,
+                                            mutationRate,
+                                            numberOfTournaments,
+                                            datasetName,
+                                            gui.dataSetLabelIndexes.get(datasetName),
+                                            migrationFrequency,
+                                            islandNumber,
+                                            migrationRate,
+                                            masterIsland,
+                                            islandIntegrationCount,
+                                            pcaDimensions,
+                                            validationSplit,
+                                            masterValidation,
+                                            globalSharingFactor,
+                                            false);
                                 }
                             }
                         }
