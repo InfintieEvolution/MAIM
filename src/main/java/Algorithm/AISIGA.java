@@ -57,20 +57,18 @@ public class AISIGA extends Application {
 
         if(k > 1){
             HashSet<String> excludeDatasets = new HashSet<>();
-            //excludeDatasets.add("abalone.data");
-            //excludeDatasets.add("crabs.data");
-            //xcludeDatasets.add("spirals.txt");
-            //excludeDatasets.add("iris.data");
+            excludeDatasets.add("abalone.data");
+            excludeDatasets.add("crabs.data");
+            excludeDatasets.add("spirals.txt");
+            excludeDatasets.add("iris.data");
             excludeDatasets.add("wine.data");
             excludeDatasets.add("ionosphere.data");
-            excludeDatasets.add("glass.data");
-            //excludeDatasets.add("ionosphere.data");
             //excludeDatasets.add("glass.data");
-            //excludeDatasets.add("sonar.all-data.txt");
+            excludeDatasets.add("sonar.all-data.txt");
             excludeDatasets.add("diabetes.csv");
             excludeDatasets.add("heart.dat");
-            //excludeDatasets.add("breastCancer.csv");
-            //excludeDatasets.add("bupa.data");
+            excludeDatasets.add("breastCancer.csv");
+            excludeDatasets.add("bupa.data");
 
 
             for(String datasetName:gui.dataSetLabelIndexes.keySet()){
@@ -78,7 +76,7 @@ public class AISIGA extends Application {
                 if(excludeDatasets.contains(datasetName)){
                     continue;
                 }
-                int[] islandNumbers = new int[]{4};
+                int[] islandNumbers = new int[]{6};
                 int[] populationSizes = new int[]{500,1000,1500,2000};
                 int[] iterationsList = new int[]{500,1000,1500,2000};
 
@@ -660,7 +658,7 @@ public class AISIGA extends Application {
                     filename = "./parametersweep-deletion-migration.csv";
                 }else{
                     stuff = dataSetName+","+timeInSeconds+","+averageAccuracy+","+iterations+","+populationSize+"\n";
-                    filename = "./"+numberOfIslands+"-timetest.csv";
+                    filename = "./"+numberOfIslands+"-glassItPop.csv";
                 }
                 try {
                     BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
